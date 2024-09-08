@@ -11,13 +11,23 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
+    data.table (>= 1.16.0),
+    digest,
+    fastmap,
     filearray (>= 0.1.8),
-    freesurferformats (>= 0.1.18),
-    fst (>= 0.9.8),
-    hdf5r (>= 1.3.11),
-    jsonlite (>= 1.8.8),
-    RNifti (>= 1.7.0),
-    rpyANTs (>= 0.0.3.9005),
-    yaml (>= 2.3.10)
-Remotes: 
-    vubiostat/r-yaml
+    freesurferformats,
+    fs,
+    fst (>= 0.9.0),
+    hdf5r,
+    jsonlite,
+    oro.nifti,
+    R.matlab (>= 3.7.0),
+    R6,
+    readNSx (>= 0.0.5),
+    rpyANTs (>= 0.0.3),
+    stringr,
+    yaml
+Suggests: 
+    reticulate,
+    rpymat (>= 0.1.7),
+    RNifti (>= 1.7.0)
