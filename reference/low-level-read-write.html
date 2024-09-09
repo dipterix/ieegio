@@ -69,7 +69,7 @@
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">io_write_mat</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">io_write_mat</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"R.matlab"</span>, <span class="st">"scipy"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">io_read_yaml</span><span class="op">(</span><span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
@@ -183,7 +183,7 @@ conversion might fail. In this case, the result might partially contain
 <span class="r-in"><span><span class="co"># default reads in proxy</span></span></span>
 <span class="r-in"><span><span class="fu">io_read_fst</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;fst file&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file17ee15517bad.fst)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file17c114d8aa6b.fst)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">  </span>         a            b           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8; font-style: italic;">   &lt;integer&gt;     &lt;double&gt; &lt;character&gt;</span></span>
@@ -230,7 +230,7 @@ conversion might fail. In this case, the result might partially contain
 <span class="r-in"><span><span class="co"># get header</span></span></span>
 <span class="r-in"><span><span class="fu">io_read_fst</span><span class="op">(</span><span class="va">f</span>, <span class="st">"header_only"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;fst file&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file17ee15517bad.fst)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file17c114d8aa6b.fst)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * 'a': integer</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * 'b': double</span>
@@ -324,6 +324,8 @@ conversion might fail. In this case, the result might partially contain
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ---- Matlab .mat --------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".mat"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">1L</span>, b <span class="op">=</span> <span class="fl">2.3</span>, c <span class="op">=</span> <span class="st">"a"</span>, d <span class="op">=</span> <span class="fl">1</span><span class="op">+</span><span class="fl">1i</span><span class="op">)</span></span></span>
@@ -332,32 +334,6 @@ conversion might fail. In this case, the result might partially contain
 <span class="r-in"><span><span class="fu">io_write_mat</span><span class="op">(</span><span class="va">x</span>, <span class="va">f</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">io_read_mat</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Using native approach to load the matlab file (supporting MAT 5.0)...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] "a" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1+1i</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"header")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"header")$description</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "MATLAB 5.0 MAT-file, Platform: unix, Software: R v4.4.1, Created on: Mon Sep  9 04:24:35 2024                               "</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"header")$version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "5"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"header")$endian</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "little"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># require setting up Python environment</span></span></span>
 <span class="r-in"><span></span></span>
@@ -367,11 +343,11 @@ conversion might fail. In this case, the result might partially contain
 <span class="r-in"><span><span class="va">sample_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"mat_v73.mat"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">io_read_mat</span><span class="op">(</span><span class="va">sample_data</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># clean up</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ---- yaml ---------------------------------------------------------------</span></span></span>
