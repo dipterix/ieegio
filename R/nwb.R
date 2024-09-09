@@ -12,6 +12,36 @@
 #' @examples
 #'
 #'
+#' if(ieegio_sample_data("nwb_sample.nwb", test = TRUE)) {
+#'   file <- ieegio_sample_data("nwb_sample.nwb")
+#'
+#'   # Create NWBIO container
+#'   container <- read_nwb(file)
+#'
+#'   # Open connection
+#'   container$open()
+#'
+#'   # read meta data
+#'   data <- container$read()
+#'   data
+#'
+#'   # get `test_timeseries` data
+#'   ts_data <- data$get_acquisition("test_timeseries")
+#'   ts_data
+#'
+#'   # read timeseries data into memory
+#'   ts_arr <- ts_data$data[]
+#'   ts_arr
+#'
+#'   # Convert Python array to R
+#'   # using `rpymat::py_to_r(ts_arr)` or
+#'   as.numeric(ts_arr)
+#'
+#'   # Make sure you close the connection
+#'   container$close()
+#'
+#' }
+#'
 #'
 #' # Requires setting up Python environment
 #' # run `ieegio::install_pynwb()` to set up environment first
