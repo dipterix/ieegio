@@ -1,4 +1,5 @@
 bci2k.dat
+brain.finalsurfs_demosubject.mgz
 brainvis.dat
 brainvis.vhdr
 brainvis.vmrk

@@ -100,6 +100,23 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
   return( header )
 }
 
+#' @name mgz
+#' @title Read and write to 'MGH' format (volume)
+#' @param file file path to read volume data
+#' @param header_only whether to read header data only;
+#' default is \code{FALSE}
+#' @param x volume data (such as 'NIfTI' image, array, or 'MGH')
+#' to be saved
+#' @param con file path to store image
+#' @param ... passed to other methods, mostly
+#' \code{\link[freesurferformats]{write.fs.mgh}}
+#' @returns \code{read_mgz} returns an \code{ieegio_volume} object
+#'
+#' @examples
+#'
+#'
+#'
+#' @export
 read_mgz <- function(file, header_only = FALSE) {
   # DIPSAUS DEBUG START
   # file <- "~/rave_data/raw_dir/AnonSEEG0/rave-imaging/fs/mri/T1.mgz"

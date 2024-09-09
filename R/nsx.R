@@ -84,10 +84,6 @@ internal_read_nsx <- function(file, extract_path = NULL, header_only = FALSE, ca
 #' @param include_waveform whether to include 'waveform' data (usually for
 #' online spike sorting); default is \code{FALSE}
 #'
-#' @examples
-#'
-#' .NotYetImplemented()
-#'
 #' @export
 read_nsx <- function(
     file, extract_path = getOption("ieegio.extract_path", NULL),
