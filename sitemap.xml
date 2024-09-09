@@ -1,0 +1,25 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>http://dipterix.org/ieegio/404.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/LICENSE-text.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/LICENSE.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/authors.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/index.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/LazyH5.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/NWBHDF5IO.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/SignalDataCache.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/ieegio_sample_data.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/index.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/io_h5_valid.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/io_read_h5.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/io_write_h5.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/low-level-read-write.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/mgz.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/nii.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/pynwb_module.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/read_bci2000.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/read_brainvis.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/read_edf.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/read_nsx.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/read_nwb.html</loc></url>
+</urlset>
+
