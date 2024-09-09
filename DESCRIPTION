@@ -1,15 +1,20 @@
 Package: ieegio
 Title: File IO for Intracranial Electroencephalography
 Version: 0.0.1
+Language: en-US
+Encoding: UTF-8
 Authors@R: 
     person(
         "Zhengjia", "Wang", , "dipterix.wang@gmail.com",
         role = c("aut", "cre"),
         comment = c(ORCID = "0000-0001-5629-1116")
     )
-Description: What the package does (one paragraph).
+Description: 
+    Integrated toolbox supporting common file formats used for intracranial 
+    Electroencephalography (iEEG) and deep-brain stimulation (DBS) study.
+URL: http://dipterix.org/ieegio/
+BugReports: https://github.com/dipterix/ieegio/issues
 License: MIT + file LICENSE
-Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
@@ -33,6 +38,3 @@ Suggests:
     reticulate,
     rpymat (>= 0.1.7),
     RNifti (>= 1.7.0)
-URL: http://dipterix.org/ieegio/
-BugReports: https://github.com/dipterix/ieegio/issues
-Language: en-US

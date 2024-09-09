@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/dipterix/ieegio/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dipterix/ieegio/actions/workflows/R-CMD-check.yaml)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 The goal of `ieegio` is to provide integrated toolbox for common file formats used in intracranial Electroencephalography (iEEG) and deep-brain stimulation (DBS). Currently the package is under active development The following formats have been (or will be) supported:
