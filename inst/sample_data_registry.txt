@@ -1,3 +1,4 @@
+bci2k.dat
 brainvis.dat
 brainvis.vhdr
 brainvis.vmrk

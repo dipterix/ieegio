@@ -80,7 +80,6 @@ impl_read_brainvis_ini <- function (path, infer_names = FALSE,
         tmp <- paste(comments, collapse = " ")
 
         entry_info <- stringr::str_extract(tmp, "<([^=]+)>=(<[^<>]+>[,; ]+){0,}")[[1]]
-        print(entry_info)
         if(length(entry_info) && !is.na(entry_info)) {
 
           entry_info <- stringr::str_split(entry_info[[1]], ">[ ]{0,}=[ ]{0,}<")[[1]]
@@ -488,6 +487,36 @@ impl_read_brainvis <- function(
 
 
 #' @rdname read_brainvis
+#'
+#' @examples
+#'
+#' if( ieegio_sample_data("brainvis.dat", test = TRUE) ) {
+#'   # ensure the header and marker files are downloaded as well
+#'   ieegio_sample_data("brainvis.vhdr")
+#'   ieegio_sample_data("brainvis.dat")
+#'   file <- ieegio_sample_data("brainvis.vmrk")
+#'
+#'   x <- read_brainvis(file)
+#'   print(x)
+#'
+#'   x$get_header()
+#'
+#'   x$get_channel_table()
+#'
+#'   x$get_annotations()
+#'
+#'   channel <- x$get_channel(10)
+#'
+#'   plot(
+#'     channel$time,
+#'     channel$value,
+#'     type = "l",
+#'     main = channel$info$Label,
+#'     xlab = "Time",
+#'     ylab = channel$info$Unit
+#'   )
+#' }
+#'
 #' @export
 read_brainvis <- function(
     file, extract_path = getOption("ieegio.extract_path", NULL),

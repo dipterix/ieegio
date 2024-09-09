@@ -172,6 +172,9 @@ io_read_mat(f)
 
 io_read_mat(f, method = "pymatreader")
 
+sample_data <- ieegio_sample_data("mat_v73.mat")
+io_read_mat(sample_data)
+
 
 }
 
