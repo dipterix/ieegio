@@ -1,4 +1,18 @@
 
+# Internally used for RAVE
+install_extras <- function() {
+  sample_names <- ieegio_sample_data()
+  lapply(sample_names, ieegio_sample_data)
+
+  rpymat::configure_conda("3.11")
+  rpymat::add_packages(c("numpy", "pynwb", "pymatreader", "mat73"))
+}
+
+setup_test_env <- function() {
+  if(!identical(Sys.getenv("IEEGIO_WITH_EXAMPLES"), "")) {
+    install_extras()
+  }
+}
 
 
 # load_py <- local({

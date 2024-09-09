@@ -1,9 +1,12 @@
 Package: ieegio
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: File IO for Intracranial Electroencephalography
+Version: 0.0.1
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person(
+        "Zhengjia", "Wang", , "dipterix.wang@gmail.com",
+        role = c("aut", "cre"),
+        comment = c(ORCID = "0000-0001-5629-1116")
+    )
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -30,3 +33,6 @@ Suggests:
     reticulate,
     rpymat (>= 0.1.7),
     RNifti (>= 1.7.0)
+URL: http://dipterix.org/ieegio/
+BugReports: https://github.com/dipterix/ieegio/issues
+Language: en-US

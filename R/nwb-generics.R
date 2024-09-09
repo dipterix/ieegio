@@ -24,7 +24,7 @@ print.nwb.proxy <- function(x, max_lines = getOption("rnwb.max_lines", 50), ...)
     max_lines <- 50
   }
 
-  addendums = c()
+  addendums <- c()
   doc_string <- tryCatch({
     str <- py_capture_output(
       type = "stdout",
