@@ -7,6 +7,8 @@
 #'
 #' # ---- Matlab .mat --------------------------------------------------------
 #'
+#' if(interactive()) {
+#'
 #' f <- tempfile(fileext = ".mat")
 #'
 #' x <- list(a = 1L, b = 2.3, c = "a", d = 1+1i)
@@ -16,8 +18,6 @@
 #'
 #' io_read_mat(f)
 #'
-#' \dontrun{
-#'
 #' # require setting up Python environment
 #'
 #' io_read_mat(f, method = "pymatreader")
@@ -26,11 +26,11 @@
 #' sample_data <- ieegio_sample_data("mat_v73.mat")
 #' io_read_mat(sample_data)
 #'
+#' # clean up
+#' unlink(f)
 #'
 #' }
 #'
-#' # clean up
-#' unlink(f)
 #'
 #' @export
 io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat73"),
@@ -197,7 +197,9 @@ io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat7
 
 #' @rdname low-level-read-write
 #' @export
-io_write_mat <- function(x, con, ...) {
+io_write_mat <- function(x, con, method = c("R.matlab", "scipy"), ...) {
+
+  method <- match.arg(method)
 
   if(!is.list(x)) {
     stop("`write_mat`: `x` must be a named list.")
@@ -213,7 +215,20 @@ io_write_mat <- function(x, con, ...) {
     stop("`write_mat`: `x` must NOT contain the following reserved names: ", paste(sQuote(reserved), collapse = ", "))
   }
 
-  args <- c( list( con = con ), x )
+  con <- normalizePath(con, winslash = "/", mustWork = FALSE)
 
-  do.call(R.matlab::writeMat, args)
+  switch(
+    method,
+    "R.matlab" = {
+      args <- c( list( con = con ), x )
+
+      do.call(R.matlab::writeMat, args)
+    },
+    "scipy" = {
+      scipy_io <- import_py_module("scipy.io", "scipy")
+      scipy_io$savemat(con, x)
+    }
+  )
+
+  invisible(con)
 }

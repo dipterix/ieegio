@@ -44,7 +44,7 @@ io_read_mat(
   ...
 )
 
-io_write_mat(x, con, ...)
+io_write_mat(x, con, method = c("R.matlab", "scipy"), ...)
 
 io_read_yaml(con, ...)
 
@@ -159,6 +159,8 @@ unlink(f)
 
 # ---- Matlab .mat --------------------------------------------------------
 
+if(interactive()) {
+
 f <- tempfile(fileext = ".mat")
 
 x <- list(a = 1L, b = 2.3, c = "a", d = 1+1i)
@@ -168,8 +170,6 @@ io_write_mat(x, f)
 
 io_read_mat(f)
 
-\dontrun{
-
 # require setting up Python environment
 
 io_read_mat(f, method = "pymatreader")
@@ -178,11 +178,11 @@ io_read_mat(f, method = "pymatreader")
 sample_data <- ieegio_sample_data("mat_v73.mat")
 io_read_mat(sample_data)
 
+# clean up
+unlink(f)
 
 }
 
-# clean up
-unlink(f)
 
 
 # ---- yaml ---------------------------------------------------------------
