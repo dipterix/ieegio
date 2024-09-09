@@ -11,29 +11,7 @@ h5FileValid <- function(filename){
 }
 
 #' @title Lazy 'HDF5' file loader
-#' @author Zhengjia Wang
 #' @description provides hybrid data structure for 'HDF5' file
-#'
-#' @examples
-#' # Data to save
-#' x <- array(rnorm(1000), c(10,10,10))
-#'
-#' # Save to local disk
-#' f <- tempfile()
-#' save_h5(x, file = f, name = 'x', chunk = c(10,10,10), level = 0)
-#'
-#' # Load via LazyFST
-#' dat <- LazyH5$new(file_path = f, data_name = 'x', read_only = TRUE)
-#'
-#' dat
-#'
-#' # Check whether the data is identical
-#' range(dat - x)
-#'
-#' # Read a slice of the data
-#' system.time(dat[,10,])
-#'
-#' @export
 LazyH5 <- R6::R6Class(
   classname = 'LazyH5',
   portable = TRUE,

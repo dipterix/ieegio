@@ -86,6 +86,30 @@ validate_python <- function(verbose = TRUE) {
   )
 })
 
+ensure_py_package <- function(packages, python_ver = "auto", ...) {
+  if(!dir.exists(rpymat::env_path())) {
+    standalone <- !file.exists(rpymat::conda_bin())
+    rpymat::configure_conda(python_ver = python_ver, force = TRUE, standalone = standalone)
+  }
+  rpymat::ensure_rpymat(verbose = FALSE)
+  installed_pkgs_tbl <- rpymat::list_pkgs()
+  packages <- packages[!packages %in% installed_pkgs_tbl$package]
+  if(length(packages)) {
+    rpymat::add_packages(packages, ...)
+  }
+}
+
+import_py_module <- function(name, package = name, convert = FALSE) {
+  rpymat::ensure_rpymat(verbose = FALSE, cache = TRUE)
+  module <- tryCatch({
+    rpymat::import(name, convert = convert)
+  }, error = function(e) {
+    ensure_py_package(packages = package)
+    rpymat::import(name, convert = convert)
+  })
+  module
+}
+
 #' @name pynwb_module
 #' @title Install \code{'NWB'} via \code{'pynwb'}
 #' @param python_ver 'Python' version, see \code{\link[rpymat]{configure_conda}};
@@ -97,19 +121,7 @@ validate_python <- function(verbose = TRUE) {
 #' @returns A 'Python' module \code{pynwb}.
 #' @export
 install_pynwb <- function(python_ver = "auto", verbose = TRUE) {
-  if(!dir.exists(rpymat::env_path())) {
-    standalone <- !file.exists(rpymat::conda_bin())
-    rpymat::configure_conda(python_ver = python_ver, force = TRUE, standalone = standalone)
-  }
-  rpymat::ensure_rpymat(verbose = FALSE)
-  installed_pkgs_tbl <- rpymat::list_pkgs()
-
-  # install necessary libraries
-  pkgs <- c("pynwb")
-  if(!all(pkgs %in% installed_pkgs_tbl$package)) {
-    rpymat::add_packages(pkgs)
-  }
-
+  ensure_py_package("pynwb")
   validate_python(verbose = verbose)
   return(invisible())
 }

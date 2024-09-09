@@ -1,13 +1,4 @@
-import_py_module <- function(name, package = name, convert = FALSE) {
-  rpymat::ensure_rpymat(verbose = FALSE, cache = TRUE)
-  module <- tryCatch({
-    rpymat::import(name, convert = convert)
-  }, error = function(e) {
-    rpymat::add_packages(package)
-    rpymat::import(name, convert = convert)
-  })
-  module
-}
+
 
 
 #' @rdname low-level-read-write
@@ -28,6 +19,9 @@ import_py_module <- function(name, package = name, convert = FALSE) {
 #' # require setting up Python environment
 #'
 #' io_read_mat(f, method = "pymatreader")
+#'
+#' sample_data <- ieegio_sample_data("mat_v73.mat")
+#' io_read_mat(sample_data)
 #'
 #'
 #' }

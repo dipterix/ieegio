@@ -65,5 +65,5 @@ unlink(file)
 
 }
 \seealso{
-\code{\link{load_h5}}
+\code{\link{io_read_h5}}
 }

@@ -480,7 +480,36 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
 #' is \code{TRUE}
 #' @examples
 #'
-#' # ----
+#' # ---- EDF/BDF(+) ---------------------------------------------------------
+#'
+#' # Run `ieegio_sample_data("edfPlusD.edf")` to download sample data
+#'
+#' # Tun example if the sample data exists
+#' if(ieegio_sample_data("edfPlusD.edf", test = TRUE)) {
+#'
+#'   edf_path <- ieegio_sample_data("edfPlusD.edf")
+#'
+#'   data <- read_edf(edf_path)
+#'
+#'   data$get_header()
+#'
+#'   data$get_annotations()
+#'
+#'   data$get_channel_table()
+#'
+#'   channel <- data$get_channel(1)
+#'
+#'   plot(
+#'     channel$time,
+#'     channel$value,
+#'     type = "l",
+#'     main = channel$info$Label,
+#'     xlab = "Time",
+#'     ylab = channel$info$Unit
+#'   )
+#'
+#' }
+#'
 #'
 #' @export
 read_edf <- function(

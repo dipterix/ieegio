@@ -13,7 +13,7 @@
 #' @returns If \code{ram} is true, then return data as arrays, otherwise return
 #' a \code{\link{LazyH5}} instance.
 #'
-#' @seealso \code{\link{save_h5}}
+#' @seealso \code{\link{io_write_h5}}
 #'
 #' @examples
 #' file <- tempfile()
@@ -44,7 +44,7 @@ io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE)
   }, error = function(e){
 
     if(!read_only){
-      stop('Another process is locking the file. Cannot open file with write permission; use ', sQuote('save_h5'), ' instead...\n  file: ', file, '\n  name: ', name)
+      stop('Another process is locking the file. Cannot open file with write permission; use ', sQuote('io_write_h5'), ' instead...\n  file: ', file, '\n  name: ', name)
     }
     if(!quiet){
       cat('Open failed. Attempt to open with a temporary copy...\n')
@@ -83,7 +83,7 @@ io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE)
 #' @param ... passed to other \code{LazyH5$save}
 #' @returns Absolute path of the file saved
 #'
-#' @seealso \code{\link{load_h5}}
+#' @seealso \code{\link{io_read_h5}}
 #' @examples
 #'
 #' file <- tempfile()
@@ -139,8 +139,8 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4,replace = TRUE,
 #' @param close_all whether to close all connections or just close current
 #' connection; default is false. Set this to \code{TRUE} if you want to
 #' close all other connections to the file
-#' @returns \code{h5_valid} returns a logical value indicating whether the
-#' file can be opened. \code{h5_names} returns a character vector of
+#' @returns \code{io_h5_valid} returns a logical value indicating whether the
+#' file can be opened. \code{io_h5_names} returns a character vector of
 #' dataset names.
 #'
 #' @examples
@@ -149,21 +149,21 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4,replace = TRUE,
 #' f <- tempfile()
 #'
 #' # No data written to the file, hence invalid
-#' h5_valid(f, 'r')
+#' io_h5_valid(f, 'r')
 #'
 #' io_write_h5(x, f, 'dset')
-#' h5_valid(f, 'w')
+#' io_h5_valid(f, 'w')
 #'
 #' # Open the file and hold a connection
 #' ptr <- hdf5r::H5File$new(filename = f, mode = 'w')
 #'
 #' # Can read, but cannot write
-#' h5_valid(f, 'r')  # TRUE
-#' h5_valid(f, 'w')  # FALSE
+#' io_h5_valid(f, 'r')  # TRUE
+#' io_h5_valid(f, 'w')  # FALSE
 #'
 #' # However, this can be reset via `close_all=TRUE`
-#' h5_valid(f, 'r', close_all = TRUE)
-#' h5_valid(f, 'w')  # TRUE
+#' io_h5_valid(f, 'r', close_all = TRUE)
+#' io_h5_valid(f, 'w')  # TRUE
 #'
 #' # Now the connection is no longer valid
 #' ptr
@@ -172,7 +172,7 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4,replace = TRUE,
 #' unlink(f)
 #'
 #' @export
-h5_valid <- function(file, mode = c('r', 'w'), close_all = FALSE){
+io_h5_valid <- function(file, mode = c('r', 'w'), close_all = FALSE){
   mode <- match.arg(mode)
   tryCatch({
     file <- normalizePath(file, mustWork = TRUE)
@@ -190,11 +190,11 @@ h5_valid <- function(file, mode = c('r', 'w'), close_all = FALSE){
 }
 
 
-#' @rdname h5_valid
+#' @rdname io_h5_valid
 #' @export
-h5_names <- function(file){
+io_h5_names <- function(file){
   # make sure the file is valid
-  if(!h5_valid(file, 'r')){ return(FALSE) }
+  if(!io_h5_valid(file, 'r')){ return(FALSE) }
   file <- normalizePath(file, mustWork = TRUE)
   f <- hdf5r::H5File$new(filename = file, mode = 'r')
   names <- hdf5r::list.datasets(f)

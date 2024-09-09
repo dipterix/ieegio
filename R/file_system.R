@@ -205,3 +205,7 @@ path_ext <- function(path, archive_ext = ARCHIVE_EXTENSIONS) {
     paste(x[seq.int(sel, length(x))], collapse = ".")
   })
 }
+
+file_move <- function(path, new_path) {
+  fs::file_move(path = path, new_path = new_path)
+}

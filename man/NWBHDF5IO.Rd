@@ -89,6 +89,7 @@ container$with({
 \item \href{#method-NWBHDF5IO-close_linked_files}{\code{NWBHDF5IO$close_linked_files()}}
 \item \href{#method-NWBHDF5IO-read}{\code{NWBHDF5IO$read()}}
 \item \href{#method-NWBHDF5IO-with}{\code{NWBHDF5IO$with()}}
+\item \href{#method-NWBHDF5IO-clone}{\code{NWBHDF5IO$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -235,5 +236,22 @@ container$with({
 
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NWBHDF5IO-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-NWBHDF5IO-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{NWBHDF5IO$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
 }
 }

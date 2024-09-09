@@ -18,8 +18,6 @@
 #' }
 NWBHDF5IO <- R6::R6Class(
   classname = "NWBHDF5IO",
-  portable = FALSE,
-  cloneable = FALSE,
   private = list(
     construct_params = NULL,
     .file_handler = NULL,

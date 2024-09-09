@@ -47,5 +47,5 @@ unlink(file)
 
 }
 \seealso{
-\code{\link{save_h5}}
+\code{\link{io_write_h5}}
 }

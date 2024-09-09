@@ -3,7 +3,7 @@
 #' This class is an internal abstract class
 SignalDataCache <- R6::R6Class(
   classname = "FileCache",
-  portable = FALSE,
+  portable = TRUE,
   cloneable = FALSE,
   public = list(
 
