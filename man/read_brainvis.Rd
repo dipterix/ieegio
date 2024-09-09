@@ -35,6 +35,31 @@ Read 'BrainVision' data
 }
 \examples{
 
-.NotYetImplemented()
+if( ieegio_sample_data("brainvis.dat", test = TRUE) ) {
+  # ensure the header and marker files are downloaded as well
+  ieegio_sample_data("brainvis.vhdr")
+  ieegio_sample_data("brainvis.dat")
+  file <- ieegio_sample_data("brainvis.vmrk")
+
+  x <- read_brainvis(file)
+  print(x)
+
+  x$get_header()
+
+  x$get_channel_table()
+
+  x$get_annotations()
+
+  channel <- x$get_channel(10)
+
+  plot(
+    channel$time,
+    channel$value,
+    type = "l",
+    main = channel$info$Label,
+    xlab = "Time",
+    ylab = channel$info$Unit
+  )
+}
 
 }

@@ -35,6 +35,24 @@ Read 'BCI2000' data file
 }
 \examples{
 
-.NotYetImplemented()
+
+if( ieegio_sample_data("bci2k.dat", test = TRUE) ) {
+  file <- ieegio_sample_data("bci2k.dat")
+
+  x <- read_bci2000(file)
+  print(x)
+
+  channel <- x$get_channel(1)
+
+  plot(
+    channel$time,
+    channel$value,
+    type = "l",
+    main = channel$info$Label,
+    xlab = "Time",
+    ylab = channel$info$Unit
+  )
+}
+
 
 }

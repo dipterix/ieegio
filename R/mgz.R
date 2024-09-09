@@ -101,6 +101,7 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 }
 
 #' @name mgz
+#' @seealso \code{\link{nii}}
 #' @title Read and write to 'MGH' format (volume)
 #' @param file file path to read volume data
 #' @param header_only whether to read header data only;
@@ -108,6 +109,9 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 #' @param x volume data (such as 'NIfTI' image, array, or 'MGH')
 #' to be saved
 #' @param con file path to store image
+#' @param vox2ras a \code{4x4} transform matrix from voxel indexing (column,
+#' row, slice) to scanner (often 'T1-weighted' image) 'RAS'
+#' (right-anterior-superior) coordinate
 #' @param ... passed to other methods, mostly
 #' \code{\link[freesurferformats]{write.fs.mgh}}
 #' @returns \code{read_mgz} returns an \code{ieegio_volume} object
@@ -141,6 +145,26 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 #'
 #'   # file size in MB
 #'   file.size(f) / 1024^2
+#'
+#'   # clean up
+#'   unlink(f)
+#'
+#'   # try to save NIfTI data to MGH/MGZ
+#'   file2 <- ieegio_sample_data("brain.demosubject.nii.gz")
+#'   nii <- read_nii(file2)
+#'
+#'   f <- tempfile(fileext = ".mgz")
+#'   write_mgz(nii, f)
+#'
+#'   mgz <- read_mgz(f)
+#'
+#'   # check if transform and data are identical
+#'   mgz$transforms$vox2ras - nii$transforms$vox2ras
+#'
+#'   range(as.vector(mgz$data) - as.vector(nii$data))
+#'
+#'   # clean up
+#'   unlink(f)
 #'
 #' }
 #'
@@ -187,11 +211,13 @@ read_mgz <- function(file, header_only = FALSE) {
 
 }
 
+#' @rdname mgz
 #' @export
 write_mgz <- function(x, con, ...) {
   UseMethod("write_mgz")
 }
 
+#' @rdname mgz
 #' @export
 write_mgz.ieegio_volume <- function(x, con, ...) {
   if(isTRUE(x$header_only)) {
@@ -200,6 +226,7 @@ write_mgz.ieegio_volume <- function(x, con, ...) {
   freesurferformats::write.fs.mgh(filepath = con, data = x$data, vox2ras_matrix = x$transforms$vox2ras, ...)
 }
 
+#' @rdname mgz
 #' @export
 write_mgz.ieegio_mgh <- function(x, con, ...) {
   if(isTRUE(x$header_only)) {
@@ -208,6 +235,7 @@ write_mgz.ieegio_mgh <- function(x, con, ...) {
   freesurferformats::write.fs.mgh(filepath = con, data = x$data, vox2ras_matrix = x$transforms$vox2ras, mr_params = x$header$mr_params, ...)
 }
 
+#' @rdname mgz
 #' @export
 write_mgz.nifti <- function(x, con, ...) {
   if( oro.nifti::sform_code(x) > 0 ) {
@@ -221,6 +249,7 @@ write_mgz.nifti <- function(x, con, ...) {
   freesurferformats::write.fs.mgh(filepath = con, data = x[drop = FALSE], vox2ras_matrix = xform, ...)
 }
 
+#' @rdname mgz
 #' @export
 write_mgz.niftiImage <- function(x, con, ...) {
   header <- RNifti::niftiHeader(x)
@@ -235,6 +264,7 @@ write_mgz.niftiImage <- function(x, con, ...) {
   freesurferformats::write.fs.mgh(filepath = con, data = x[drop = FALSE], vox2ras_matrix = xform, ...)
 }
 
+#' @rdname mgz
 #' @export
 write_mgz.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
 
@@ -247,6 +277,7 @@ write_mgz.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
   freesurferformats::write.fs.mgh(filepath = con, data = x[drop = FALSE], vox2ras_matrix = vox2ras, ...)
 }
 
+#' @rdname mgz
 #' @export
 write_mgz.array <- function(x, con, vox2ras = NULL, ...) {
   if(!is.matrix(vox2ras)) {

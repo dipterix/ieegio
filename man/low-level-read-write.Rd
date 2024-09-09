@@ -162,6 +162,8 @@ unlink(f)
 f <- tempfile(fileext = ".mat")
 
 x <- list(a = 1L, b = 2.3, c = "a", d = 1+1i)
+
+# save as MAT 5.0
 io_write_mat(x, f)
 
 io_read_mat(f)
@@ -172,6 +174,7 @@ io_read_mat(f)
 
 io_read_mat(f, method = "pymatreader")
 
+# MAT 7.3 example
 sample_data <- ieegio_sample_data("mat_v73.mat")
 io_read_mat(sample_data)
 

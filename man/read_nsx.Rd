@@ -37,8 +37,3 @@ A cached object that is readily to be loaded to memory; see
 \description{
 Read ('BlackRock') 'NEV' 'NSx' data
 }
-\examples{
-
-.NotYetImplemented()
-
-}

@@ -55,8 +55,4 @@ NULL
 #' @returns A cached object that is readily to be loaded to memory; see
 #' \code{\link{SignalDataCache}} for class definition.
 #'
-#' @examples
-#'
-#' .NotYetImplemented()
-#'
 NULL
