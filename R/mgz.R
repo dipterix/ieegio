@@ -114,6 +114,35 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 #'
 #' @examples
 #'
+#' if(ieegio_sample_data(
+#'   file = "brain.demosubject.mgz",
+#'   test = TRUE)) {
+#'
+#'   file <- ieegio_sample_data("brain.demosubject.mgz")
+#'
+#'   # read
+#'   vol <- read_mgz(file)
+#'
+#'   # voxel to scanner RAS
+#'   vol$transforms$vox2ras
+#'
+#'   # to freesurfer surface
+#'   vol$transforms$vox2ras_tkr
+#'
+#'   # to FSL
+#'   vol$transforms$vox2fsl
+#'
+#'   image(vol$data[,,128,], asp = 1, axes = FALSE)
+#'
+#'
+#'   # write
+#'   f <- tempfile(fileext = ".mgz")
+#'   write_mgz(vol, f)
+#'
+#'   # file size in MB
+#'   file.size(f) / 1024^2
+#'
+#' }
 #'
 #'
 #' @export
