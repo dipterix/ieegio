@@ -39,27 +39,32 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">read_nii</span><span class="op">(</span><span class="va">file</span>, format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"oro"</span>, <span class="st">"rnifti"</span>, <span class="st">"ants"</span><span class="op">)</span>, header_only <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">io_read_nii</span><span class="op">(</span></span>
+<span>  <span class="va">file</span>,</span>
+<span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"oro"</span>, <span class="st">"rnifti"</span>, <span class="st">"ants"</span><span class="op">)</span>,</span>
+<span>  header_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'ieegio_nifti'</span></span>
-<span><span class="fu">write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'ants.core.ants_image.ANTsImage'</span></span>
-<span><span class="fu">write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'niftiImage'</span></span>
-<span><span class="fu">write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'nifti'</span></span>
-<span><span class="fu">write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'ieegio_mgh'</span></span>
-<span><span class="fu">write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'array'</span></span>
-<span><span class="fu">write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, vox2ras <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, vox2ras <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -104,7 +109,7 @@ row, slice) to scanner (often 'T1-weighted' image) 'RAS'
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>read_nii</code> returns an <code>ieegio_volume</code> object</p>
+    <p><code>io_read_nii</code> returns an <code>ieegio_volume</code> object</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -121,7 +126,7 @@ row, slice) to scanner (often 'T1-weighted' image) 'RAS'
 <span class="r-in"><span>  <span class="va">file</span> <span class="op">&lt;-</span> <span class="fu"><a href="ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"brain.demosubject.nii.gz"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># ---- basic read -----------------------------------------------</span></span></span>
-<span class="r-in"><span>  <span class="va">vol</span> <span class="op">&lt;-</span> <span class="fu">read_nii</span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">vol</span> <span class="op">&lt;-</span> <span class="fu">io_read_nii</span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># voxel to scanner RAS</span></span></span>
 <span class="r-in"><span>  <span class="va">vol</span><span class="op">$</span><span class="va">transforms</span><span class="op">$</span><span class="va">vox2ras</span></span></span>
@@ -137,32 +142,32 @@ row, slice) to scanner (often 'T1-weighted' image) 'RAS'
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># ---- using other methods --------------------------------------</span></span></span>
 <span class="r-in"><span>  <span class="co"># default</span></span></span>
-<span class="r-in"><span>  <span class="va">vol</span> <span class="op">&lt;-</span> <span class="fu">read_nii</span><span class="op">(</span><span class="va">file</span>, format <span class="op">=</span> <span class="st">"oro"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">vol</span> <span class="op">&lt;-</span> <span class="fu">io_read_nii</span><span class="op">(</span><span class="va">file</span>, format <span class="op">=</span> <span class="st">"oro"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">vol</span><span class="op">$</span><span class="va">header</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># lazy-load nifti</span></span></span>
-<span class="r-in"><span>  <span class="va">vol2</span> <span class="op">&lt;-</span> <span class="fu">read_nii</span><span class="op">(</span><span class="va">file</span>, format <span class="op">=</span> <span class="st">"rnifti"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">vol2</span> <span class="op">&lt;-</span> <span class="fu">io_read_nii</span><span class="op">(</span><span class="va">file</span>, format <span class="op">=</span> <span class="st">"rnifti"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">vol2</span><span class="op">$</span><span class="va">header</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Using ANTsPyx</span></span></span>
-<span class="r-in"><span>  <span class="va">vol3</span> <span class="op">&lt;-</span> <span class="fu">read_nii</span><span class="op">(</span><span class="va">file</span>, format <span class="op">=</span> <span class="st">"ants"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">vol3</span> <span class="op">&lt;-</span> <span class="fu">io_read_nii</span><span class="op">(</span><span class="va">file</span>, format <span class="op">=</span> <span class="st">"ants"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">vol3</span><span class="op">$</span><span class="va">header</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># ---- write --------------------------------------------------------</span></span></span>
 <span class="r-in"><span>  <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".nii.gz"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu">write_nii</span><span class="op">(</span><span class="va">vol</span>, <span class="va">f</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu">write_nii</span><span class="op">(</span><span class="va">vol2</span>, <span class="va">f</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu">write_nii</span><span class="op">(</span><span class="va">vol3</span>, <span class="va">f</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">io_write_nii</span><span class="op">(</span><span class="va">vol</span>, <span class="va">f</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">io_write_nii</span><span class="op">(</span><span class="va">vol2</span>, <span class="va">f</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">io_write_nii</span><span class="op">(</span><span class="va">vol3</span>, <span class="va">f</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># other ways</span></span></span>
-<span class="r-in"><span>  <span class="fu">write_nii</span><span class="op">(</span><span class="va">vol</span><span class="op">$</span><span class="va">header</span>, <span class="va">f</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu">write_nii</span><span class="op">(</span><span class="va">vol2</span><span class="op">$</span><span class="va">header</span>, <span class="va">f</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu">write_nii</span><span class="op">(</span><span class="va">vol3</span><span class="op">$</span><span class="va">header</span>, <span class="va">f</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">io_write_nii</span><span class="op">(</span><span class="va">vol</span><span class="op">$</span><span class="va">header</span>, <span class="va">f</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">io_write_nii</span><span class="op">(</span><span class="va">vol2</span><span class="op">$</span><span class="va">header</span>, <span class="va">f</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">io_write_nii</span><span class="op">(</span><span class="va">vol3</span><span class="op">$</span><span class="va">header</span>, <span class="va">f</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># try to save MGH/MGZ data to NIfTI</span></span></span>
 <span class="r-in"><span>  <span class="va">file2</span> <span class="op">&lt;-</span> <span class="fu"><a href="ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"brain.demosubject.mgz"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">mgz</span> <span class="op">&lt;-</span> <span class="fu"><a href="mgz.html">read_mgz</a></span><span class="op">(</span><span class="va">file2</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu">write_nii</span><span class="op">(</span><span class="va">mgz</span>, <span class="va">f</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">mgz</span> <span class="op">&lt;-</span> <span class="fu"><a href="mgz.html">io_read_mgz</a></span><span class="op">(</span><span class="va">file2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">io_write_nii</span><span class="op">(</span><span class="va">mgz</span>, <span class="va">f</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># clean up</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></span>

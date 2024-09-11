@@ -151,27 +151,27 @@
 <tr class="odd">
 <td align="left">GIfTI (Geometry format under the Neuroimaging Informatics Technology Initiative)</td>
 <td align="center"><code>*.gii[.gz]</code></td>
-<td align="center"></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">FreeSurfer surface</td>
 <td align="center">e.g. <code>*h.pial</code>, <code>*h.white</code>
 </td>
-<td align="center"></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
 <td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="left">FreeSurfer node value</td>
 <td align="center">e.g. <code>*h.curv</code>, <code>*h.sulc</code>
 </td>
-<td align="center"></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">Surface annotation</td>
 <td align="center"><code>*.annot</code></td>
-<td align="center"></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
 <td align="center"></td>
 </tr>
 </tbody>
@@ -294,7 +294,7 @@
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ieegio/">ieegio</a></span><span class="op">)</span></span>
 <span><span class="va">nii_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"brain.demosubject.nii.gz"</span><span class="op">)</span></span>
-<span><span class="va">nii</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/nii.html">read_nii</a></span><span class="op">(</span><span class="va">nii_path</span><span class="op">)</span></span>
+<span><span class="va">nii</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/nii.html">io_read_nii</a></span><span class="op">(</span><span class="va">nii_path</span><span class="op">)</span></span>
 <span><span class="va">nii</span></span>
 <span><span class="co">#&gt; &lt;Image Volume&gt;</span></span>
 <span><span class="co">#&gt;   Type : rnifti/nifti</span></span>
