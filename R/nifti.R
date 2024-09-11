@@ -16,7 +16,7 @@
 #' (right-anterior-superior) coordinate
 #' @param ... passed to other methods, mostly
 #' \code{\link[freesurferformats]{write.fs.mgh}}
-#' @returns \code{read_nii} returns an \code{ieegio_volume} object
+#' @returns \code{io_read_nii} returns an \code{ieegio_volume} object
 #'
 #' @examples
 #'
@@ -27,7 +27,7 @@
 #'   file <- ieegio_sample_data("brain.demosubject.nii.gz")
 #'
 #'   # ---- basic read -----------------------------------------------
-#'   vol <- read_nii(file)
+#'   vol <- io_read_nii(file)
 #'
 #'   # voxel to scanner RAS
 #'   vol$transforms$vox2ras
@@ -43,32 +43,32 @@
 #'
 #'   # ---- using other methods --------------------------------------
 #'   # default
-#'   vol <- read_nii(file, format = "oro")
+#'   vol <- io_read_nii(file, format = "oro")
 #'   vol$header
 #'
 #'   # lazy-load nifti
-#'   vol2 <- read_nii(file, format = "rnifti")
+#'   vol2 <- io_read_nii(file, format = "rnifti")
 #'   vol2$header
 #'
 #'   # Using ANTsPyx
-#'   vol3 <- read_nii(file, format = "ants")
+#'   vol3 <- io_read_nii(file, format = "ants")
 #'   vol3$header
 #'
 #'   # ---- write --------------------------------------------------------
 #'   f <- tempfile(fileext = ".nii.gz")
-#'   write_nii(vol, f)
-#'   write_nii(vol2, f)
-#'   write_nii(vol3, f)
+#'   io_write_nii(vol, f)
+#'   io_write_nii(vol2, f)
+#'   io_write_nii(vol3, f)
 #'
 #'   # other ways
-#'   write_nii(vol$header, f)
-#'   write_nii(vol2$header, f)
-#'   write_nii(vol3$header, f)
+#'   io_write_nii(vol$header, f)
+#'   io_write_nii(vol2$header, f)
+#'   io_write_nii(vol3$header, f)
 #'
 #'   # try to save MGH/MGZ data to NIfTI
 #'   file2 <- ieegio_sample_data("brain.demosubject.mgz")
-#'   mgz <- read_mgz(file2)
-#'   write_nii(mgz, f)
+#'   mgz <- io_read_mgz(file2)
+#'   io_write_nii(mgz, f)
 #'
 #'   # clean up
 #'   unlink(f)
@@ -77,14 +77,14 @@
 #'
 #'
 #' @export
-read_nii <- function(file, format = c("oro", "rnifti", "ants"), header_only = FALSE, ...) {
+io_read_nii <- function(file, format = c("oro", "rnifti", "ants"), header_only = FALSE, ...) {
   # DIPSAUS DEBUG START
   # file <- "~/rave_data/raw_dir/AnonSEEG0/rave-imaging/coregistration/CT_RAW.nii"
   format <- match.arg(format)
 
   if(header_only) {
     if(!identical(format, "oro")) {
-      warning("`read_nii`: reading with header-only mode, format ", sQuote(format), " will be ignored.")
+      warning("`io_read_nii`: reading with header-only mode, format ", sQuote(format), " will be ignored.")
     }
     format <- "oro"
   }
@@ -252,35 +252,35 @@ read_nii <- function(file, format = c("oro", "rnifti", "ants"), header_only = FA
 
 #' @rdname nii
 #' @export
-write_nii <- function(x, con, ...) {
-  UseMethod("write_nii")
+io_write_nii <- function(x, con, ...) {
+  UseMethod("io_write_nii")
 }
 
 #' @rdname nii
 #' @export
-write_nii.ieegio_nifti <- function(x, con, ...) {
+io_write_nii.ieegio_nifti <- function(x, con, ...) {
   if(.subset2(x, "header_only")) {
     stop("The volume object is head-only.")
   }
-  write_nii(x = x$header, con = con, ...)
+  io_write_nii(x = x$header, con = con, ...)
 }
 
 #' @rdname nii
 #' @export
-write_nii.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
+io_write_nii.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
   con <- normalizePath(con, winslash = "/", mustWork = FALSE)
   x$to_file(con)
 }
 
 #' @rdname nii
 #' @export
-write_nii.niftiImage <- function(x, con, ...) {
+io_write_nii.niftiImage <- function(x, con, ...) {
   RNifti::writeNifti(image = x, file = con, ...)
 }
 
 #' @rdname nii
 #' @export
-write_nii.nifti <- function(x, con, ...) {
+io_write_nii.nifti <- function(x, con, ...) {
   if(grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
     con <- path_ext_remove(con)
   }
@@ -289,7 +289,7 @@ write_nii.nifti <- function(x, con, ...) {
 
 #' @rdname nii
 #' @export
-write_nii.ieegio_mgh <- function(x, con, ...) {
+io_write_nii.ieegio_mgh <- function(x, con, ...) {
 
   vox2ras <- x$transforms$vox2ras
 
@@ -369,14 +369,14 @@ write_nii.ieegio_mgh <- function(x, con, ...) {
   # intent_name = "", magic = "n+1"
   nii@regular <- "r"
 
-  write_nii.nifti(x = nii, con = con, ...)
+  io_write_nii.nifti(x = nii, con = con, ...)
 }
 
 #' @rdname nii
 #' @export
-write_nii.array <- function(x, con, vox2ras = NULL, ...) {
+io_write_nii.array <- function(x, con, vox2ras = NULL, ...) {
   if(!is.matrix(vox2ras)) {
-    warning("`write_nii.array`: `vox2ras` is missing, using identity matrix. Please specify voxel-to-RAS transform (4x4 matrix).")
+    warning("`io_write_nii.array`: `vox2ras` is missing, using identity matrix. Please specify voxel-to-RAS transform (4x4 matrix).")
     vox2ras <- diag(1, 4)
   }
   stopifnot(is.matrix(vox2ras) && nrow(vox2ras) == 4 && ncol(vox2ras) == 4)
@@ -465,5 +465,5 @@ write_nii.array <- function(x, con, vox2ras = NULL, ...) {
   # intent_name = "", magic = "n+1"
   nii@regular <- "r"
 
-  write_nii.nifti(x = nii, con = con, ...)
+  io_write_nii.nifti(x = nii, con = con, ...)
 }

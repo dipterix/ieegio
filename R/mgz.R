@@ -114,7 +114,7 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 #' (right-anterior-superior) coordinate
 #' @param ... passed to other methods, mostly
 #' \code{\link[freesurferformats]{write.fs.mgh}}
-#' @returns \code{read_mgz} returns an \code{ieegio_volume} object
+#' @returns \code{io_read_mgz} returns an \code{ieegio_volume} object
 #'
 #' @examples
 #'
@@ -125,7 +125,7 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 #'   file <- ieegio_sample_data("brain.demosubject.mgz")
 #'
 #'   # read
-#'   vol <- read_mgz(file)
+#'   vol <- io_read_mgz(file)
 #'
 #'   # voxel to scanner RAS
 #'   vol$transforms$vox2ras
@@ -141,7 +141,7 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 #'
 #'   # write
 #'   f <- tempfile(fileext = ".mgz")
-#'   write_mgz(vol, f)
+#'   io_write_mgz(vol, f)
 #'
 #'   # file size in MB
 #'   file.size(f) / 1024^2
@@ -151,12 +151,12 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 #'
 #'   # try to save NIfTI data to MGH/MGZ
 #'   file2 <- ieegio_sample_data("brain.demosubject.nii.gz")
-#'   nii <- read_nii(file2)
+#'   nii <- io_read_nii(file2)
 #'
 #'   f <- tempfile(fileext = ".mgz")
-#'   write_mgz(nii, f)
+#'   io_write_mgz(nii, f)
 #'
-#'   mgz <- read_mgz(f)
+#'   mgz <- io_read_mgz(f)
 #'
 #'   # check if transform and data are identical
 #'   mgz$transforms$vox2ras - nii$transforms$vox2ras
@@ -170,7 +170,7 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 #'
 #'
 #' @export
-read_mgz <- function(file, header_only = FALSE) {
+io_read_mgz <- function(file, header_only = FALSE) {
   # DIPSAUS DEBUG START
   # file <- "~/rave_data/raw_dir/AnonSEEG0/rave-imaging/fs/mri/T1.mgz"
   if( header_only ) {
@@ -213,31 +213,31 @@ read_mgz <- function(file, header_only = FALSE) {
 
 #' @rdname mgz
 #' @export
-write_mgz <- function(x, con, ...) {
-  UseMethod("write_mgz")
+io_write_mgz <- function(x, con, ...) {
+  UseMethod("io_write_mgz")
 }
 
 #' @rdname mgz
 #' @export
-write_mgz.ieegio_volume <- function(x, con, ...) {
+io_write_mgz.ieegio_volume <- function(x, con, ...) {
   if(isTRUE(x$header_only)) {
-    stop("`write_mgz`: input `x` is header-only. No data is to be written")
+    stop("`io_write_mgz`: input `x` is header-only. No data is to be written")
   }
   freesurferformats::write.fs.mgh(filepath = con, data = x$data, vox2ras_matrix = x$transforms$vox2ras, ...)
 }
 
 #' @rdname mgz
 #' @export
-write_mgz.ieegio_mgh <- function(x, con, ...) {
+io_write_mgz.ieegio_mgh <- function(x, con, ...) {
   if(isTRUE(x$header_only)) {
-    stop("`write_mgz`: input `x` is header-only. No data is to be written")
+    stop("`io_write_mgz`: input `x` is header-only. No data is to be written")
   }
   freesurferformats::write.fs.mgh(filepath = con, data = x$data, vox2ras_matrix = x$transforms$vox2ras, mr_params = x$header$mr_params, ...)
 }
 
 #' @rdname mgz
 #' @export
-write_mgz.nifti <- function(x, con, ...) {
+io_write_mgz.nifti <- function(x, con, ...) {
   if( oro.nifti::sform_code(x) > 0 ) {
     xform <- oro.nifti::sform(x)
   } else {
@@ -251,7 +251,7 @@ write_mgz.nifti <- function(x, con, ...) {
 
 #' @rdname mgz
 #' @export
-write_mgz.niftiImage <- function(x, con, ...) {
+io_write_mgz.niftiImage <- function(x, con, ...) {
   header <- RNifti::niftiHeader(x)
   if(header$sform_code > 0) {
     xform <- RNifti::xform(image = header, useQuaternionFirst = FALSE)
@@ -266,7 +266,7 @@ write_mgz.niftiImage <- function(x, con, ...) {
 
 #' @rdname mgz
 #' @export
-write_mgz.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
+io_write_mgz.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
 
   vox2lps <- t(t(rpymat::py_to_r(x$direction)) * as.double(rpymat::py_to_r(x$spacing)))
   vox2lps <- rbind(cbind(vox2lps, as.double(rpymat::py_to_r(x$origin))), c(0, 0, 0, 1))
@@ -279,9 +279,9 @@ write_mgz.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
 
 #' @rdname mgz
 #' @export
-write_mgz.array <- function(x, con, vox2ras = NULL, ...) {
+io_write_mgz.array <- function(x, con, vox2ras = NULL, ...) {
   if(!is.matrix(vox2ras)) {
-    warning("`write_nii.array`: `vox2ras` is missing, using identity matrix. Please specify voxel-to-RAS transform (4x4 matrix).")
+    warning("`io_write_mgz.array`: `vox2ras` is missing, using identity matrix. Please specify voxel-to-RAS transform (4x4 matrix).")
     vox2ras <- diag(1, 4)
   }
   stopifnot(is.matrix(vox2ras) && nrow(vox2ras) == 4 && ncol(vox2ras) == 4)

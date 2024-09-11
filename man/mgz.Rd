@@ -2,31 +2,31 @@
 % Please edit documentation in R/mgz.R
 \name{mgz}
 \alias{mgz}
-\alias{read_mgz}
-\alias{write_mgz}
-\alias{write_mgz.ieegio_volume}
-\alias{write_mgz.ieegio_mgh}
-\alias{write_mgz.nifti}
-\alias{write_mgz.niftiImage}
-\alias{write_mgz.ants.core.ants_image.ANTsImage}
-\alias{write_mgz.array}
+\alias{io_read_mgz}
+\alias{io_write_mgz}
+\alias{io_write_mgz.ieegio_volume}
+\alias{io_write_mgz.ieegio_mgh}
+\alias{io_write_mgz.nifti}
+\alias{io_write_mgz.niftiImage}
+\alias{io_write_mgz.ants.core.ants_image.ANTsImage}
+\alias{io_write_mgz.array}
 \title{Read and write to 'MGH' format (volume)}
 \usage{
-read_mgz(file, header_only = FALSE)
+io_read_mgz(file, header_only = FALSE)
 
-write_mgz(x, con, ...)
+io_write_mgz(x, con, ...)
 
-\method{write_mgz}{ieegio_volume}(x, con, ...)
+\method{io_write_mgz}{ieegio_volume}(x, con, ...)
 
-\method{write_mgz}{ieegio_mgh}(x, con, ...)
+\method{io_write_mgz}{ieegio_mgh}(x, con, ...)
 
-\method{write_mgz}{nifti}(x, con, ...)
+\method{io_write_mgz}{nifti}(x, con, ...)
 
-\method{write_mgz}{niftiImage}(x, con, ...)
+\method{io_write_mgz}{niftiImage}(x, con, ...)
 
-\method{write_mgz}{ants.core.ants_image.ANTsImage}(x, con, ...)
+\method{io_write_mgz}{ants.core.ants_image.ANTsImage}(x, con, ...)
 
-\method{write_mgz}{array}(x, con, vox2ras = NULL, ...)
+\method{io_write_mgz}{array}(x, con, vox2ras = NULL, ...)
 }
 \arguments{
 \item{file}{file path to read volume data}
@@ -47,7 +47,7 @@ row, slice) to scanner (often 'T1-weighted' image) 'RAS'
 (right-anterior-superior) coordinate}
 }
 \value{
-\code{read_mgz} returns an \code{ieegio_volume} object
+\code{io_read_mgz} returns an \code{ieegio_volume} object
 }
 \description{
 Read and write to 'MGH' format (volume)
@@ -61,7 +61,7 @@ if(ieegio_sample_data(
   file <- ieegio_sample_data("brain.demosubject.mgz")
 
   # read
-  vol <- read_mgz(file)
+  vol <- io_read_mgz(file)
 
   # voxel to scanner RAS
   vol$transforms$vox2ras
@@ -77,7 +77,7 @@ if(ieegio_sample_data(
 
   # write
   f <- tempfile(fileext = ".mgz")
-  write_mgz(vol, f)
+  io_write_mgz(vol, f)
 
   # file size in MB
   file.size(f) / 1024^2
@@ -87,12 +87,12 @@ if(ieegio_sample_data(
 
   # try to save NIfTI data to MGH/MGZ
   file2 <- ieegio_sample_data("brain.demosubject.nii.gz")
-  nii <- read_nii(file2)
+  nii <- io_read_nii(file2)
 
   f <- tempfile(fileext = ".mgz")
-  write_mgz(nii, f)
+  io_write_mgz(nii, f)
 
-  mgz <- read_mgz(f)
+  mgz <- io_read_mgz(f)
 
   # check if transform and data are identical
   mgz$transforms$vox2ras - nii$transforms$vox2ras

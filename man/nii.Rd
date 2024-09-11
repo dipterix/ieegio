@@ -2,31 +2,36 @@
 % Please edit documentation in R/nifti.R
 \name{nii}
 \alias{nii}
-\alias{read_nii}
-\alias{write_nii}
-\alias{write_nii.ieegio_nifti}
-\alias{write_nii.ants.core.ants_image.ANTsImage}
-\alias{write_nii.niftiImage}
-\alias{write_nii.nifti}
-\alias{write_nii.ieegio_mgh}
-\alias{write_nii.array}
+\alias{io_read_nii}
+\alias{io_write_nii}
+\alias{io_write_nii.ieegio_nifti}
+\alias{io_write_nii.ants.core.ants_image.ANTsImage}
+\alias{io_write_nii.niftiImage}
+\alias{io_write_nii.nifti}
+\alias{io_write_nii.ieegio_mgh}
+\alias{io_write_nii.array}
 \title{Read and write 'NIfTI' imaging data}
 \usage{
-read_nii(file, format = c("oro", "rnifti", "ants"), header_only = FALSE, ...)
+io_read_nii(
+  file,
+  format = c("oro", "rnifti", "ants"),
+  header_only = FALSE,
+  ...
+)
 
-write_nii(x, con, ...)
+io_write_nii(x, con, ...)
 
-\method{write_nii}{ieegio_nifti}(x, con, ...)
+\method{io_write_nii}{ieegio_nifti}(x, con, ...)
 
-\method{write_nii}{ants.core.ants_image.ANTsImage}(x, con, ...)
+\method{io_write_nii}{ants.core.ants_image.ANTsImage}(x, con, ...)
 
-\method{write_nii}{niftiImage}(x, con, ...)
+\method{io_write_nii}{niftiImage}(x, con, ...)
 
-\method{write_nii}{nifti}(x, con, ...)
+\method{io_write_nii}{nifti}(x, con, ...)
 
-\method{write_nii}{ieegio_mgh}(x, con, ...)
+\method{io_write_nii}{ieegio_mgh}(x, con, ...)
 
-\method{write_nii}{array}(x, con, vox2ras = NULL, ...)
+\method{io_write_nii}{array}(x, con, vox2ras = NULL, ...)
 }
 \arguments{
 \item{file}{file path to read volume data}
@@ -52,7 +57,7 @@ row, slice) to scanner (often 'T1-weighted' image) 'RAS'
 (right-anterior-superior) coordinate}
 }
 \value{
-\code{read_nii} returns an \code{ieegio_volume} object
+\code{io_read_nii} returns an \code{ieegio_volume} object
 }
 \description{
 Read and write 'NIfTI' imaging data
@@ -66,7 +71,7 @@ if(ieegio_sample_data(
   file <- ieegio_sample_data("brain.demosubject.nii.gz")
 
   # ---- basic read -----------------------------------------------
-  vol <- read_nii(file)
+  vol <- io_read_nii(file)
 
   # voxel to scanner RAS
   vol$transforms$vox2ras
@@ -82,32 +87,32 @@ if(ieegio_sample_data(
 
   # ---- using other methods --------------------------------------
   # default
-  vol <- read_nii(file, format = "oro")
+  vol <- io_read_nii(file, format = "oro")
   vol$header
 
   # lazy-load nifti
-  vol2 <- read_nii(file, format = "rnifti")
+  vol2 <- io_read_nii(file, format = "rnifti")
   vol2$header
 
   # Using ANTsPyx
-  vol3 <- read_nii(file, format = "ants")
+  vol3 <- io_read_nii(file, format = "ants")
   vol3$header
 
   # ---- write --------------------------------------------------------
   f <- tempfile(fileext = ".nii.gz")
-  write_nii(vol, f)
-  write_nii(vol2, f)
-  write_nii(vol3, f)
+  io_write_nii(vol, f)
+  io_write_nii(vol2, f)
+  io_write_nii(vol3, f)
 
   # other ways
-  write_nii(vol$header, f)
-  write_nii(vol2$header, f)
-  write_nii(vol3$header, f)
+  io_write_nii(vol$header, f)
+  io_write_nii(vol2$header, f)
+  io_write_nii(vol3$header, f)
 
   # try to save MGH/MGZ data to NIfTI
   file2 <- ieegio_sample_data("brain.demosubject.mgz")
-  mgz <- read_mgz(file2)
-  write_nii(mgz, f)
+  mgz <- io_read_mgz(file2)
+  io_write_nii(mgz, f)
 
   # clean up
   unlink(f)

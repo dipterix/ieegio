@@ -41,6 +41,33 @@
 #'
 NULL
 
+#' @name read_surface
+#' @title Read surface files
+#' @description
+#' Supports reading surface geometry, annotation, measurement, and
+#' time-series data.
+#' Please use the high-level function \code{read_surface}, which calls
+#' other low-level functions internally.
+#'
+#' @param file path the file
+#' @param type type of the data; ignored if the file format is 'GIfTI'. For
+#' 'FreeSurfer' files, supported types are
+#' \describe{
+#' \item{\code{'geometry'}}{contains positions of mesh vertex nodes and face indices;}
+#' \item{\code{'annotations'}}{annotation file (usually with file extension \code{'annot'}) containing a color look-up table and an array of color keys. These files are used to display discrete values on the surface such as brain atlas;}
+#' \item{\code{'measurements'}}{measurement file such as \code{'sulc'} and \code{'curv'} files, containing numerical values (often with continuous domain) for each vertex node}
+#' }
+#' @param format format of the file, see 'Arguments' section in
+#' \code{\link[freesurferformats]{read.fs.surface}} (when file type is
+#' \code{'geometry'}) and \code{\link[freesurferformats]{read.fs.curv}}
+#' (when file type is \code{'measurements'})
+#' @param name name of the data; default is the file name
+#' @param ... for \code{read_surface}, the arguments will be passed to
+#' \code{io_read_fs} if the file is a 'FreeSurfer' file.
+#' @returns A surface object container
+#'
+#'
+NULL
 
 #' @name read_brainvis
 #' @title Read 'BrainVision' data

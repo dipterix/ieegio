@@ -25,6 +25,8 @@ Imports:
     freesurferformats,
     fs,
     fst (>= 0.9.0),
+    gifti (>= 0.8.0),
+    grDevices,
     hdf5r,
     jsonlite,
     oro.nifti,
@@ -33,8 +35,10 @@ Imports:
     readNSx (>= 0.0.5),
     rpyANTs (>= 0.0.3),
     stringr,
+    utils,
     yaml
 Suggests: 
     reticulate,
+    rgl,
     rpymat (>= 0.1.7),
     RNifti (>= 1.7.0)

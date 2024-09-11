@@ -1,10 +1,13 @@
 #' @importFrom R6 R6Class
 NULL
 
-# Formats:
-#   matlab, brainvision, edf, hdf5
-#   nsx/nev, nifti, mgh/z
-#   json
+NIFTI_XFORM_CODE <- list(
+  "NIFTI_XFORM_UNKNOWN" = "Unknown",
+  "NIFTI_XFORM_SCANNER_ANAT" = "ScannerAnat",
+  "NIFTI_XFORM_ALIGNED_ANAT" = "AlignedAnat",
+  "NIFTI_XFORM_TALAIRACH" = "Talairach",
+  "NIFTI_XFORM_MNI_152" = "MNI152"
+)
 
 parse_svec <- function(text, sep = ',', connect = '-:|', sort = FALSE, unique = TRUE){
   connect <- unique(unlist(strsplit(connect, '')))

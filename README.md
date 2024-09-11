@@ -35,10 +35,10 @@ development The following formats have been (or will be) supported:
 |:---------------------------------------------------------------------------------|:--------------------------:|:------------------:|:------------------:|
 | NIfTI (Neuroimaging Informatics Technology Initiative)                           |        `*.nii[.gz]`        | :white_check_mark: | :white_check_mark: |
 | MGH/MGZ (Massachusetts General Hospital format)                                  |      `*.mgh`, `*.mgz`      | :white_check_mark: | :white_check_mark: |
-| GIfTI (Geometry format under the Neuroimaging Informatics Technology Initiative) |        `*.gii[.gz]`        |                    |                    |
-| FreeSurfer surface                                                               | e.g. `*h.pial`, `*h.white` |                    |                    |
-| FreeSurfer node value                                                            | e.g. `*h.curv`, `*h.sulc`  |                    |                    |
-| Surface annotation                                                               |         `*.annot`          |                    |                    |
+| GIfTI (Geometry format under the Neuroimaging Informatics Technology Initiative) |        `*.gii[.gz]`        | :white_check_mark: |                    |
+| FreeSurfer surface                                                               | e.g. `*h.pial`, `*h.white` | :white_check_mark: |                    |
+| FreeSurfer node value                                                            | e.g. `*h.curv`, `*h.sulc`  | :white_check_mark: |                    |
+| Surface annotation                                                               |         `*.annot`          | :white_check_mark: |                    |
 
 Please feel free to make a wish-list by posting an issue in this
 repository.
@@ -143,7 +143,7 @@ Each volume data (`NIfTI`, `MGH`, …) contains `header`, `data`, and
 ``` r
 library(ieegio)
 nii_path <- ieegio_sample_data("brain.demosubject.nii.gz")
-nii <- read_nii(nii_path)
+nii <- io_read_nii(nii_path)
 nii
 #> <Image Volume>
 #>   Type : rnifti/nifti

@@ -1,7 +1,7 @@
 
 update_sample_registry <- function() {
   # internal debug use
-  fnames <- list.files("inst/sample_data/", recursive = FALSE, include.dirs = FALSE, full.names = FALSE)
+  fnames <- list.files("inst/sample_data/", recursive = TRUE, include.dirs = FALSE, full.names = FALSE)
   fnames <- fnames[!fnames %in% "registry.txt"]
   writeLines(fnames, "inst/sample_data_registry.txt")
 }
@@ -84,7 +84,7 @@ ieegio_sample_data <- function(file, test = FALSE, cache_ok = TRUE) {
   if(!file_exists(sample_file) || !cache_ok) {
     url <- sprintf("https://github.com/dipterix/ieegio/raw/main/inst/sample_data/%s", file)
 
-    dir_create(sample_dir)
+    dir_create(dirname(sample_file))
     utils::download.file(url = url, destfile = sample_file, cacheOK = cache_ok)
   }
 
