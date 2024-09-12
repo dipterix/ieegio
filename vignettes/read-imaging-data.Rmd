@@ -146,17 +146,3 @@ plot(
 ```
 
 
-
-
-```{r cleanup, echo = FALSE, results='hide'}
-if(!ieegio_sample_data("placeholder", test = TRUE)) {
-  # Clean up
-  cache_dir <- tools::R_user_dir("ieegio", "cache")
-  unlink(nifti_file)
-  unlink(file.path(cache_dir, "gifti"), recursive = TRUE)
-  fs <- list.files(cache_dir, all.files = FALSE, recursive = FALSE)
-  if(!length(fs)) {
-    unlink(cache_dir, recursive = TRUE)
-  }
-}
-```
