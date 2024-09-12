@@ -89,9 +89,7 @@ io_read_gii <- function(file) {
     )
 
     if(!length(re)) {
-
-      re$Unknown <- null_transform
-
+      re <- null_transform
     }
 
 

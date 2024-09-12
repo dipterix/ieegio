@@ -12,6 +12,6 @@
   </DataArray>
   <DataArray Dimensionality="2" Dim0="20" Dim1="3" Encoding="GZipBase64Binary" DataType="NIFTI_TYPE_INT32" Intent="NIFTI_INTENT_TRIANGLE" Endian="LittleEndian" ExternalFileName="" ExternalFileOffset="" ArrayIndexingOrder="RowMajorOrder">
     <MetaData/>
-    <Data>eJwtjQENADEIA5EwCZOAg2fOkDIpk4KUX8eRkLahLWZv4u5qKsxoKjxw4cDz8Oq46/J/zYVzNRduPMKCFxmjQ7fkvzIHra6BdrzSxc25Tf4nXZPuQhv5evkf0n4hMA==</Data>
+    <Data>eJwtjQEOACEIw5BTQfz/f4/FkpB1gYGZmXenvZJOWLph6YEPma/7dg9YWrB0wdKAg0xyY/EnyWz84M9m3/HB7DIr/ORWcSvwzm6Q/wGMlAFL</Data>
   </DataArray>
 </GIFTI>

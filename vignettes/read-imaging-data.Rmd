@@ -124,7 +124,8 @@ print(merged)
 Plot the surfaces in `3D` viewer, colored by shape measurement
 
 ```{r plot_surface, webgl = TRUE, out.width="70%", fig.width = 7}
-plot(merged, name = "measurements")
+# plot the first column in measurements section
+plot(merged, name = list("measurements", 1))
 ```
 
 Plot the normalized time-series data
