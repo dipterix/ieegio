@@ -32,6 +32,13 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/read-ephys.html">Read `ephys` data</a></li>
+    <li><a class="dropdown-item" href="articles/read-imaging-data.html">Read imaging data</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -52,180 +59,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of <code>ieegio</code> is to provide integrated toolbox for common file formats used in intracranial Electroencephalography (iEEG) and deep-brain stimulation (DBS). Currently the package is under active development The following formats have been (or will be) supported:</p>
-<p><strong>Electrophysiology</strong></p>
-<table class="table">
-<colgroup>
-<col width="31%">
-<col width="29%">
-<col width="19%">
-<col width="19%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">Name</th>
-<th align="center">Common Extensions</th>
-<th align="center">Read</th>
-<th align="center">Write</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">EDF(+)/BDF(+) (European Data Format)</td>
-<td align="center"><code>*.edf</code></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"></td>
-</tr>
-<tr class="even">
-<td align="left">BrainVision</td>
-<td align="center">
-<code>*.vhdr</code>, <code>*.vmrk</code>, <code>*.eeg</code>, <code>*.dat</code>
-</td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"></td>
-</tr>
-<tr class="odd">
-<td align="left">BCI2000</td>
-<td align="center"><code>*.dat</code></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"></td>
-</tr>
-<tr class="even">
-<td align="left">NEV/NSx (BlackRock neural-event/signal)</td>
-<td align="center">
-<code>*.nev</code>, <code>*.ns1</code>, <code>*.ns2</code>, …, <code>*.ns6</code>
-</td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"></td>
-</tr>
-<tr class="odd">
-<td align="left">NWB (Neurodata Without Borders)</td>
-<td align="center"><code>*.nwb</code></td>
-<td align="center">
-<span class="emoji" data-emoji="white_check_mark">✅</span><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi></mi><mo>*</mo></msup><annotation encoding="application/x-tex">^{*}</annotation></semantics></math>
-</td>
-<td align="center">
-<span class="emoji" data-emoji="white_check_mark">✅</span><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi></mi><mo>*</mo></msup><annotation encoding="application/x-tex">^{*}</annotation></semantics></math>
-</td>
-</tr>
-<tr class="even">
-<td align="left">MEF</td>
-<td align="center"><code>*.mef</code></td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>
-<code>NWB</code> format only has low-level support. Please see examples with <code><a href="reference/read_nwb.html">help(read_nwb)</a></code>
-</li>
-</ul>
-<p><strong>Imaging</strong></p>
-<table style="width:100%;" class="table">
-<colgroup>
-<col width="54%">
-<col width="18%">
-<col width="13%">
-<col width="13%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">Name</th>
-<th align="center">Common Extensions</th>
-<th align="center">Read</th>
-<th align="center">Write</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">NIfTI (Neuroimaging Informatics Technology Initiative)</td>
-<td align="center"><code>*.nii[.gz]</code></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-</tr>
-<tr class="even">
-<td align="left">MGH/MGZ (Massachusetts General Hospital format)</td>
-<td align="center">
-<code>*.mgh</code>, <code>*.mgz</code>
-</td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-</tr>
-<tr class="odd">
-<td align="left">GIfTI (Geometry format under the Neuroimaging Informatics Technology Initiative)</td>
-<td align="center"><code>*.gii[.gz]</code></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"></td>
-</tr>
-<tr class="even">
-<td align="left">FreeSurfer surface</td>
-<td align="center">e.g. <code>*h.pial</code>, <code>*h.white</code>
-</td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"></td>
-</tr>
-<tr class="odd">
-<td align="left">FreeSurfer node value</td>
-<td align="center">e.g. <code>*h.curv</code>, <code>*h.sulc</code>
-</td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"></td>
-</tr>
-<tr class="even">
-<td align="left">Surface annotation</td>
-<td align="center"><code>*.annot</code></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"></td>
-</tr>
-</tbody>
-</table>
-<p>Please feel free to make a wish-list by posting an issue in this repository.</p>
-<p><strong>Miscellaneous</strong></p>
-<table class="table">
-<thead><tr class="header">
-<th align="left">Name</th>
-<th align="center">Common Extensions</th>
-<th align="center">Read</th>
-<th align="center">Write</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">Matlab</td>
-<td align="center"><code>*.mat</code></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-</tr>
-<tr class="even">
-<td align="left">HDF5</td>
-<td align="center"><code>*.h5</code></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-</tr>
-<tr class="odd">
-<td align="left">YAML</td>
-<td align="center">
-<code>*.yml</code>, <code>*.yaml</code>
-</td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-</tr>
-<tr class="even">
-<td align="left">JSON</td>
-<td align="center"><code>*.json</code></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-</tr>
-<tr class="odd">
-<td align="left">INI</td>
-<td align="center"><code>*.ini</code></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"></td>
-</tr>
-<tr class="even">
-<td align="left">FST</td>
-<td align="center"><code>*.fst</code></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
-</tr>
-</tbody>
-</table>
+<p>The goal of <code>ieegio</code> is to provide integrated toolbox for common file formats used in intracranial Electroencephalography (iEEG) and deep-brain stimulation (DBS). Currently the package is under active development.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -241,108 +75,189 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">sample_names</span>, <span class="fu">ieegio</span><span class="fu">::</span><span class="va"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example-1-read-formatted-ephys-data">Example 1: Read Formatted <code>ephys</code> Data<a class="anchor" aria-label="anchor" href="#example-1-read-formatted-ephys-data"></a>
+<h2 id="list-1-read-formatted-ephys-data">List 1: read formatted <code>ephys</code> data<a class="anchor" aria-label="anchor" href="#list-1-read-formatted-ephys-data"></a>
 </h2>
-<p>This is a basic example which reads sample <code>EDF</code> data</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ieegio/">ieegio</a></span><span class="op">)</span></span>
-<span><span class="va">edf_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"edfPlusD.edf"</span><span class="op">)</span></span>
-<span><span class="va">edf</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/read_edf.html">read_edf</a></span><span class="op">(</span><span class="va">edf_path</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">edf</span></span>
-<span><span class="co">#&gt; &lt;ieegio::EBDFCache&gt;</span></span>
-<span><span class="co">#&gt;   File type  : EDF+</span></span>
-<span><span class="co">#&gt;   Patient    : X X X X</span></span>
-<span><span class="co">#&gt;   Recording  : Startdate 10-DEC-2009 X X test_generator</span></span>
-<span><span class="co">#&gt;   Start time : 2009-12-10 12:44:02</span></span>
-<span><span class="co">#&gt;   Continuous recording  : FALSE</span></span>
-<span><span class="co">#&gt;   Loaded channels       : n=11</span></span>
-<span><span class="co">#&gt;     Signal channels     : 1-11</span></span>
-<span><span class="co">#&gt;     Annotation channels :</span></span></code></pre></div>
-<p>You can check header, channel table, and annotations</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">header</span> <span class="op">&lt;-</span> <span class="va">edf</span><span class="op">$</span><span class="fu">get_header</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">chan_tbl</span> <span class="op">&lt;-</span> <span class="va">edf</span><span class="op">$</span><span class="fu">get_channel_table</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">annot</span> <span class="op">&lt;-</span> <span class="va">edf</span><span class="op">$</span><span class="fu">get_annotations</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>You can also query a channel by:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># get Channel 1</span></span>
-<span><span class="va">channel</span> <span class="op">&lt;-</span> <span class="va">edf</span><span class="op">$</span><span class="fu">get_channel</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">channel</span></span>
-<span><span class="co">#&gt; E/BDF(+) signal</span></span>
-<span><span class="co">#&gt;   Channel    : 1</span></span>
-<span><span class="co">#&gt;   label      : squarewave</span></span>
-<span><span class="co">#&gt;   Unit       : uV</span></span>
-<span><span class="co">#&gt;   Sample rate: 200.0</span></span>
-<span><span class="co">#&gt;   Continuous : no</span></span>
-<span><span class="co">#&gt;   Number of timepoints: 2200</span></span>
-<span><span class="co">#&gt;   Time range : 0.0 to 20.0 sec</span></span></code></pre></div>
-<p>Let’s plot the channel</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="va">channel</span><span class="op">$</span><span class="va">time</span>, y <span class="op">=</span> <span class="va">channel</span><span class="op">$</span><span class="va">value</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="st">"Time"</span>, ylab <span class="op">=</span> <span class="va">channel</span><span class="op">$</span><span class="va">info</span><span class="op">$</span><span class="va">Unit</span>,</span>
-<span>  main <span class="op">=</span> <span class="va">channel</span><span class="op">$</span><span class="va">info</span><span class="op">$</span><span class="va">Label</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"l"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"></p>
-<p>Most formats (<code>EDF</code>, <code>BrainVision</code>, <code>BlackRock</code>, <code>BCI2000</code>) provide similar syntax, with an exception <code>NWB</code> since <code>NWB</code> is essentially folder-based format that is enclosed within an <code>HDF5</code> file. Check documentations and examples in <code><a href="reference/read_nwb.html">help(read_nwb)</a></code> for more details.</p>
+<p>The following formats have been (or will be) supported. Please feel free to make a wish-list by posting an issue in this repository.</p>
+<p><strong>Electrophysiology</strong></p>
+<table class="table">
+<colgroup>
+<col width="38%">
+<col width="38%">
+<col width="16%">
+<col width="6%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Name</th>
+<th align="center">Common Extensions</th>
+<th align="center">Read</th>
+<th align="center">Write</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">EDF(+)/BDF(+) (European Data Format)</td>
+<td align="center"><code>*.edf</code></td>
+<td align="center"><code>read_edf</code></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">BrainVision</td>
+<td align="center">
+<code>*.vhdr</code>, <code>*.vmrk</code>, <code>*.eeg</code>, <code>*.dat</code>
+</td>
+<td align="center"><code>read_brainvis</code></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="left">BCI2000</td>
+<td align="center"><code>*.dat</code></td>
+<td align="center"><code>read_bci2000</code></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">NEV/NSx (BlackRock neural-event/signal)</td>
+<td align="center">
+<code>*.nev</code>, <code>*.ns1</code>, <code>*.ns2</code>, …, <code>*.ns6</code>
+</td>
+<td align="center"><code>read_nsx</code></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="left">NWB (Neurodata Without Borders)</td>
+<td align="center"><code>*.nwb</code></td>
+<td align="center"><code>read_nwb</code></td>
+<td align="center">*</td>
+</tr>
+<tr class="even">
+<td align="left">MEF</td>
+<td align="center"><code>*.mef</code></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+</tbody>
+</table>
+<p><code>*</code> - <code>NWB</code> format only has low-level support due to its format nature. Please see examples with <code><a href="reference/read_nwb.html">help(read_nwb)</a></code></p>
 </div>
 <div class="section level2">
-<h2 id="example-2-imaging-data">Example 2: Imaging Data<a class="anchor" aria-label="anchor" href="#example-2-imaging-data"></a>
+<h2 id="list-2-read-imaging-data">List 2: read imaging data<a class="anchor" aria-label="anchor" href="#list-2-read-imaging-data"></a>
 </h2>
-<p>Each volume data (<code>NIfTI</code>, <code>MGH</code>, …) contains <code>header</code>, <code>data</code>, and <code>transforms</code> list.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ieegio/">ieegio</a></span><span class="op">)</span></span>
-<span><span class="va">nii_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"brain.demosubject.nii.gz"</span><span class="op">)</span></span>
-<span><span class="va">nii</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/nii.html">io_read_nii</a></span><span class="op">(</span><span class="va">nii_path</span><span class="op">)</span></span>
-<span><span class="va">nii</span></span>
-<span><span class="co">#&gt; &lt;Image Volume&gt;</span></span>
-<span><span class="co">#&gt;   Type : rnifti/nifti</span></span>
-<span><span class="co">#&gt;   Shape: c(256L, 256L, 256L)</span></span>
-<span><span class="co">#&gt;   Transforms:</span></span>
-<span><span class="co">#&gt;     vox2ras:</span></span>
-<span><span class="co">#&gt;       [-1   0  0   131.6]</span></span>
-<span><span class="co">#&gt;       [ 0   0  1  -127.5]</span></span>
-<span><span class="co">#&gt;       [ 0  -1  0   127.5]</span></span>
-<span><span class="co">#&gt;       [ 0   0  0       1]</span></span>
-<span><span class="co">#&gt;     vox2ras_tkr:</span></span>
-<span><span class="co">#&gt;       [-1   0  0  -128]</span></span>
-<span><span class="co">#&gt;       [ 0   0  1  -128]</span></span>
-<span><span class="co">#&gt;       [ 0  -1  0  -128]</span></span>
-<span><span class="co">#&gt;       [ 0   0  0     1]</span></span>
-<span><span class="co">#&gt;     vox2fsl:</span></span>
-<span><span class="co">#&gt;       [1  0  0  0]</span></span>
-<span><span class="co">#&gt;       [0  1  0  0]</span></span>
-<span><span class="co">#&gt;       [0  0  1  0]</span></span>
-<span><span class="co">#&gt;       [0  0  0  1]</span></span></code></pre></div>
-<p>The header object is the low-level handler</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nii</span><span class="op">$</span><span class="va">header</span></span>
-<span><span class="co">#&gt; NIfTI-1 format</span></span>
-<span><span class="co">#&gt;   Type            : nifti</span></span>
-<span><span class="co">#&gt;   Data Type       : 2 (UINT8)</span></span>
-<span><span class="co">#&gt;   Bits per Pixel  : 8</span></span>
-<span><span class="co">#&gt;   Slice Code      : 0 (Unknown)</span></span>
-<span><span class="co">#&gt;   Intent Code     : 0 (None)</span></span>
-<span><span class="co">#&gt;   Qform Code      : 1 (Scanner_Anat)</span></span>
-<span><span class="co">#&gt;   Sform Code      : 1 (Scanner_Anat)</span></span>
-<span><span class="co">#&gt;   Dimension       : 256 x 256 x 256</span></span>
-<span><span class="co">#&gt;   Pixel Dimension : 1 x 1 x 1</span></span>
-<span><span class="co">#&gt;   Voxel Units     : mm</span></span>
-<span><span class="co">#&gt;   Time Units      : sec</span></span></code></pre></div>
-<p>The transforms contain transforms from volume (column, row, slice) index to other coordinate systems. The most commonly used one is <code>vox2ras</code>, which is a <code>4x4</code> matrix mapping the voxels to scanner (usually <code>T1-weighted</code>) <code>RAS</code> (right-anterior-superior) system.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nii</span><span class="op">$</span><span class="va">transforms</span><span class="op">$</span><span class="va">vox2ras</span></span>
-<span><span class="co">#&gt;      [,1] [,2] [,3]      [,4]</span></span>
-<span><span class="co">#&gt; [1,]   -1    0    0  131.6145</span></span>
-<span><span class="co">#&gt; [2,]    0    0    1 -127.5000</span></span>
-<span><span class="co">#&gt; [3,]    0   -1    0  127.5000</span></span>
-<span><span class="co">#&gt; [4,]    0    0    0    1.0000</span></span></code></pre></div>
-<p>The data object contains the volume image</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">nii</span><span class="op">$</span><span class="va">data</span><span class="op">[</span>, <span class="fl">128</span>, <span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>, </span>
-<span>      col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"white"</span><span class="op">)</span><span class="op">)</span><span class="op">(</span><span class="fl">255</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="100%"></p>
+<p><strong>Imaging</strong></p>
+<table class="table">
+<colgroup>
+<col width="37%">
+<col width="18%">
+<col width="21%">
+<col width="22%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Name</th>
+<th align="center">Common Extensions</th>
+<th align="center">Read</th>
+<th align="center">Write</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">NIfTI (Neuroimaging Informatics Technology Initiative)</td>
+<td align="center"><code>*.nii[.gz]</code></td>
+<td align="center">
+<code>read_volume</code> (<code>io_read_nii</code>)</td>
+<td align="center">
+<code>write_volume</code> (<code>io_write_nii</code>)</td>
+</tr>
+<tr class="even">
+<td align="left">MGH/MGZ (Massachusetts General Hospital format)</td>
+<td align="center">
+<code>*.mgh</code>, <code>*.mgz</code>
+</td>
+<td align="center">
+<code>read_volume</code> (<code>io_read_mgz</code>)</td>
+<td align="center">
+<code>write_volume</code> (<code>io_write_mgz</code>)</td>
+</tr>
+<tr class="odd">
+<td align="left">GIfTI (Geometry format under the NIfTI)</td>
+<td align="center"><code>*.gii[.gz]</code></td>
+<td align="center">
+<code>read_surface</code> (<code>io_read_gii</code>)</td>
+<td align="center">
+<code>write_surface</code> (<code>io_write_gii</code>)</td>
+</tr>
+<tr class="even">
+<td align="left">FreeSurfer surface</td>
+<td align="center">e.g. <code>*h.pial</code>, <code>*h.white</code>
+</td>
+<td align="center">
+<code>read_surface</code> (<code>io_read_fs(type="geometry")</code>)</td>
+<td align="center"><code>write_surface(format="freesurfer", type="geometry")</code></td>
+</tr>
+<tr class="odd">
+<td align="left">FreeSurfer node values/weights</td>
+<td align="center">e.g. <code>*h.curv</code>, <code>*h.sulc</code>
+</td>
+<td align="center">
+<code>read_surface</code> (<code>io_read_fs(type="measurements")</code>)</td>
+<td align="center"><code>write_surface(format="freesurfer", type="measurements")</code></td>
+</tr>
+<tr class="even">
+<td align="left">Surface annotation</td>
+<td align="center"><code>*.annot</code></td>
+<td align="center">
+<code>read_surface</code> (<code>io_read_fs(type="annotations")</code>)</td>
+<td align="center"><code>write_surface(format="freesurfer", type="annotations")</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="list-3-common-file-formats-used-for-meta-data">List 3: common file formats used for meta data<a class="anchor" aria-label="anchor" href="#list-3-common-file-formats-used-for-meta-data"></a>
+</h2>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Name</th>
+<th align="center">Common Extensions</th>
+<th align="center">Read</th>
+<th align="center">Write</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Matlab</td>
+<td align="center"><code>*.mat</code></td>
+<td align="center"><code>io_read_mat</code></td>
+<td align="center"><code>io_write_mat</code></td>
+</tr>
+<tr class="even">
+<td align="left">HDF5</td>
+<td align="center"><code>*.h5</code></td>
+<td align="center"><code>io_read_h5</code></td>
+<td align="center"><code>io_write_h5</code></td>
+</tr>
+<tr class="odd">
+<td align="left">YAML</td>
+<td align="center">
+<code>*.yml</code>, <code>*.yaml</code>
+</td>
+<td align="center"><code>io_read_yaml</code></td>
+<td align="center"><code>io_write_yaml</code></td>
+</tr>
+<tr class="even">
+<td align="left">JSON</td>
+<td align="center"><code>*.json</code></td>
+<td align="center"><code>io_read_json</code></td>
+<td align="center"><code>io_write_json</code></td>
+</tr>
+<tr class="odd">
+<td align="left">INI</td>
+<td align="center"><code>*.ini</code></td>
+<td align="center"><code>io_read_ini</code></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">FST</td>
+<td align="center"><code>*.fst</code></td>
+<td align="center"><code>io_read_fst</code></td>
+<td align="center"><code>io_write_fst</code></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
