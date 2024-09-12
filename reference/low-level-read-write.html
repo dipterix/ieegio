@@ -91,7 +91,8 @@
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>method to read table. For <code>'fst'</code>, the choices are</p><dl><dt><code>'proxy'</code></dt>
-<dd><p>do not read data to memory, query the table when needed;</p></dd>
+<dd><p>do not read data to memory, query the table when
+needed;</p></dd>
 
 <dt><code>'data_table'</code></dt>
 <dd><p>read as <code><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></code>;</p></dd>
@@ -104,10 +105,12 @@
 
 
 </dl><p>For <code>'mat'</code>, the choices are</p><dl><dt><code>'auto'</code></dt>
-<dd><p>automatically try the native option, and then <code>'pymatreader'</code> if fails;</p></dd>
+<dd><p>automatically try the native option, and then
+<code>'pymatreader'</code> if fails;</p></dd>
 
 <dt><code>'R.matlab'</code></dt>
-<dd><p>use the native method (provided by <code><a href="https://rdrr.io/pkg/R.matlab/man/readMat.html" class="external-link">readMat</a></code>); only support 'MAT 5.0' format;</p></dd>
+<dd><p>use the native method (provided
+by <code><a href="https://rdrr.io/pkg/R.matlab/man/readMat.html" class="external-link">readMat</a></code>); only support 'MAT 5.0' format;</p></dd>
 
 <dt><code>'pymatreader'</code></dt>
 <dd><p>use 'Python' library <code>'pymatreader'</code>;</p></dd>
@@ -188,7 +191,7 @@ conversion might fail. In this case, the result might partially contain
 <span class="r-in"><span><span class="co"># default reads in proxy</span></span></span>
 <span class="r-in"><span><span class="fu">io_read_fst</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;fst file&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file1858676c44d3.fst)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file185d188a840b.fst)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">  </span>         a            b           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8; font-style: italic;">   &lt;integer&gt;     &lt;double&gt; &lt;character&gt;</span></span>
@@ -235,7 +238,7 @@ conversion might fail. In this case, the result might partially contain
 <span class="r-in"><span><span class="co"># get header</span></span></span>
 <span class="r-in"><span><span class="fu">io_read_fst</span><span class="op">(</span><span class="va">f</span>, <span class="st">"header_only"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;fst file&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file1858676c44d3.fst)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file185d188a840b.fst)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * 'a': integer</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * 'b': double</span>
