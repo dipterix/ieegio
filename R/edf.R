@@ -603,7 +603,7 @@ read_edf <- function(
 
   channel_data <- lapply(seq_along(data$selection$channels), function(ii) {
     chn <- data$selection$channels[[ii]]
-    filebase <- file_path(extract_path, sprintf("ch%d", chn))
+    filebase <- file_path(extract_path, sprintf("Ch%d", chn))
     channel_data <- data$results[[ii]]
 
     signal_length <- length(channel_data$value)
