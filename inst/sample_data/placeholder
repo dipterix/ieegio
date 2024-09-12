@@ -1,0 +1,4 @@
+# Download this file via
+ieegio::ieegio_sample_data("placeholder")
+
+to avoid cache being cleaned when building vignettes

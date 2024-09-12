@@ -4,7 +4,6 @@ brain.demosubject.nii.gz
 brainvis.dat
 brainvis.vhdr
 brainvis.vmrk
-BV_GIFTI_1.3.tar.gz
 edfPlusD.edf
 gifti/ASCII/fmri_sujet01_Lwhite_projection.time.gii
 gifti/ASCII/sujet01_Lwhite.inflated.surf.gii
@@ -20,3 +19,4 @@ gifti/GzipBase64/sujet01_Lwhite.shape.gii
 gifti/GzipBase64/sujet01_Lwhite.surf.gii
 mat_v73.mat
 nwb_sample.nwb
+placeholder
