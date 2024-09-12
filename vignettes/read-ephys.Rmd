@@ -26,7 +26,7 @@ if(identical(Sys.getenv("IEEGIO_PKGDOWN", unset = ""), "")) {
 
 To start, please load `ieegio`. This vignette uses sample data. Please feel free to replace the sample path with your own data path.
 
-```{r setup, results='hide'}
+```{r sample}
 library(ieegio)
 edf_path <- ieegio_sample_data("edfPlusD.edf")
 ```

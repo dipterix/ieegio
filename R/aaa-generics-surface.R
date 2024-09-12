@@ -680,9 +680,6 @@ plot.ieegio_surface <- function(
       }
       # To trigger display
 
-
-      helper_rgl_call("highlevel", integer())
-
       # open3d()
       # mat <- matrix(1:4, 2, 2)
       # mat <- cbind(mat, mat + 4, mat + 8)

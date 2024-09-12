@@ -35,7 +35,7 @@ if(identical(Sys.getenv("IEEGIO_PKGDOWN", unset = ""), "")) {
 To start, please load `ieegio`. This vignette uses sample data which requires extra download.
 
 
-```{r setup}
+```{r sample}
 library(ieegio)
 
 # volume file
