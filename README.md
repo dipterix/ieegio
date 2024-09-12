@@ -28,7 +28,7 @@ sample_names <- ieegio::ieegio_sample_data()
 lapply(sample_names, ieegio::ieegio_sample_data)
 ```
 
-## List 1: read formatted `ephys` data
+## List 1: read formatted `ephys` data ([examples](https://dipterix.org/ieegio/articles/read-ephys.html))
 
 The following formats have been (or will be) supported. Please feel free to make a wish-list by posting an issue in this repository.
 
@@ -46,7 +46,7 @@ The following formats have been (or will be) supported. Please feel free to make
 `*` - `NWB` format only has low-level support due to its format nature. Please see examples with `help(read_nwb)`
 
 
-## List 2: read imaging data
+## List 2: read imaging data ([examples](https://dipterix.org/ieegio/articles/read-imaging-data.html))
 
 **Imaging**
 
