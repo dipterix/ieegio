@@ -19,6 +19,10 @@ if(identical(Sys.getenv("IEEGIO_PKGDOWN", unset = ""), "")) {
     collapse = TRUE,
     comment = "#>"
   )
+  cache_dir <- tools::R_user_dir("ieegio", "cache")
+  dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
+  cache_dir <- normalizePath(cache_dir, mustWork = TRUE)
+  options("ieegio.extract_path", cache_dir)
 }
 ```
 
