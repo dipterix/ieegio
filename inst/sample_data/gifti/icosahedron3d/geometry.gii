@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GIFTI Version="1.0" NumberOfDataArrays="2">
+  <MetaData>
+    <MD>
+      <Name>Generator</Name>
+      <Value>fsbrain</Value>
+    </MD>
+  </MetaData>
+  <DataArray Dimensionality="2" Dim0="12" Dim1="3" Encoding="GZipBase64Binary" DataType="NIFTI_TYPE_FLOAT32" Intent="NIFTI_INTENT_POINTSET" Endian="LittleEndian" ExternalFileName="" ExternalFileOffset="" ArrayIndexingOrder="RowMajorOrder">
+    <MetaData/>
+    <Data>eJxjYGBgWGf23ZGBwcOJAcE+BGUfRBIHsQ+RopYBDLCqdcSmFsQGAHIaJck=</Data>
+  </DataArray>
+  <DataArray Dimensionality="2" Dim0="20" Dim1="3" Encoding="GZipBase64Binary" DataType="NIFTI_TYPE_INT32" Intent="NIFTI_INTENT_TRIANGLE" Endian="LittleEndian" ExternalFileName="" ExternalFileOffset="" ArrayIndexingOrder="RowMajorOrder">
+    <MetaData/>
+    <Data>eJwtjQENADEIA5EwCZOAg2fOkDIpk4KUX8eRkLahLWZv4u5qKsxoKjxw4cDz8Oq46/J/zYVzNRduPMKCFxmjQ7fkvzIHra6BdrzSxc25Tf4nXZPuQhv5evkf0n4hMA==</Data>
+  </DataArray>
+</GIFTI>

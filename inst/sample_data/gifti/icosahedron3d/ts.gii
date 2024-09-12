@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GIFTI Version="1.0" NumberOfDataArrays="4">
+  <MetaData>
+    <MD>
+      <Name>Generator</Name>
+      <Value>ieegio</Value>
+    </MD>
+  </MetaData>
+  <DataArray Dimensionality="2" Dim0="12" Dim1="1" Encoding="GZipBase64Binary" DataType="NIFTI_TYPE_FLOAT32" Intent="NIFTI_INTENT_TIME_SERIES" Endian="LittleEndian" ExternalFileName="" ExternalFileOffset="" ArrayIndexingOrder="RowMajorOrder">
+    <MetaData>
+      <MD>
+        <Name><![CDATA[TimeStep]]></Name>
+        <Value><![CDATA[1]]></Value>
+      </MD>
+    </MetaData>
+    <Data>eJwBMADP/4ytCr62dC2/eKHePkwnSr6ubsw+haRXvxrp1T8VnMk/BdEbPq+Cub4zree+vuusP00iGO0=</Data>
+  </DataArray>
+  <DataArray Dimensionality="2" Dim0="12" Dim1="1" Encoding="GZipBase64Binary" DataType="NIFTI_TYPE_FLOAT32" Intent="NIFTI_INTENT_TIME_SERIES" Endian="LittleEndian" ExternalFileName="" ExternalFileOffset="" ArrayIndexingOrder="RowMajorOrder">
+    <MetaData>
+      <MD>
+        <Name><![CDATA[TimeStep]]></Name>
+        <Value><![CDATA[1]]></Value>
+      </MD>
+    </MetaData>
+    <Data>eJwBMADP/0r18T4EbIK+Q3o5vtS7HsDM+ao+lSSuP8pewr5Qwnc/tG8wP5YKBj/EJ7M/kjW5v1uYF5Y=</Data>
+  </DataArray>
+  <DataArray Dimensionality="2" Dim0="12" Dim1="1" Encoding="GZipBase64Binary" DataType="NIFTI_TYPE_FLOAT32" Intent="NIFTI_INTENT_TIME_SERIES" Endian="LittleEndian" ExternalFileName="" ExternalFileOffset="" ArrayIndexingOrder="RowMajorOrder">
+    <MetaData>
+      <MD>
+        <Name><![CDATA[TimeStep]]></Name>
+        <Value><![CDATA[1]]></Value>
+      </MD>
+    </MetaData>
+    <Data>eJwBMADP/0uyIr+ZyG2/i73Cv1LMIMBF+Mq/UD4NP7PCqD69i4u+YeiMv9xGwr6hfBk/OtriPpKpGp4=</Data>
+  </DataArray>
+  <DataArray Dimensionality="2" Dim0="12" Dim1="1" Encoding="GZipBase64Binary" DataType="NIFTI_TYPE_FLOAT32" Intent="NIFTI_INTENT_TIME_SERIES" Endian="LittleEndian" ExternalFileName="" ExternalFileOffset="" ArrayIndexingOrder="RowMajorOrder">
+    <MetaData>
+      <MD>
+        <Name><![CDATA[TimeStep]]></Name>
+        <Value><![CDATA[1]]></Value>
+      </MD>
+    </MetaData>
+    <Data>eJwBMADP/2RYED8Xlbo+HI1vP0sRgj2u6DC+dmeyP5cXR7++BYm9BT9SvwcCJj9/m+C+QFECv8KHEv4=</Data>
+  </DataArray>
+</GIFTI>

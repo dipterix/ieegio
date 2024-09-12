@@ -46,14 +46,17 @@ library(ieegio)
 nifti_file <- ieegio_sample_data("brain.demosubject.nii.gz")
 
 # geometry
-geom_file <- ieegio_sample_data("gifti/GzipBase64/sujet01_Lwhite.surf.gii")
+geom_file <- ieegio_sample_data(
+  "gifti/icosahedron3d/geometry.gii")
 
 # measurements
-shape_file <- ieegio_sample_data("gifti/GzipBase64/sujet01_Lwhite.shape.gii")
+shape_file <- ieegio_sample_data(
+  "gifti/icosahedron3d/rand.gii"
+)
 
 # time series
 ts_file <- ieegio_sample_data(
-  "gifti/GzipBase64/fmri_sujet01_Lwhite_projection.time.gii")
+  "gifti/icosahedron3d/ts.gii")
 
 ```
 
@@ -102,16 +105,13 @@ Reading surface file using `read_surface` supports multiple data types
 ```{r read_surface}
 library(ieegio)
 # geometry
-geom_file <- "gifti/GzipBase64/sujet01_Lwhite.surf.gii"
-geometry <- read_surface(ieegio_sample_data(geom_file))
+geometry <- read_surface(geom_file)
 
 # measurements
-shape_file <- "gifti/GzipBase64/sujet01_Lwhite.shape.gii"
-measurement <- read_surface(ieegio_sample_data(shape_file))
+measurement <- read_surface(shape_file)
 
 # time series
-ts_file <- "gifti/GzipBase64/fmri_sujet01_Lwhite_projection.time.gii"
-time_series <- read_surface(ieegio_sample_data(ts_file))
+time_series <- read_surface(ts_file)
 ```
 
 You can merge them to a single object, making an object with multiple embedding data-sets:
