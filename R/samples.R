@@ -1,10 +1,10 @@
 
-update_sample_registry <- function() {
-  # internal debug use
-  fnames <- list.files("inst/sample_data/", recursive = TRUE, include.dirs = FALSE, full.names = FALSE)
-  fnames <- fnames[!fnames %in% "registry.txt"]
-  writeLines(fnames, "inst/sample_data_registry.txt")
-}
+# update_sample_registry <- function() {
+#   # internal debug use
+#   fnames <- list.files("inst/sample_data/", recursive = TRUE, include.dirs = FALSE, full.names = FALSE)
+#   fnames <- fnames[!fnames %in% "registry.txt"]
+#   writeLines(fnames, "inst/sample_data_registry.txt")
+# }
 
 #' @title Download sample files
 #' @param file file to download; set to \code{NULL} to view all possible files
@@ -22,7 +22,7 @@ update_sample_registry <- function() {
 #' # check if file edfPlusD.edf exists
 #' ieegio_sample_data("edfPlusD.edf", test = TRUE)
 #'
-#' if(interactive()) { # do not run when testing packages
+#' \dontrun{
 #'
 #' ieegio_sample_data("edfPlusD.edf")
 #'
@@ -60,10 +60,12 @@ ieegio_sample_data <- function(file, test = FALSE, cache_ok = TRUE) {
   timeout <- getOption("timeout", 60)
   if( timeout < 3600 ) {
     options("timeout" = 3600)
+    on.exit({
+      options("timeout" = timeout)
+    }, add = TRUE)
   }
 
   on.exit({
-    options("timeout" = timeout)
     if( file_exists(backup_file) ) {
       if(!file_exists(sample_file)) {
         # download failed
@@ -72,7 +74,7 @@ ieegio_sample_data <- function(file, test = FALSE, cache_ok = TRUE) {
         file_delete(backup_file)
       }
     }
-  })
+  }, add = TRUE)
 
   if( file_exists(sample_file) ) {
     if( cache_ok ) {

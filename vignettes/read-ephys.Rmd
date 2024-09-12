@@ -1,0 +1,92 @@
+---
+title: "Read `ephys` data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Read `ephys` data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE, echo = FALSE, results='hide'}
+if(identical(Sys.getenv("IEEGIO_PKGDOWN", unset = ""), "")) {
+  knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    eval = FALSE
+  )
+} else {
+  knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+  )
+}
+```
+
+`ieegio` supports reading from multiple data formats, such as `EDF(+)/BDF(+)`, `BrainVision`, `BCI2000`, `BlackRock NEV/NSx`. Most of these readers have similar interface.
+
+To start, please load `ieegio`. This vignette uses sample data. Please feel free to replace the sample path with your own data path.
+
+```{r setup, results='hide'}
+library(ieegio)
+edf_path <- ieegio_sample_data("edfPlusD.edf")
+```
+
+Here is a basic example that reads in the sample `EDF` data and creates a `FileCache` object that stores the signals channel-by-channel for fast access:
+
+```{r read_edf}
+edf <- read_edf(edf_path, verbose = FALSE)
+print(edf)
+```
+
+You can check header, channel table, and annotations via the following methods:
+
+```{r edf_methods}
+header <- edf$get_header()
+str(header)
+
+chan_tbl <- edf$get_channel_table()
+print(chan_tbl, nrows = 2, topn = 2)
+
+annot <- edf$get_annotations()
+annot
+```
+
+You can also query a channel by calling the `get_channel` method.
+
+```{r get_channel}
+# get Channel 1
+channel <- edf$get_channel(1)
+channel
+```
+
+The `channel` contains the following elements:
+
+* `type`: a character indicating the original file type;
+* `info`: list of basic information such as `Channel` number, `Label`, acquisition `SampleRate`, and `Unit` of the signals;
+* `continuous`: a logical value whether the time frames are continuous;
+* `time`: a numeric vector of time in seconds for each point;
+* `value`: a numeric vector of the signal value, often converted from digital to analog trace.
+
+Using such information, it is straightforward to plot the channel data:
+
+```{r plot_channel}
+plot(
+  x = channel$time, y = channel$value,
+  xlab = "Time", ylab = channel$info$Unit,
+  main = channel$info$Label,
+  type = "p", pch = ".", col = "green", lwd = 2
+)
+```
+
+
+```{r cleanup, echo = FALSE, results='hide'}
+if(!ieegio_sample_data("placeholder", test = TRUE)) {
+  # Clean up
+  cache_dir <- tools::R_user_dir("ieegio", "cache")
+  unlink(edf_path)
+  fs <- list.files(cache_dir, all.files = FALSE, recursive = FALSE)
+  if(!length(fs)) {
+    unlink(cache_dir, recursive = TRUE)
+  }
+}
+```

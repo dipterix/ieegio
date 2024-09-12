@@ -100,6 +100,10 @@ drop_nulls <- function (x) {
 
 
 ieegio_debug <- function(..., .on = NA) {
+  if(isFALSE(.on)) {
+    options(ieegio.debug = FALSE)
+    return(invisible())
+  }
   if(getOption("ieegio.debug", FALSE)) {
     message("[ieegio.debug] ", ...)
   }

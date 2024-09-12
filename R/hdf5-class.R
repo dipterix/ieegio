@@ -30,13 +30,13 @@ LazyH5 <- R6::R6Class(
     quiet = FALSE,
 
     #' @description garbage collection method
-    #' @returns none
+    #' @return none
     finalize = function(){
       self$close(all = TRUE)
     },
 
     #' @description overrides print method
-    #' @returns self instance
+    #' @return self instance
     print = function(){
       if(!is.null(private$data_ptr)){
         if(private$data_ptr$is_valid){
@@ -57,7 +57,7 @@ LazyH5 <- R6::R6Class(
     #' recommended to set this to be true, otherwise the file connection is
     #' exclusive.
     #' @param quiet whether to suppress messages, default is false
-    #' @returns self instance
+    #' @return self instance
     initialize = function(file_path, data_name, read_only = FALSE, quiet = FALSE){
 
       # First get absolute path, otherwise hdf5r may report file not found error
@@ -237,7 +237,7 @@ LazyH5 <- R6::R6Class(
     #' @param stream whether to read partial data at a time
     #' @param envir if \code{i,j,...} are expressions, where should the
     #' expression be evaluated
-    #' @returns subset of data
+    #' @return subset of data
     subset = function(
     ...,
     drop = FALSE, stream = FALSE,
@@ -332,7 +332,7 @@ LazyH5 <- R6::R6Class(
 
     #' @description get data dimension
     #' @param stay_open whether to leave the connection opened
-    #' @returns dimension of the array
+    #' @return dimension of the array
     get_dims = function(stay_open = TRUE){
       self$open()
       re <- private$data_ptr$dims
@@ -344,7 +344,7 @@ LazyH5 <- R6::R6Class(
 
     #' @description get data type
     #' @param stay_open whether to leave the connection opened
-    #' @returns data type, currently only character, integer, raw,
+    #' @return data type, currently only character, integer, raw,
     #' double, and complex are available, all other types will yield "unknown"
     get_type = function(stay_open = TRUE) {
       self$open()

@@ -13,7 +13,7 @@
 # gii <- gifti::read_gifti(file)
 # x <- io_read_gii(file)
 
-#' @rdname read_surface
+#' @rdname imaging-surface
 #' @export
 io_read_gii <- function(file) {
 
@@ -251,7 +251,10 @@ io_read_gii <- function(file) {
           )
         }
 
-        measurements$meta[[name]] <- as.list(meta)
+        measurements$meta[[name]] <- list(
+          intent = intent,
+          data = meta
+        )
         map$set("measurements", measurements)
       },
       "NIFTI_INTENT_RGB_VECTOR" = {
@@ -297,7 +300,10 @@ io_read_gii <- function(file) {
           meta = list()
         ))
         measurements$data_table[, stat_name] <- as.vector(data)
-        measurements$meta[[name]] <- as.list(meta)
+        measurements$meta[[name]] <- as.list(
+          intent = intent,
+          data = meta
+        )
         map$set("measurements", measurements)
       }
     )
@@ -318,3 +324,176 @@ io_read_gii <- function(file) {
     sparse_node_index = map$get("sparse_node_index")
   )
 }
+
+#' @rdname imaging-surface
+#' @export
+io_write_gii <- function(x, con, ...) {
+
+  UseMethod("io_write_gii")
+
+}
+
+#' @export
+io_write_gii.ieegio_surface <- function(
+    x, con, force = FALSE, ...) {
+
+  data_sets <- list()
+  datatypes <- c()
+  intents <- c()
+  transform_matrix <- list()
+
+  if( x$sparse ) {
+    node_index <- x$sparse_node_index
+    node_index_start <- attr(node_index, "start_index")
+    if(length(node_index)) {
+      if(length(node_index_start) == 1 && !is.na(node_index_start) && is.numeric(node_index_start)) {
+        node_index <- node_index - node_index_start
+      } else {
+        node_index <- node_index - 1L
+      }
+      node_index <- matrix(node_index, ncol = 1L)
+      storage.mode(node_index) <- "integer"
+      data_sets <- c(data_sets, list(node_index))
+      datatypes <- c(datatypes, "NIFTI_TYPE_INT32")
+      intents <- c(intents, "NIFTI_INTENT_NODE_INDEX")
+      transform_matrix <- c(transform_matrix, list(NA))
+    }
+  }
+
+  if(length(x$geometry)) {
+    # NIFTI_INTENT_SHAPE
+    vertex_coords <- t(x$geometry$vertices[1:3, , drop = FALSE])
+    faces <- t(x$geometry$faces)
+    face_start <- x$geometry$face_start
+    if(length(face_start) == 1 && is.numeric(face_start) && !is.na(face_start)) {
+      faces <- faces - face_start
+    } else {
+      faces <- faces - 1L
+    }
+    storage.mode(faces) <- "integer"
+
+    transform <- x$geometry$transforms[[1]]
+    source_space <- attr(transform, "source_space")
+    if(!isTRUE(source_space %in% names(NIFTI_XFORM_CODE))) {
+      source_space <- "NIFTI_XFORM_UNKNOWN"
+    }
+    target_space <- attr(transform, "target_space")
+    if(!isTRUE(target_space %in% names(NIFTI_XFORM_CODE))) {
+      sel <- NIFTI_XFORM_CODE %in% names(x$geometry$transforms)[[1]]
+      if(any(sel)) {
+        target_space <- names(NIFTI_XFORM_CODE)[sel][[1]]
+      } else {
+        target_space <- "NIFTI_XFORM_UNKNOWN"
+      }
+    }
+
+
+    data_sets <- c(data_sets, list(vertex_coords, faces))
+    datatypes <- c(datatypes, "NIFTI_TYPE_FLOAT32", "NIFTI_TYPE_INT32")
+    intents <- c(intents, "NIFTI_INTENT_POINTSET", "NIFTI_INTENT_TRIANGLE")
+    transform_matrix <- c(transform_matrix, list(
+      list(
+        'transform_matrix' = transform,
+        'data_space' = source_space,
+        'transformed_space' = target_space
+      ),
+      NA
+    ))
+  }
+
+  label_table <- NULL
+  if(length(x$annotations)) {
+    nms <- names(x$annotations$data_table)
+    intent <- "NIFTI_INTENT_LABEL"
+    for(nm in nms) {
+      v <- matrix(x$annotations$data_table[[nm]], ncol = 1L)
+      storage.mode(v) <- "integer"
+
+      data_sets <- c(data_sets, list(v))
+      datatypes <- c(datatypes, "NIFTI_TYPE_INT32")
+      intents <- c(intents, 'NIFTI_INTENT_LABEL')
+      transform_matrix <- c(transform_matrix, list(NA))
+
+      # <Label Key="0" Red="0" Green="0" Blue="0" Alpha="1"><![CDATA[Unknown]]></Label>
+      # <Label Key="1" Red="0.0901961" Green="0.862745" Blue="0.235294" Alpha="1"><![CDATA[G_and_S_frontomargin]]></Label>
+      label_table <- x$annotations$label_table
+    }
+  }
+
+  if(length(x$measurements)) {
+    nms <- names(x$measurements$data_table)
+    for(nm in nms) {
+      meta <- as.list(x$measurements$meta[[nm]])
+      intent <- paste(as.character(meta$intent), collapse = "")
+      if(gifti::convert_intent(intent) == "unknown") {
+        intent <- "NIFTI_INTENT_SHAPE"
+      }
+      v <- matrix(x$measurements$data_table[[nm]], ncol = 1L)
+      data_sets <- c(data_sets, list(v))
+      datatypes <- c(datatypes, "NIFTI_TYPE_FLOAT32")
+      intents <- c(intents, intent)
+      transform_matrix <- c(transform_matrix, list(NA))
+    }
+  }
+
+  if(length(x$color) && is.matrix(x$color) && ncol(x$color) >= 3) {
+    cmat <- x$color
+    nc <- ncol(x$color)
+    if(nc >= 4) {
+      nc <- nc[, 1:4, drop = FALSE]
+      intent <- "NIFTI_INTENT_RGBA_VECTOR"
+    } else {
+      intent <- "NIFTI_INTENT_RGB_VECTOR"
+    }
+    if(max(cmat, na.rm = TRUE) >= 2) {
+      cmat <- cmat / 255
+    }
+
+    data_sets <- c(data_sets, list(cmat))
+    datatypes <- c(datatypes, "NIFTI_TYPE_FLOAT32")
+    intents <- c(intents, intent)
+    transform_matrix <- c(transform_matrix, list(NA))
+  }
+
+  # time series
+  if(length(x$time_series)) {
+
+    v <- x$time_series$value
+    slice_duration <- x$time_series$slice_duration
+
+    data_sets <- c(
+      data_sets,
+      lapply(seq_along(slice_duration), function(ii) {
+        duration <- slice_duration[[ii]]
+        if(is.na(duration)) { duration <- 0 }
+        structure(
+          v[, ii, drop = FALSE],
+          meta = list(TimeStep = duration)
+        )
+      })
+    )
+    intents <- c(intents, rep("NIFTI_INTENT_TIME_SERIES", length(slice_duration)))
+    datatypes <- c(datatypes, rep("NIFTI_TYPE_FLOAT32", length(slice_duration)))
+    transform_matrix <- c(transform_matrix, as.list(rep(NA, length(slice_duration))))
+  }
+
+  xmltree = create_gii_xml(
+    data_array = data_sets,
+    intent = intents,
+    datatype = datatypes,
+    transform_matrix = transform_matrix,
+    label_table = label_table,
+    force = force
+  )
+
+  # if(validate) {
+  #   xsd <- system.file("validator", "gifti.xsd", package = "ieegio")
+  #   xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd))
+  # }
+
+  xml2::write_xml(xmltree, file = con, options = c("as_xml", "format"))
+
+  invisible(con)
+
+}
+

@@ -30,7 +30,7 @@ ieegio_sample_data()
 # check if file edfPlusD.edf exists
 ieegio_sample_data("edfPlusD.edf", test = TRUE)
 
-if(interactive()) { # do not run when testing packages
+\dontrun{
 
 ieegio_sample_data("edfPlusD.edf")
 

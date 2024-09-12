@@ -41,4 +41,9 @@ Suggests:
     reticulate,
     rgl,
     rpymat (>= 0.1.7),
-    RNifti (>= 1.7.0)
+    RNifti (>= 1.7.0),
+    xml2,
+    knitr,
+    rmarkdown,
+    tools
+VignetteBuilder: knitr

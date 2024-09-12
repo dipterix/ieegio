@@ -122,33 +122,6 @@ new_surface <- function(
   )
 }
 
-#' @rdname read_surface
-#' @export
-read_surface <- function(file, format = "auto", type = NULL, ...) {
-  fname <- basename(file)
-  if(endsWith(tolower(fname), "gii") || endsWith(tolower(fname), "gii.gz")) {
-    # GIfTI
-    return(io_read_gii(file))
-  }
-  if(!length(type)) {
-    # Guess the type
-    ext <- tolower(path_ext(fname))
-
-    type <- switch(
-      ext,
-      "sulc" = "measurements",
-      "curv" = "measurements",
-      "annot" = "annotations",
-      {
-        "geometry"
-      }
-    )
-  }
-
-  io_read_fs(file, type = type, format = format, ...)
-
-}
-
 
 #' @export
 format.ieegio_surface <- function(x, ...) {
@@ -408,12 +381,121 @@ merge.ieegio_surface <- function(x, y, ...) {
     }
   }
 
+  contains <- names(x)
+  contains <- contains[contains %in% c("geometry", "measurements", "time_series", "annotations", "color")]
+  cls <- c(
+    sprintf("ieegio_surface_contains_%s", contains),
+    class(x)
+  )
+  class(x) <- unique(cls)
   x
 }
 
+#' @title Plot '3D' surface objects
+#' @param x \code{'ieegio_surface'} object, see \code{\link{read_surface}}
+#' @param method plot method; \code{'basic'} for just rendering the surfaces;
+#' \code{'full'} for rendering with axes and title
+#' @param transform which transform to use, can be a 4-by-4 matrix; if
+#' the surface contains transform matrix, then this argument can be
+#' an integer index of the transform embedded, or the target
+#' (transformed) space name; print \code{names(x$transforms)} for
+#' choices
+#' @param name attribute and name used for colors, options can be \code{'color'}
+#' if the surface has color matrix; \code{c('annotations', varname)} for
+#' rendering colors from annotations with variable \code{varname};
+#' \code{c('measurements', varname)} for rendering colors from measurements
+#' with variable \code{varname}; \code{'time_series'} for
+#' plotting time series slices; or \code{"flat"} for flat color;
+#' default is \code{'auto'}, which will
+#' plot the first available data. More details see 'Examples'.
+#' @param vlim when plotting with continuous data (\code{name} is measurements
+#' or time-series), the value limit used to generate color palette; default is
+#' \code{NULL}: the range of the values. This argument can be length of 1 (
+#' creating symmetric value range) or 2. If set, then values exceeding the
+#' range will be trimmed to the limit
+#' @param col color or colors to form the color palette when value data is
+#' continuous; when \code{name="flat"}, the last color will be used
+#' @param slice_index when plotting the \code{name="time_series"} data,
+#' the slice indices to plot; default is to select a maximum of 4 slices
+#' @param ... ignored
+#'
+#' @examples
+#'
+#'
+#'
+#'
+#' library(ieegio)
+#'
+#' # geometry
+#' geom_file <- "gifti/GzipBase64/sujet01_Lwhite.surf.gii"
+#'
+#' # measurements
+#' shape_file <- "gifti/GzipBase64/sujet01_Lwhite.shape.gii"
+#'
+#' # time series
+#' ts_file <- "gifti/GzipBase64/fmri_sujet01_Lwhite_projection.time.gii"
+#'
+#' if(ieegio_sample_data(geom_file, test = TRUE)) {
+#'
+#'   geometry <- read_surface(ieegio_sample_data(geom_file))
+#'   measurement <- read_surface(ieegio_sample_data(shape_file))
+#'   time_series <- read_surface(ieegio_sample_data(ts_file))
+#'   ts_demean <- apply(
+#'     time_series$time_series$value,
+#'     MARGIN = 1L,
+#'     FUN = function(x) {
+#'       x - mean(x)
+#'     }
+#'   )
+#'   time_series$time_series$value <- t(ts_demean)
+#'
+#'   # merge measurement & time_series into geometry (optional)
+#'   merged <- merge(geometry, measurement, time_series)
+#'   print(merged)
+#'
+#'   # ---- plot method/style ------------------------------------
+#'   plot(merged, "basic")
+#'   plot(merged, "full")
+#'
+#'   # ---- plot data --------------------------------------------
+#'
+#'   ## Measurements or annotations
+#'
+#'   # the first column of `measurements`
+#'   plot(merged, name = "measurements")
+#'
+#'   # equivalent to
+#'   plot(merged, name = list("measurements", 1L))
+#'
+#'   # equivalent to
+#'   measurement_names <- names(merged$measurements$data_table)
+#'   plot(merged, name = list("measurements", measurement_names[[1]]))
+#'
+#'   ## Time-series
+#'
+#'   # automatically select 4 slices, trim the color palette
+#'   # from -25 to 25
+#'   plot(merged, name = "time_series", vlim = c(-25, 25))
+#'
+#'   plot(
+#'     merged,
+#'     name = "time_series",
+#'     vlim = c(-25, 25),
+#'     slice_index = c(1, 17, 33, 49, 64, 80, 96, 112, 128),
+#'     col = c("#053061", "#2166ac", "#4393c3",
+#'             "#92c5de", "#d1e5f0", "#ffffff",
+#'             "#fddbc7", "#f4a582", "#d6604d",
+#'             "#b2182b", "#67001f")
+#'   )
+#'
+#'
+#' }
+#'
+#'
+#'
 #' @export
 plot.ieegio_surface <- function(
-    x, method = c("basic", "fancy"), transform = 1L,
+    x, method = c("basic", "full"), transform = 1L,
     name = "auto", vlim = NULL, col = c("black", "white"), slice_index = NULL, ...) {
   method <- match.arg(method)
 
@@ -474,6 +556,7 @@ plot.ieegio_surface <- function(
     }
   }
   name[[1]] <- substr(name[[1]], 1, 4)
+  cname <- ifelse(length(name) > 1, name[[2]], 1L)
 
   vert_color <- FALSE
   main <- ""
@@ -501,7 +584,7 @@ plot.ieegio_surface <- function(
       }
     },
     "anno" = {
-      val <- x$annotations$data_table[[name[[2]]]]
+      val <- x$annotations$data_table[[cname]]
       if(length(val)) {
         col <- cmap <- structure(
           x$annotations$label_table$Color,
@@ -509,11 +592,15 @@ plot.ieegio_surface <- function(
         )
         col <- cmap[sprintf("%d", val)]
         vert_color <- TRUE
-        main <- sprintf("Annotation: %s", name[[2]])
+        if(is.numeric(cname)) {
+          cname <- names(x$annotations$data_table)[[cname]]
+        }
+        main <- sprintf("Annotation: %s", cname)
       }
     },
     "meas" = {
-      val <- x$measurements$data_table[[name[[2]]]]
+
+      val <- x$measurements$data_table[[cname]]
       if(length(val) && !all(is.na(val))) {
         if(length(vlim) == 0) {
           vlim <- range(val, na.rm = TRUE)
@@ -528,7 +615,11 @@ plot.ieegio_surface <- function(
         idx[idx >= ncols] <- ncols
         col <- col[idx]
         vert_color <- TRUE
-        main <- sprintf("Measurement: %s", name[[2]])
+
+        if(is.numeric(cname)) {
+          cname <- names(x$measurements$data_table)[[cname]]
+        }
+        main <- sprintf("Measurement: %s", cname)
       }
     },
     "time" = {
@@ -613,7 +704,7 @@ plot.ieegio_surface <- function(
           helper_rgl_call("shade3d", mesh, col = col)
         })
       },
-      "fancy" = {
+      "full" = {
         helper_rgl_view({
           rg <- apply(mesh$vb, 1, range)[, 1:3]
           helper_rgl_call("shade3d", mesh, col = col)
@@ -635,4 +726,189 @@ plot.ieegio_surface <- function(
 
 
 
+#' @name imaging-surface
+#' @title Read and write surface files
+#' @description
+#' Supports surface geometry, annotation, measurement, and
+#' time-series data.
+#' Please use the high-level function \code{read_surface}, which calls
+#' other low-level functions internally.
+#'
+#' @param file,con path the file
+#' @param x surface (geometry, annotation, measurement) data
+#' @param type type of the data; ignored if the file format is 'GIfTI'. For
+#' 'FreeSurfer' files, supported types are
+#' \describe{
+#' \item{\code{'geometry'}}{contains positions of mesh vertex nodes and face indices;}
+#' \item{\code{'annotations'}}{annotation file (usually with file extension \code{'annot'}) containing a color look-up table and an array of color keys. These files are used to display discrete values on the surface such as brain atlas;}
+#' \item{\code{'measurements'}}{measurement file such as \code{'sulc'} and \code{'curv'} files, containing numerical values (often with continuous domain) for each vertex node}
+#' }
+#' @param format format of the file, see 'Arguments' section in
+#' \code{\link[freesurferformats]{read.fs.surface}} (when file type is
+#' \code{'geometry'}) and \code{\link[freesurferformats]{read.fs.curv}}
+#' (when file type is \code{'measurements'})
+#' @param name name of the data; default is the file name
+#' @param ... for \code{read_surface}, the arguments will be passed to
+#' \code{io_read_fs} if the file is a 'FreeSurfer' file.
+#' @returns A surface object container
+#' @examples
+#'
+#'
+#' library(ieegio)
+#'
+#' # geometry
+#' geom_file <- "gifti/GzipBase64/sujet01_Lwhite.surf.gii"
+#'
+#' # measurements
+#' shape_file <- "gifti/GzipBase64/sujet01_Lwhite.shape.gii"
+#'
+#' # time series
+#' ts_file <- "gifti/GzipBase64/fmri_sujet01_Lwhite_projection.time.gii"
+#'
+#' if(ieegio_sample_data(geom_file, test = TRUE)) {
+#'
+#'   geometry <- read_surface(ieegio_sample_data(geom_file))
+#'   print(geometry)
+#'
+#'   measurement <- read_surface(ieegio_sample_data(shape_file))
+#'   print(measurement)
+#'
+#'   time_series <- read_surface(ieegio_sample_data(ts_file))
+#'   print(time_series)
+#'
+#'   # merge measurement & time_series into geometry
+#'   merged <- merge(geometry, measurement, time_series)
+#'   print(merged)
+#'
+#'   # make sure you install `rgl` package
+#'   plot(merged, name = c("measurements", "Shape001"))
+#'
+#'   plot(merged, name = "time_series",
+#'        slice_index = c(1, 11, 21, 31))
+#'
+#' }
+#'
+#'
+#' @export
+read_surface <- function(file, format = "auto", type = NULL, ...) {
+  fname <- basename(file)
+  if(endsWith(tolower(fname), "gii") || endsWith(tolower(fname), "gii.gz") ||
+     tolower(format) %in% c("gii", "gifti", "gii.gz")) {
+    # GIfTI
+    return(io_read_gii(file))
+  }
+  if(!length(type)) {
+    # Guess the type
+    ext <- tolower(path_ext(fname))
+
+    type <- switch(
+      ext,
+      "sulc" = "measurements",
+      "curv" = "measurements",
+      "annot" = "annotations",
+      {
+        "geometry"
+      }
+    )
+  }
+
+  io_read_fs(file, type = type, format = format, ...)
+
+}
+
+#' @rdname imaging-surface
+#' @export
+write_surface <- function(x, con, format = c("gifti", "freesurfer"),
+                          type = c("geometry", "annotations", "measurements", "color", "time_series"), ...) {
+
+  format <- match.arg(format)
+
+  if(format == "gifti") {
+    re <- io_write_gii(x = x, con = con, ...)
+    return(re)
+  }
+
+  type <- match.arg(type)
+
+  if( type %in% c("color", "time_series") ) {
+    stop("Saving ", type, " data in FreeSurfer format has not been implemented.")
+  }
+
+  if(!length(x[[type]])) {
+    nms <- names(x)
+    nms <- nms[nms %in% c("geometry", "annotations", "measurements")]
+    stop(
+      "The surface object does not contain ",
+      sQuote(type),
+      " data type. Available data types:",
+      paste(sQuote(nms), collapse = ", ")
+    )
+  }
+
+  if(x$sparse && type == "measurements") {
+    warning("Saving ", type, " data with sparse index in FreeSurfer format is not supported. The result might be wrong. Please check it.")
+  }
+
+
+  switch(
+    type,
+    "geometry" = {
+      vertices <- t(x$geometry$vertices[1:3, , drop = FALSE])
+      faces <- t(x$geometry$faces)
+      face_start <- x$geometry$face_start
+      if(length(face_start) == 1 && !is.na(face_start) &&
+         is.numeric(face_start) && face_start != 1) {
+        faces <- faces - face_start + 1L
+      }
+      freesurferformats::write.fs.surface(filepath = con, vertex_coords = vertices, faces = faces)
+    },
+    "annotations" = {
+      n_verts <- 0
+      if( x$sparse ) {
+        start_index <- attr(x$sparse_node_index, "start_index")
+        n_verts <- max(x$sparse_node_index)
+        if(length(start_index) == 1 && !is.na(start_index) && is.numeric(start_index)) {
+          n_verts <- n_verts - start_index + 1
+        }
+      }
+      n_verts <- max(nrow(x$annotations$data_table), n_verts)
+
+      label_table <- x$annotations$label_table
+      color_codes <- grDevices::col2rgb(label_table$Color, alpha = FALSE)
+      color_codes <- as.integer(colSums(color_codes * c(1, 2^8, 2^16)))
+
+      clut <- structure(
+        names = sprintf("%d", label_table$Key),
+        color_codes
+      )
+      coloridx <- unname(clut[sprintf("%d", x$annotations$data_table[[1]])])
+      coloridx <- as.integer(coloridx)
+
+
+      color_max <- max(label_table$Red, label_table$Green, label_table$Blue)
+      alpha_max <- max(c(label_table$Alpha, 1))
+      if(color_max >= 2) { color_max <- 255 } else { color_max <- 1 }
+      if(alpha_max >= 2) { alpha_max <- 255 } else { alpha_max <- 1 }
+      colortable <- data.frame(
+        struct_name = label_table$Label,
+        r = floor(label_table$Red / color_max * 255),
+        g = floor(label_table$Green / color_max * 255),
+        b = floor(label_table$Blue / color_max * 255),
+        a = 0L,
+        code = color_codes,
+        hex_color_string_rgb = label_table$Color,
+        hex_color_string_rgba = sprintf("%s00", label_table$Color),
+        struct_index = seq_len(nrow(label_table)) - 1L
+      )
+
+      freesurferformats::write.fs.annot(
+        filepath = con,
+        num_vertices = as.integer(n_verts),
+        colortable = colortable,
+        labels_as_colorcodes = coloridx,
+      )
+    }
+  )
+
+}
 

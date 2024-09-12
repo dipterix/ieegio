@@ -42,7 +42,7 @@ SignalDataCache <- R6::R6Class(
     #' Get channel data
     #' @param x channel order or label
     #' @param ... passed to child methods
-    #' @returns Channel signal with time-stamps inheriting class
+    #' @return Channel signal with time-stamps inheriting class
     #' \code{'ieegio_get_channel'}
     get_channel = function(x, ...) {
       .NotYetImplemented()

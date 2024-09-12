@@ -1,96 +1,19 @@
-#' @name nii
-#' @seealso \code{\link{mgz}}
-#' @title Read and write 'NIfTI' imaging data
-#' @param file file path to read volume data
-#' @param header_only whether to read header data only;
-#' default is \code{FALSE}
-#' @param x volume data (such as 'NIfTI' image, array, or 'MGH')
-#' to be saved
-#' @param con file path to store image
-#' @param format header format; choices are \code{'oro'} (using
-#' \code{\link[oro.nifti]{readNIfTI}}), \code{'rnifti'} (using
-#' \code{\link[RNifti]{readNifti}}), and \code{'ants'} (using
-#' \code{\link[rpyANTs]{as_ANTsImage}}).
-#' @param vox2ras a \code{4x4} transform matrix from voxel indexing (column,
-#' row, slice) to scanner (often 'T1-weighted' image) 'RAS'
-#' (right-anterior-superior) coordinate
-#' @param ... passed to other methods, mostly
-#' \code{\link[freesurferformats]{write.fs.mgh}}
-#' @returns \code{io_read_nii} returns an \code{ieegio_volume} object
-#'
-#' @examples
-#'
-#' if(ieegio_sample_data(
-#'   file = "brain.demosubject.nii.gz",
-#'   test = TRUE)) {
-#'
-#'   file <- ieegio_sample_data("brain.demosubject.nii.gz")
-#'
-#'   # ---- basic read -----------------------------------------------
-#'   vol <- io_read_nii(file)
-#'
-#'   # voxel to scanner RAS
-#'   vol$transforms$vox2ras
-#'
-#'   # to freesurfer surface
-#'   vol$transforms$vox2ras_tkr
-#'
-#'   # to FSL
-#'   vol$transforms$vox2fsl
-#'
-#'   image(vol$data[,,128], asp = 1, axes = FALSE)
-#'
-#'
-#'   # ---- using other methods --------------------------------------
-#'   # default
-#'   vol <- io_read_nii(file, format = "oro")
-#'   vol$header
-#'
-#'   # lazy-load nifti
-#'   vol2 <- io_read_nii(file, format = "rnifti")
-#'   vol2$header
-#'
-#'   # Using ANTsPyx
-#'   vol3 <- io_read_nii(file, format = "ants")
-#'   vol3$header
-#'
-#'   # ---- write --------------------------------------------------------
-#'   f <- tempfile(fileext = ".nii.gz")
-#'   io_write_nii(vol, f)
-#'   io_write_nii(vol2, f)
-#'   io_write_nii(vol3, f)
-#'
-#'   # other ways
-#'   io_write_nii(vol$header, f)
-#'   io_write_nii(vol2$header, f)
-#'   io_write_nii(vol3$header, f)
-#'
-#'   # try to save MGH/MGZ data to NIfTI
-#'   file2 <- ieegio_sample_data("brain.demosubject.mgz")
-#'   mgz <- io_read_mgz(file2)
-#'   io_write_nii(mgz, f)
-#'
-#'   # clean up
-#'   unlink(f)
-#'
-#' }
-#'
-#'
+#' @rdname imaging-volume
 #' @export
-io_read_nii <- function(file, format = c("oro", "rnifti", "ants"), header_only = FALSE, ...) {
+io_read_nii <- function(file, method = c("oro", "rnifti", "ants"), header_only = FALSE, ...) {
   # DIPSAUS DEBUG START
   # file <- "~/rave_data/raw_dir/AnonSEEG0/rave-imaging/coregistration/CT_RAW.nii"
-  format <- match.arg(format)
+  method <- match.arg(method)
 
   if(header_only) {
-    if(!identical(format, "oro")) {
-      warning("`io_read_nii`: reading with header-only mode, format ", sQuote(format), " will be ignored.")
+    if(!identical(method, "oro")) {
+      warning("`io_read_nii`: reading with header-only mode, method ", sQuote(method), " will be ignored.")
     }
-    format <- "oro"
+    method <- "oro"
   }
 
   switch(
-    format,
+    method,
     "oro" = {
       args <- list(
         fname = file, read_data = !header_only,
@@ -250,13 +173,12 @@ io_read_nii <- function(file, format = c("oro", "rnifti", "ants"), header_only =
 
 }
 
-#' @rdname nii
+#' @rdname imaging-volume
 #' @export
 io_write_nii <- function(x, con, ...) {
   UseMethod("io_write_nii")
 }
 
-#' @rdname nii
 #' @export
 io_write_nii.ieegio_nifti <- function(x, con, ...) {
   if(.subset2(x, "header_only")) {
@@ -265,20 +187,17 @@ io_write_nii.ieegio_nifti <- function(x, con, ...) {
   io_write_nii(x = x$header, con = con, ...)
 }
 
-#' @rdname nii
 #' @export
 io_write_nii.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
   con <- normalizePath(con, winslash = "/", mustWork = FALSE)
   x$to_file(con)
 }
 
-#' @rdname nii
 #' @export
 io_write_nii.niftiImage <- function(x, con, ...) {
   RNifti::writeNifti(image = x, file = con, ...)
 }
 
-#' @rdname nii
 #' @export
 io_write_nii.nifti <- function(x, con, ...) {
   if(grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
@@ -287,7 +206,6 @@ io_write_nii.nifti <- function(x, con, ...) {
   oro.nifti::writeNIfTI(nim = x, filename = con, ...)
 }
 
-#' @rdname nii
 #' @export
 io_write_nii.ieegio_mgh <- function(x, con, ...) {
 
@@ -372,7 +290,7 @@ io_write_nii.ieegio_mgh <- function(x, con, ...) {
   io_write_nii.nifti(x = nii, con = con, ...)
 }
 
-#' @rdname nii
+#' @rdname imaging-volume
 #' @export
 io_write_nii.array <- function(x, con, vox2ras = NULL, ...) {
   if(!is.matrix(vox2ras)) {

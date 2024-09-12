@@ -159,7 +159,7 @@ unlink(f)
 
 # ---- Matlab .mat --------------------------------------------------------
 
-if(interactive()) {
+\dontrun{
 
 f <- tempfile(fileext = ".mat")
 

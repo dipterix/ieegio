@@ -1,0 +1,162 @@
+---
+title: "Read imaging data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Read imaging data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE, echo = FALSE, results='hide'}
+if(identical(Sys.getenv("IEEGIO_PKGDOWN", unset = ""), "")) {
+  knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    eval = FALSE
+  )
+} else {
+  options("rgl.useNULL" = TRUE)
+  library(ieegio)
+  library(rgl)
+  knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+  )
+  rgl::setupKnitr(autoprint = FALSE)
+}
+
+```
+
+`ieegio` supports reading from and writing to multiple imaging formats:
+
+* Volume: `NIfTI` & `FreeSurfer MGH/MGZ`
+* Surface: `GIfTI` & `FreeSurfer` geometry, annotation, curvature/measurement, `w` format
+
+To start, please load `ieegio`. This vignette uses sample data which requires extra download.
+
+
+```{r setup}
+library(ieegio)
+
+# volume file
+nifti_file <- ieegio_sample_data("brain.demosubject.nii.gz")
+
+# geometry
+geom_file <- ieegio_sample_data("gifti/GzipBase64/sujet01_Lwhite.surf.gii")
+
+# measurements
+shape_file <- ieegio_sample_data("gifti/GzipBase64/sujet01_Lwhite.shape.gii")
+
+# time series
+ts_file <- ieegio_sample_data(
+  "gifti/GzipBase64/fmri_sujet01_Lwhite_projection.time.gii")
+
+```
+
+
+## Volume files
+
+`ieegio::read_volume` and `ieegio::write_volume` provides high-level interfaces for reading and writing volume data such as `MRI`, `CT`. `fMRI`, etc.
+
+Each volume data (`NIfTI`, `MGH`, ...) contains a `header`, a `data`, and a `transforms` list.
+
+```{r read_volume}
+volume <- read_volume(nifti_file)
+volume
+```
+
+The transforms contain transforms from volume (column, row, slice) index to other coordinate systems. The most commonly used one is `vox2ras`, which is a `4x4` matrix mapping the voxels to scanner (usually `T1-weighted`) `RAS` (right-anterior-superior) system.
+
+Accessing the image values via `[` operator. For example,
+
+``` r
+volume[128, , ]
+```
+
+Plotting the anatomical slices:
+
+```{r plot_volume, fig.width=8, fig.height=3, out.width="95%"}
+par(mfrow = c(1, 3), mar = c(0, 0, 3.1, 0))
+
+ras_position <- c(-50, -10, 15)
+
+ras_str <- paste(sprintf("%.0f", ras_position), collapse = ",")
+
+for(which in c("coronal", "axial", "sagittal")) {
+  plot(x = volume, position = ras_position, crosshair_gap = 10,
+       crosshair_lty = 2, zoom = 3, which = which,
+       main = sprintf("%s T1RAS=[%s]", which, ras_str))
+}
+
+```
+
+## Surface files
+
+Reading surface file using `read_surface` supports multiple data types
+
+
+```{r read_surface}
+library(ieegio)
+# geometry
+geom_file <- "gifti/GzipBase64/sujet01_Lwhite.surf.gii"
+geometry <- read_surface(ieegio_sample_data(geom_file))
+
+# measurements
+shape_file <- "gifti/GzipBase64/sujet01_Lwhite.shape.gii"
+measurement <- read_surface(ieegio_sample_data(shape_file))
+
+# time series
+ts_file <- "gifti/GzipBase64/fmri_sujet01_Lwhite_projection.time.gii"
+time_series <- read_surface(ieegio_sample_data(ts_file))
+```
+
+You can merge them to a single object, making an object with multiple embedding data-sets:
+
+```{r merge}
+merged <- merge(geometry, measurement, time_series)
+print(merged)
+```
+
+Plot the surfaces in `3D` viewer, colored by shape measurement
+
+```{r plot_surface, webgl = TRUE, out.width="70%", fig.width = 7}
+plot(merged, name = "measurements")
+```
+
+Plot the normalized time-series data
+
+```{r time_series, webgl = TRUE, out.width="100%", fig.width = 7}
+ts_demean <- apply(
+  merged$time_series$value,
+  MARGIN = 1L,
+  FUN = function(x) {
+    x - mean(x)
+  }
+)
+merged$time_series$value <- t(ts_demean)
+plot(
+  merged, name = "time_series",
+  col = c(
+    "#053061", "#2166ac", "#4393c3",
+    "#92c5de", "#d1e5f0", "#ffffff",
+    "#fddbc7", "#f4a582", "#d6604d",
+    "#b2182b", "#67001f"
+  )
+)
+```
+
+
+
+
+```{r cleanup, echo = FALSE, results='hide'}
+if(!ieegio_sample_data("placeholder", test = TRUE)) {
+  # Clean up
+  cache_dir <- tools::R_user_dir("ieegio", "cache")
+  unlink(nifti_file)
+  unlink(file.path(cache_dir, "gifti"), recursive = TRUE)
+  fs <- list.files(cache_dir, all.files = FALSE, recursive = FALSE)
+  if(!length(fs)) {
+    unlink(cache_dir, recursive = TRUE)
+  }
+}
+```

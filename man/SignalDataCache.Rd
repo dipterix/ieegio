@@ -3,10 +3,6 @@
 \name{SignalDataCache}
 \alias{SignalDataCache}
 \title{Class definition for signal cache}
-\value{
-Channel signal with time-stamps inheriting class
-\code{'ieegio_get_channel'}
-}
 \description{
 This class is an internal abstract class
 }
@@ -88,6 +84,10 @@ Get channel data
 \item{\code{...}}{passed to child methods}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Channel signal with time-stamps inheriting class
+\code{'ieegio_get_channel'}
 }
 }
 \if{html}{\out{<hr>}}

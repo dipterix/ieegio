@@ -23,7 +23,9 @@ check_rgl <- function (strict = NA) {
 
 helper_rgl_call <- function (FUN, ...) {
   check_rgl()
-  options(rgl.useNULL = TRUE)
+
+  oldopt <- options(rgl.useNULL = TRUE)
+  on.exit({ options(oldopt) })
   rgl <- asNamespace("rgl")
   f <- rgl[[FUN]]
   if (!is.function(f)) {
