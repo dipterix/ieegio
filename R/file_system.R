@@ -185,7 +185,7 @@ path_ext <- function(path, archive_ext = ARCHIVE_EXTENSIONS) {
     return(character())
   }
 
-  sapply(strsplit(basename(path), ".", fixed = TRUE), function(x) {
+  vapply(strsplit(basename(path), ".", fixed = TRUE), function(x) {
     if(isTRUE(is.na(x))) { return(NA_character_) }
     if(length(x) == 1) { return("") }
     if(x[[1]] == "") {
@@ -203,7 +203,7 @@ path_ext <- function(path, archive_ext = ARCHIVE_EXTENSIONS) {
       return(x[[sel]])
     }
     paste(x[seq.int(sel, length(x))], collapse = ".")
-  })
+  }, FUN.VALUE = "")
 }
 
 file_move <- function(path, new_path) {

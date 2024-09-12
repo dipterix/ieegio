@@ -66,7 +66,8 @@ new_surface <- function(
       re$color <- color
       contains <- c(contains, "color")
     } else {
-      warning("Vertex `color` attribute has inconsistent length with the expected vertex length. The `color` attribute is discarded.")
+      warning("Vertex `color` attribute has inconsistent length with the ",
+              "expected vertex length. The `color` attribute is discarded.")
     }
   }
 
@@ -80,7 +81,9 @@ new_surface <- function(
       re$annotations <- annotations
       contains <- c(contains, "annotations")
     } else {
-      warning("Vertex `annotations` attribute has inconsistent length with the expected vertex length. The `annotations` attribute is discarded.")
+      warning("Vertex `annotations` attribute has inconsistent length with ",
+              "the expected vertex length. ",
+              "The `annotations` attribute is discarded.")
     }
   }
 
@@ -93,7 +96,9 @@ new_surface <- function(
       re$measurements <- measurements
       contains <- c(contains, "measurements")
     } else {
-      warning("Vertex `measurements` attribute has inconsistent length with the expected vertex length. The `measurements` attribute is discarded.")
+      warning("Vertex `measurements` attribute has inconsistent length with ",
+              "the expected vertex length. The `measurements` attribute is ",
+              "discarded.")
     }
   }
 
@@ -107,7 +112,9 @@ new_surface <- function(
       re$time_series <- time_series
       contains <- c(contains, "time_series")
     } else {
-      warning("Vertex `time_series` attribute has inconsistent length with the expected vertex length. The `time_series` attribute is discarded.")
+      warning("Vertex `time_series` attribute has inconsistent length with ",
+              "the expected vertex length. The `time_series` attribute ",
+              "is discarded.")
     }
   }
 
@@ -139,7 +146,8 @@ format.ieegio_surface <- function(x, ...) {
       sprintf("    # of Vertex     : %d", ncol(x$geometry$vertices)),
       sprintf("    # of Face index : %d", length(x$geometry$faces) / 3),
       sprintf("    # of transforms : %d", length(x$geometry$transforms)),
-      sprintf("      Transform Targets : %s", paste(names(x$geometry$transforms), collapse = ", "))
+      sprintf("      Transform Targets : %s",
+              paste(names(x$geometry$transforms), collapse = ", "))
     )
   }
   if(!is.null(x$color)) {
@@ -151,7 +159,8 @@ format.ieegio_surface <- function(x, ...) {
       sprintf("`%s`", names(x$annotations$data_table)), collapse = ", "
     )))
     if(is.data.frame(x$annotations$label_table)) {
-      ss <- c(ss, sprintf("    # of labels: %d", nrow(x$annotations$label_table)))
+      ss <- c(ss, sprintf("    # of labels: %d",
+                          nrow(x$annotations$label_table)))
     } else {
       ss <- c(ss, "    No label table found?")
     }
@@ -209,7 +218,8 @@ merge.ieegio_surface <- function(x, y, ...) {
   has_grometry <- !is.null(x$geometry)
 
   if(!has_grometry) {
-    stop("`merge.ieegio_surface`: the first element `x` MUST contain geometry (surface vertex nodes, face indices).")
+    stop("`merge.ieegio_surface`: the first element `x` MUST contain the ",
+         "geometry data (surface vertex nodes, face indices).")
   }
 
   n_verts <- ncol(x$geometry$vertices)
@@ -261,10 +271,12 @@ merge.ieegio_surface <- function(x, y, ...) {
 
   if(x$sparse) {
     if(length(x$annotations)) {
-      x$annotations$data_table <- get_annot_or_meas_full(x, TRUE, node_index, "annotations")
+      x$annotations$data_table <- get_annot_or_meas_full(
+        x, TRUE, node_index, "annotations")
     }
     if(length(x$measurements)) {
-      x$measurements$data_table <- get_annot_or_meas_full(x, TRUE, node_index, "measurements")
+      x$measurements$data_table <- get_annot_or_meas_full(
+        x, TRUE, node_index, "measurements")
     }
     if(length(x$color)) {
       x$color <- get_color_fill(x, TRUE, node_index)
@@ -280,7 +292,9 @@ merge.ieegio_surface <- function(x, y, ...) {
   for(y in additional_surfaces) {
     if( !is.null(y$geometry) ) {
       if(n_verts != ncol(y$geometry$vertices)) {
-        stop("One of the surface object contains geometry that has inconsistent number of vertices. Please check if the surface objects share the same number of vertex nodes.")
+        stop("One of the surface object contains geometry that has ",
+             "inconsistent number of vertices. Please check if the surface ",
+             "objects share the same number of vertex nodes.")
       }
     }
 
@@ -319,7 +333,10 @@ merge.ieegio_surface <- function(x, y, ...) {
           key_x <- merged$Key[sel][[1]]
           Label_x <- merged$Label_x[sel][[1]]
           Label_y <- merged$Label_y[sel][[1]]
-          stop("Unable to merge two annotations with the same key but different labels. For example, key [", key_x, "] represents ", sQuote(Label_x), " in one dataset but ", sQuote(Label_y), " in another.")
+          stop("Unable to merge two annotations with the same key but ",
+               "different labels. For example, key [", key_x,
+               "] represents ", sQuote(Label_x), " in one dataset but ",
+               sQuote(Label_y), " in another.")
         }
         sel <- !label_table_y$Key %in% merged$Key
         x$annotations$label_table <- rbind(x$annotations$label_table, y$annotations$label_table[sel, ])
@@ -382,7 +399,9 @@ merge.ieegio_surface <- function(x, y, ...) {
   }
 
   contains <- names(x)
-  contains <- contains[contains %in% c("geometry", "measurements", "time_series", "annotations", "color")]
+  contains <- contains[contains %in% c(
+    "geometry", "measurements", "time_series", "annotations", "color"
+  )]
   cls <- c(
     sprintf("ieegio_surface_contains_%s", contains),
     class(x)
@@ -496,7 +515,8 @@ merge.ieegio_surface <- function(x, y, ...) {
 #' @export
 plot.ieegio_surface <- function(
     x, method = c("basic", "full"), transform = 1L,
-    name = "auto", vlim = NULL, col = c("black", "white"), slice_index = NULL, ...) {
+    name = "auto", vlim = NULL, col = c("black", "white"),
+    slice_index = NULL, ...) {
   method <- match.arg(method)
 
   # DIPSAUS DEBUG START
@@ -579,7 +599,8 @@ plot.ieegio_surface <- function(
         } else if (max_val > 1.1) {
           max_val <- 255
         }
-        col <- grDevices::rgb(red = rgb[,1], green = rgb[,2], blue = rgb[,3], maxColorValue = max_val)
+        col <- grDevices::rgb(red = rgb[,1], green = rgb[,2], blue = rgb[,3],
+                              maxColorValue = max_val)
         vert_color <- TRUE
       }
     },
@@ -610,7 +631,9 @@ plot.ieegio_surface <- function(
           col <- grDevices::colorRampPalette(col)(256)
           ncols <- 256
         }
-        idx <- floor((val - vlim[[1]]) / (vlim[[2]] - vlim[[1]]) * (ncols - 0.1)) + 1
+        idx <- floor((val - vlim[[1]]) /
+                       (vlim[[2]] - vlim[[1]]) *
+                       (ncols - 0.1)) + 1
         idx[idx <= 1] <- 1
         idx[idx >= ncols] <- ncols
         col <- col[idx]
@@ -639,7 +662,9 @@ plot.ieegio_surface <- function(
         }
         slice_values <- x$time_series$value[, slice_index, drop = FALSE]
         slice_dim <- dim(slice_values)
-        idx <- floor((slice_values - vlim[[1]]) / (vlim[[2]] - vlim[[1]]) * (ncols - 0.1)) + 1
+        idx <- floor((slice_values - vlim[[1]]) /
+                       (vlim[[2]] - vlim[[1]]) *
+                       (ncols - 0.1)) + 1
         idx[idx <= 1] <- 1
         idx[idx >= ncols] <- ncols
         col <- col[idx]
@@ -676,7 +701,8 @@ plot.ieegio_surface <- function(
         helper_rgl_call("next3d")
         helper_rgl_call("shade3d", mesh, col = col[i, ])
         helper_rgl_call("next3d")
-        helper_rgl_call("text3d", 0, 0, 0, sprintf("Slice %d", slice_index[[i]]))
+        helper_rgl_call("text3d", 0, 0, 0,
+                        sprintf("Slice %d", slice_index[[i]]))
       }
       # To trigger display
 
@@ -708,12 +734,18 @@ plot.ieegio_surface <- function(
         helper_rgl_view({
           rg <- apply(mesh$vb, 1, range)[, 1:3]
           helper_rgl_call("shade3d", mesh, col = col)
-          helper_rgl_call("arrow3d", rg[1, ], rg[c(2, 3, 5)], s = 0.02, type = "line", col = "red")
-          helper_rgl_call("arrow3d", rg[1, ], rg[c(1, 4, 5)], s = 0.02, type = "line", col = "green")
-          helper_rgl_call("arrow3d", rg[1, ], rg[c(1, 3, 6)], s = 0.02, type = "line", col = "blue")
-          helper_rgl_call("text3d", texts = "Right", x = rg[c(2, 3, 5)], adj = c(1,1,1))
-          helper_rgl_call("text3d", texts = "Anterior", x = rg[c(1, 4, 5)], adj = c(1,1,1))
-          helper_rgl_call("text3d", texts = "Superior", x = rg[c(1, 3, 6)], adj = c(1,1,1))
+          helper_rgl_call("arrow3d", rg[1, ], rg[c(2, 3, 5)], s = 0.02,
+                          type = "line", col = "red")
+          helper_rgl_call("arrow3d", rg[1, ], rg[c(1, 4, 5)], s = 0.02,
+                          type = "line", col = "green")
+          helper_rgl_call("arrow3d", rg[1, ], rg[c(1, 3, 6)], s = 0.02,
+                          type = "line", col = "blue")
+          helper_rgl_call("text3d", texts = "Right", x = rg[c(2, 3, 5)],
+                          adj = c(1,1,1))
+          helper_rgl_call("text3d", texts = "Anterior", x = rg[c(1, 4, 5)],
+                          adj = c(1,1,1))
+          helper_rgl_call("text3d", texts = "Superior", x = rg[c(1, 3, 6)],
+                          adj = c(1,1,1))
           helper_rgl_call("title3d", main = main, cex = 1.2)
         })
       }, {
@@ -739,9 +771,15 @@ plot.ieegio_surface <- function(
 #' @param type type of the data; ignored if the file format is 'GIfTI'. For
 #' 'FreeSurfer' files, supported types are
 #' \describe{
-#' \item{\code{'geometry'}}{contains positions of mesh vertex nodes and face indices;}
-#' \item{\code{'annotations'}}{annotation file (usually with file extension \code{'annot'}) containing a color look-up table and an array of color keys. These files are used to display discrete values on the surface such as brain atlas;}
-#' \item{\code{'measurements'}}{measurement file such as \code{'sulc'} and \code{'curv'} files, containing numerical values (often with continuous domain) for each vertex node}
+#' \item{\code{'geometry'}}{contains positions of mesh vertex nodes and face
+#' indices;}
+#' \item{\code{'annotations'}}{annotation file (usually with file extension
+#' \code{'annot'}) containing a color look-up table and an array of color keys.
+#' These files are used to display discrete values on the surface such as
+#' brain atlas;}
+#' \item{\code{'measurements'}}{measurement file such as \code{'sulc'} and
+#' \code{'curv'} files, containing numerical values (often with continuous
+#' domain) for each vertex node}
 #' }
 #' @param format format of the file, see 'Arguments' section in
 #' \code{\link[freesurferformats]{read.fs.surface}} (when file type is
@@ -818,8 +856,11 @@ read_surface <- function(file, format = "auto", type = NULL, ...) {
 
 #' @rdname imaging-surface
 #' @export
-write_surface <- function(x, con, format = c("gifti", "freesurfer"),
-                          type = c("geometry", "annotations", "measurements", "color", "time_series"), ...) {
+write_surface <- function(
+    x, con, format = c("gifti", "freesurfer"),
+    type = c("geometry", "annotations", "measurements", "color",
+             "time_series"),
+    ...) {
 
   format <- match.arg(format)
 
@@ -831,7 +872,8 @@ write_surface <- function(x, con, format = c("gifti", "freesurfer"),
   type <- match.arg(type)
 
   if( type %in% c("color", "time_series") ) {
-    stop("Saving ", type, " data in FreeSurfer format has not been implemented.")
+    stop("Saving ", type,
+         " data in FreeSurfer format has not been implemented.")
   }
 
   if(!length(x[[type]])) {
@@ -846,7 +888,10 @@ write_surface <- function(x, con, format = c("gifti", "freesurfer"),
   }
 
   if(x$sparse && type == "measurements") {
-    warning("Saving ", type, " data with sparse index in FreeSurfer format is not supported. The result might be wrong. Please check it.")
+    warning("Saving ", type, " data with sparse index in ",
+            "FreeSurfer format is not supported. ",
+            "The result might be wrong. ",
+            "Please check it.")
   }
 
 
@@ -860,14 +905,18 @@ write_surface <- function(x, con, format = c("gifti", "freesurfer"),
          is.numeric(face_start) && face_start != 1) {
         faces <- faces - face_start + 1L
       }
-      freesurferformats::write.fs.surface(filepath = con, vertex_coords = vertices, faces = faces)
+      freesurferformats::write.fs.surface(
+        filepath = con, vertex_coords = vertices, faces = faces
+      )
     },
     "annotations" = {
       n_verts <- 0
       if( x$sparse ) {
         start_index <- attr(x$sparse_node_index, "start_index")
         n_verts <- max(x$sparse_node_index)
-        if(length(start_index) == 1 && !is.na(start_index) && is.numeric(start_index)) {
+        if(length(start_index) == 1 &&
+           !is.na(start_index) &&
+           is.numeric(start_index)) {
           n_verts <- n_verts - start_index + 1
         }
       }

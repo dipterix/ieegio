@@ -19,7 +19,11 @@ get_vox2fsl <- function(shape, pixdim, vox2ras) {
 new_volume <- function(type, header, transforms, data, shape) {
   use_expression <- FALSE
   if(is.null(data)) {
-    class <- c(sprintf("ieegio_%s", type), "ieegio_header_only", "ieegio_volume")
+    class <- c(
+      sprintf("ieegio_%s", type),
+      "ieegio_header_only",
+      "ieegio_volume"
+    )
     force(shape)
     header_only <- TRUE
   } else {
@@ -63,7 +67,7 @@ format.ieegio_volume <- function(x, ...) {
   }
 
   if(length(x$transforms)) {
-    transforms_str <- sapply(names(x$transforms), function(nm) {
+    transforms_str <- vapply(names(x$transforms), function(nm) {
       mat <- x$transforms[[nm]]
       mat <- apply(mat, 2, function(x) {
         re <- sprintf("%.6f", x)
@@ -75,7 +79,7 @@ format.ieegio_volume <- function(x, ...) {
         sprintf("      [%s]", paste(x, collapse = "  "))
       })
       paste(c(sprintf("    %s:", nm), re), collapse = "\n")
-    })
+    }, FUN.VALUE = "")
     transforms_str <- c("  Transforms:", transforms_str)
   } else {
     transforms_str <- "  Transforms: none"
@@ -526,7 +530,8 @@ plot.ieegio_volume <- function(
   vox_idx[vox_idx >= x_shape[1:3]] <- NA_integer_
   x_shape_cumprod <- cumprod(x_shape)
   multi <- c(1, x_shape_cumprod[1:2])
-  vox_idx <- colSums(vox_idx * multi) + 1L + x_shape_cumprod[[3]] * (slice_index - 1)
+  vox_idx <- colSums(vox_idx * multi) + 1L +
+    x_shape_cumprod[[3]] * (slice_index - 1)
 
   vox_data <- array(x_data[vox_idx], dim = c(length(x_axis), length(y_axis)))
 

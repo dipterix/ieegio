@@ -31,7 +31,7 @@ Only functions which are supposed to only run interactively (e.g. shiny) should 
 -> ieegio_sample_data.Rd; low-level-read-write.Rd
 ```
 
-Thanks, I removed all `if(interactive()){}`, some are wrapped with `dontrun` as these examples require downloading external data or additional configurations.
+Thanks, I removed all `if(interactive()){}` (2 sites), and wrapped with `dontrun` as these examples require downloading external data or additional configurations.
 
 
 ```

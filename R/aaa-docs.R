@@ -6,15 +6,18 @@
 #' @param x data to write to disk
 #' @param method method to read table. For \code{'fst'}, the choices are
 #' \describe{
-#' \item{\code{'proxy'}}{do not read data to memory, query the table when needed;}
+#' \item{\code{'proxy'}}{do not read data to memory, query the table when
+#' needed;}
 #' \item{\code{'data_table'}}{read as \code{\link[data.table]{data.table}};}
 #' \item{\code{'data_frame'}}{read as \code{\link{data.frame}};}
 #' \item{\code{'header_only'}}{read \code{'fst'} table header.}
 #' }
 #' For \code{'mat'}, the choices are
 #' \describe{
-#' \item{\code{'auto'}}{automatically try the native option, and then \code{'pymatreader'} if fails;}
-#' \item{\code{'R.matlab'}}{use the native method (provided by \code{\link[R.matlab]{readMat}}); only support 'MAT 5.0' format;}
+#' \item{\code{'auto'}}{automatically try the native option, and then
+#' \code{'pymatreader'} if fails;}
+#' \item{\code{'R.matlab'}}{use the native method (provided
+#' by \code{\link[R.matlab]{readMat}}); only support 'MAT 5.0' format;}
 #' \item{\code{'pymatreader'}}{use 'Python' library \code{'pymatreader'};}
 #' \item{\code{'mat73'}}{use 'Python' library \code{'mat73'}.}
 #' }

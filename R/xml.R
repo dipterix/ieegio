@@ -1,6 +1,6 @@
 cdata <- function (string) {
-  cdata_start_tag = "<![CDATA["
-  cdata_end_tag = "]]>"
+  cdata_start_tag <- "<![CDATA["
+  cdata_end_tag <- "]]>"
   if (grepl(string, cdata_start_tag, fixed = TRUE)) {
     stop(sprintf("Input string must not contain the cdata start tag '%s'.\n",
                  cdata_start_tag))
@@ -13,13 +13,13 @@ cdata <- function (string) {
 }
 
 check_data_and_settings_consistency <- function (index, data, datatype, intent, force = FALSE) {
-  msg = NULL
+  msg <- NULL
   if (is.integer(data) & startsWith(datatype, "NIFTI_TYPE_FLOAT")) {
-    msg = sprintf("Dataset # %d in file will be corrupted: integer R data passed, and written as '%s'.\n",
+    msg <- sprintf("Dataset # %d in file will be corrupted: integer R data passed, and written as '%s'.\n",
                   index, datatype)
   }
   if (gifti::convert_intent(intent) == "unknown") {
-    msg = sprintf("Dataset # %d: Invalid NIFTI intent '%s'.\n",
+    msg <- sprintf("Dataset # %d: Invalid NIFTI intent '%s'.\n",
                   index, intent)
   }
   if (!is.null(msg)) {
@@ -49,21 +49,21 @@ xml_node_gifti_coordtransform <- function (transform_matrix, data_space = "NIFTI
     stop("Parameter 'transform_matrix' must be a numerical 4x4 matrix.")
   }
   if (as_cdata) {
-    data_space = cdata(data_space)
-    transformed_space = cdata(transformed_space)
+    data_space <- cdata(data_space)
+    transformed_space <- cdata(transformed_space)
   }
-  r1 = paste(sprintf("%f", transform_matrix[1, ]), collapse = " ")
-  r2 = paste(sprintf("%f", transform_matrix[2, ]), collapse = " ")
-  r3 = paste(sprintf("%f", transform_matrix[3, ]), collapse = " ")
-  r4 = paste(sprintf("%f", transform_matrix[4, ]), collapse = " ")
-  matrix_data_formatted = paste(r1, r2, r3, r4, sep = "\n")
-  matrix_data_formatted = sprintf("\n%s\n", matrix_data_formatted)
-  matrix_node = xml2::read_xml("<CoordinateSystemTransformMatrix/>")
-  data_space_node = xml2::read_xml(paste("<DataSpace>", data_space,
+  r1 <- paste(sprintf("%f", transform_matrix[1, ]), collapse = " ")
+  r2 <- paste(sprintf("%f", transform_matrix[2, ]), collapse = " ")
+  r3 <- paste(sprintf("%f", transform_matrix[3, ]), collapse = " ")
+  r4 <- paste(sprintf("%f", transform_matrix[4, ]), collapse = " ")
+  matrix_data_formatted <- paste(r1, r2, r3, r4, sep = "\n")
+  matrix_data_formatted <- sprintf("\n%s\n", matrix_data_formatted)
+  matrix_node <- xml2::read_xml("<CoordinateSystemTransformMatrix/>")
+  data_space_node <- xml2::read_xml(paste("<DataSpace>", data_space,
                                          "</DataSpace>", sep = ""))
-  transformed_space_node = xml2::read_xml(paste("<TransformedSpace>",
+  transformed_space_node <- xml2::read_xml(paste("<TransformedSpace>",
                                                 transformed_space, "</TransformedSpace>", sep = ""))
-  matrix_data_node = xml2::read_xml(paste("<MatrixData>", matrix_data_formatted,
+  matrix_data_node <- xml2::read_xml(paste("<MatrixData>", matrix_data_formatted,
                                           "</MatrixData>", sep = ""))
   xml2::xml_add_child(matrix_node, data_space_node)
   xml2::xml_add_child(matrix_node, transformed_space_node)
@@ -83,10 +83,10 @@ create_gii_xml <- function (data_array,
   if (!is.list(data_array)) {
     stop("Parameter 'data_array' must be a list.")
   }
-  supported_encodings = c("ASCII", "Base64Binary", "GZipBase64Binary")
-  num_data_arrays = length(data_array)
-  dataarray_contains_matrices = any(lapply((lapply(data_array, dim)), length) > 0L)
-  num_transform_matrices = 0L
+  supported_encodings <- c("ASCII", "Base64Binary", "GZipBase64Binary")
+  num_data_arrays <- length(data_array)
+  dataarray_contains_matrices <- any(lapply((lapply(data_array, dim)), length) > 0L)
+  num_transform_matrices <- 0L
   if (!is.null(transform_matrix)) {
     if (!is.list(transform_matrix)) {
       stop("Parameter 'transform_matrix' must be NULL or a list.")
@@ -96,7 +96,7 @@ create_gii_xml <- function (data_array,
         "Parameter 'transform_matrix' must not be a named list. Hint: When passing a single matrix, you need to enclose it in an outer list."
       )
     }
-    num_transform_matrices = length(transform_matrix)
+    num_transform_matrices <- length(transform_matrix)
     if (num_transform_matrices != num_data_arrays) {
       stop(
         sprintf(
@@ -109,45 +109,45 @@ create_gii_xml <- function (data_array,
   }
   if (num_data_arrays > 1L) {
     if (length(intent) == 1L) {
-      intent = rep(intent, num_data_arrays)
+      intent <- rep(intent, num_data_arrays)
     }
     if (length(datatype) == 1L) {
-      datatype = rep(datatype, num_data_arrays)
+      datatype <- rep(datatype, num_data_arrays)
     }
     if (length(encoding) == 1L) {
-      encoding = rep(encoding, num_data_arrays)
+      encoding <- rep(encoding, num_data_arrays)
     }
     if (length(endian) == 1L) {
-      endian = rep(endian, num_data_arrays)
+      endian <- rep(endian, num_data_arrays)
     }
   }
-  dim0 = rep(1L, num_data_arrays)
-  dim1 = rep(1L, num_data_arrays)
-  dimensionality = rep(1L, num_data_arrays)
-  array_indexing_order = rep("RowMajorOrder", num_data_arrays)
-  root = xml2::xml_new_root("GIFTI",
+  dim0 <- rep(1L, num_data_arrays)
+  dim1 <- rep(1L, num_data_arrays)
+  dimensionality <- rep(1L, num_data_arrays)
+  array_indexing_order <- rep("RowMajorOrder", num_data_arrays)
+  root <- xml2::xml_new_root("GIFTI",
                             Version = "1.0",
                             NumberOfDataArrays = num_data_arrays)
-  metadata = xml2::xml_add_child(root, xml2::read_xml("<MetaData></MetaData>"))
+  metadata <- xml2::xml_add_child(root, xml2::read_xml("<MetaData></MetaData>"))
   xml2::xml_add_child(metadata,
                       xml2::read_xml("<MD><Name>Generator</Name><Value>ieegio</Value></MD>"))
-  da_index = 1L
-  data_is_matrix = FALSE
+  da_index <- 1L
+  data_is_matrix <- FALSE
   for (da in data_array) {
     da_meta <- as.list(attr(da, "meta"))
     if (is.vector(da)) {
-      dim0[da_index] = length(da)
-      dim1[da_index] = 1L
-      dimensionality[da_index] = 1L
+      dim0[da_index] <- length(da)
+      dim1[da_index] <- 1L
+      dimensionality[da_index] <- 1L
     } else if (is.matrix(da)) {
-      data_is_matrix = TRUE
-      dimensionality[da_index] = 2L
-      dim0[da_index] = dim(da)[1]
-      dim1[da_index] = dim(da)[2]
+      data_is_matrix <- TRUE
+      dimensionality[da_index] <- 2L
+      dim0[da_index] <- dim(da)[1]
+      dim1[da_index] <- dim(da)[2]
       if (array_indexing_order[da_index] == "RowMajorOrder") {
-        da = as.vector(t(da))
+        da <- as.vector(t(da))
       } else if (array_indexing_order[da_index] == "ColumnMajorOrder") {
-        da = as.vector((da))
+        da <- as.vector((da))
       } else {
         stop(
           sprintf(
@@ -173,7 +173,7 @@ create_gii_xml <- function (data_array,
     }
     check_data_and_settings_consistency(da_index, da,
                                         datatype[da_index], intent[da_index], force = force)
-    data_array_node = xml2::read_xml("<DataArray/>")
+    data_array_node <- xml2::read_xml("<DataArray/>")
     xml2::xml_set_attr(data_array_node, "Dimensionality",
                        dimensionality[da_index])
     xml2::xml_set_attr(data_array_node, "Dim0", dim0[da_index])
@@ -194,7 +194,7 @@ create_gii_xml <- function (data_array,
     xml2::xml_set_attr(data_array_node,
                        "ArrayIndexingOrder",
                        array_indexing_order[da_index])
-    data_array_node_added = xml2::xml_add_child(root,
+    data_array_node_added <- xml2::xml_add_child(root,
                                                 data_array_node)
 
     data_array_meta_content <- xml2::read_xml("<MetaData></MetaData>")
@@ -214,17 +214,17 @@ create_gii_xml <- function (data_array,
         return()
       })
     }
-    data_array_metadata = xml2::xml_add_child(data_array_node_added, data_array_meta_content)
-    encoded_data = gifti::data_encoder(da,
+    data_array_metadata <- xml2::xml_add_child(data_array_node_added, data_array_meta_content)
+    encoded_data <- gifti::data_encoder(da,
                                        encoding = encoding[da_index],
                                        datatype = datatype[da_index],
                                        endian = endian[da_index])
-    data_node = xml2::read_xml(sprintf("<Data>%s</Data>",
+    data_node <- xml2::read_xml(sprintf("<Data>%s</Data>",
                                        encoded_data))
     if (num_transform_matrices > 0L) {
-      tf = transform_matrix[[da_index]]
+      tf <- transform_matrix[[da_index]]
       if (is.list(tf)) {
-        tf_node = xml_node_gifti_coordtransform(
+        tf_node <- xml_node_gifti_coordtransform(
           tf$transform_matrix,
           data_space = tf$data_space,
           transformed_space = tf$transformed_space
@@ -233,7 +233,7 @@ create_gii_xml <- function (data_array,
                             tf_node)
       }
       else if (is.matrix(tf)) {
-        tf_node = xml_node_gifti_coordtransform(tf)
+        tf_node <- xml_node_gifti_coordtransform(tf)
         xml2::xml_add_child(data_array_node_added,
                             tf_node)
       }
@@ -249,7 +249,7 @@ create_gii_xml <- function (data_array,
       }
     }
     xml2::xml_add_child(data_array_node_added, data_node)
-    da_index = da_index + 1L
+    da_index <- da_index + 1L
   }
 
   # construct look-up table

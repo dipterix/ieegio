@@ -6,7 +6,8 @@ BCI2000Cache <- R6::R6Class(
     .filearray = NULL,
     assert_valid = function() {
       if(!self$valid) {
-        stop("`BCI2000Cache`: the loaded cache was removed/changed. Please recache the data.")
+        stop("`BCI2000Cache`: the loaded cache was removed/changed. ",
+             "Please recache the data.")
       }
     },
     finalize = function() {
@@ -43,9 +44,6 @@ BCI2000Cache <- R6::R6Class(
       }
       nchannels <- dim(x)[[2]]
 
-      # source_header <- x$get_header("source_header")
-
-      # channel_names <- source_header$parameters$Source$`Signal Properties`$DataIOFilter$ChannelNames$value
       channel_table <- data.frame(
         Channel = seq_len(nchannels),
         Label = sprintf("Ch%d", seq_len(nchannels)),

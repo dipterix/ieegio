@@ -9,9 +9,11 @@ NIFTI_XFORM_CODE <- list(
   "NIFTI_XFORM_MNI_152" = "MNI152"
 )
 
-parse_svec <- function(text, sep = ',', connect = '-:|', sort = FALSE, unique = TRUE){
+parse_svec <- function(
+    text, sep = ',', connect = '-:|', sort = FALSE, unique = TRUE){
   connect <- unique(unlist(strsplit(connect, '')))
-  connect[connect %in% c('|', ':', '~')] <- paste0('\\', connect[connect %in% c('|', ':', '~')])
+  connect[connect %in% c('|', ':', '~')] <-
+    paste0('\\', connect[connect %in% c('|', ':', '~')])
   if('-' %in% connect) {
     connect <- c(connect[connect != "-"], "-")
   }
@@ -70,7 +72,9 @@ parse_svec <- function(text, sep = ',', connect = '-:|', sort = FALSE, unique = 
   return(re)
 }
 
-deparse_svec <- function(nums, connect = '-', concatenate = TRUE, collapse = ',', max_lag = 1){
+deparse_svec <- function(
+    nums, connect = '-', concatenate = TRUE, collapse = ',',
+    max_lag = 1){
   nums <- nums[is.finite(nums)]
   if(length(nums) == 0){
     return('')

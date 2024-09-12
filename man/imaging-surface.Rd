@@ -43,9 +43,15 @@ io_write_gii(x, con, ...)
 \item{type}{type of the data; ignored if the file format is 'GIfTI'. For
 'FreeSurfer' files, supported types are
 \describe{
-\item{\code{'geometry'}}{contains positions of mesh vertex nodes and face indices;}
-\item{\code{'annotations'}}{annotation file (usually with file extension \code{'annot'}) containing a color look-up table and an array of color keys. These files are used to display discrete values on the surface such as brain atlas;}
-\item{\code{'measurements'}}{measurement file such as \code{'sulc'} and \code{'curv'} files, containing numerical values (often with continuous domain) for each vertex node}
+\item{\code{'geometry'}}{contains positions of mesh vertex nodes and face
+indices;}
+\item{\code{'annotations'}}{annotation file (usually with file extension
+\code{'annot'}) containing a color look-up table and an array of color keys.
+These files are used to display discrete values on the surface such as
+brain atlas;}
+\item{\code{'measurements'}}{measurement file such as \code{'sulc'} and
+\code{'curv'} files, containing numerical values (often with continuous
+domain) for each vertex node}
 }}
 
 \item{...}{for \code{read_surface}, the arguments will be passed to

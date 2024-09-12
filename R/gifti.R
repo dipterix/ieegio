@@ -475,7 +475,7 @@ io_write_gii.ieegio_surface <- function(
     transform_matrix <- c(transform_matrix, as.list(rep(NA, length(slice_duration))))
   }
 
-  xmltree = create_gii_xml(
+  xmltree <- create_gii_xml(
     data_array = data_sets,
     intent = intents,
     datatype = datatypes,
