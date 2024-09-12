@@ -17,6 +17,10 @@ gifti/GzipBase64/fmri_sujet01_Lwhite_projection.time.gii
 gifti/GzipBase64/sujet01_Lwhite.inflated.surf.gii
 gifti/GzipBase64/sujet01_Lwhite.shape.gii
 gifti/GzipBase64/sujet01_Lwhite.surf.gii
+gifti/icosahedron3d/geometry.gii
+gifti/icosahedron3d/rand.curv
+gifti/icosahedron3d/rand.gii
+gifti/icosahedron3d/ts.gii
 mat_v73.mat
 nwb_sample.nwb
 placeholder
