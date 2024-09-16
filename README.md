@@ -2,6 +2,8 @@
 # `ieegio`: IO toolbox for Intracranial Electroencephalography
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/ieegio)](https://CRAN.R-project.org/package=ieegio)
+[![r-universe](https://dipterix.r-universe.dev/badges/ieegio)](https://dipterix.r-universe.dev/ieegio)
 [![R-CMD-check](https://github.com/dipterix/ieegio/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dipterix/ieegio/actions/workflows/R-CMD-check.yaml)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
