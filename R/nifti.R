@@ -191,6 +191,7 @@ io_write_nii.ieegio_nifti <- function(x, con, ...) {
 io_write_nii.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
   con <- normalizePath(con, winslash = "/", mustWork = FALSE)
   x$to_file(con)
+  invisible()
 }
 
 #' @export
@@ -199,11 +200,17 @@ io_write_nii.niftiImage <- function(x, con, ...) {
 }
 
 #' @export
-io_write_nii.nifti <- function(x, con, ...) {
+io_write_nii.nifti <- function(x, con, gzipped = NA, ...) {
+  if(is.na(gzipped)) {
+    gzipped <- TRUE
+  }
   if(grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
+    if( grepl("\\.nii$", con, ignore.case = TRUE) ) {
+      gzipped <- FALSE
+    }
     con <- path_ext_remove(con)
   }
-  oro.nifti::writeNIfTI(nim = x, filename = con, ...)
+  oro.nifti::writeNIfTI(nim = x, filename = con, gzipped = gzipped, ...)
 }
 
 #' @export
