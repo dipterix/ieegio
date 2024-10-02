@@ -23,7 +23,7 @@ mat_to_quaternion <- function(m) {
   trace <- m11 + m22 + m33
 
   if( trace > 0 ) {
-    s <- 0.5 + sqrt(trace + 1)
+    s <- 0.5 / sqrt(trace + 1)
     w <- 0.25 / s
     x <- (m32 - m23) * s
     y <- (m13 - m31) * s
