@@ -13,7 +13,7 @@ will call other low-level functions internally."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,6 +88,21 @@ will call other low-level functions internally.</p>
 <span></span>
 <span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># S3 method for class 'ieegio_nifti'</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'ants.core.ants_image.ANTsImage'</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'niftiImage'</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'nifti'</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, gzipped <span class="op">=</span> <span class="cn">NA</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'ieegio_mgh'</span></span>
+<span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># S3 method for class 'array'</span></span>
 <span><span class="fu">io_write_nii</span><span class="op">(</span><span class="va">x</span>, <span class="va">con</span>, vox2ras <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -142,6 +157,14 @@ row, slice) to scanner (often 'T1-weighted' image) 'RAS'
 <code><a href="https://rdrr.io/pkg/oro.nifti/man/read_nifti.html" class="external-link">readNIfTI</a></code>), <code>'rnifti'</code> (using
 <code><a href="https://rdrr.io/pkg/RNifti/man/readNifti.html" class="external-link">readNifti</a></code>), and <code>'ants'</code> (using
 <code><a href="http://dipterix.org/rpyANTs/reference/as_ANTsImage.html" class="external-link">as_ANTsImage</a></code>).</p></dd>
+
+
+<dt id="arg-gzipped">gzipped<a class="anchor" aria-label="anchor" href="#arg-gzipped"></a></dt>
+<dd><p>for writing <code>'nii'</code> data: whether the file needs to be
+compressed; default is inferred from the file name. When the file ends
+with <code>'nii'</code>, then no compression is used; otherwise the file will
+be compressed. If the file name does not end with <code>'nii'</code> nor
+<code>'nii.gz'</code>, then the file extension will be added automatically.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -226,7 +249,7 @@ row, slice) to scanner (often 'T1-weighted' image) 'RAS'
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>
