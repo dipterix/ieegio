@@ -325,29 +325,29 @@ io_write_nii.array <- function(x, con, vox2ras = NULL, ...) {
   if( nframes == 1 && length(shape) != 3 ) {
     pixdim[[5]] <- 0
     shape <- shape[1:3]
-    data <- array(data[seq_len(prod(shape))], dim = shape)
+    x <- array(x[seq_len(prod(shape))], dim = shape)
   }
 
 
 
-  data[is.na(data)] <- 0
-  rg <- range(data)
-  if(all(data - round(data) == 0)) {
+  x[is.na(x)] <- 0
+  rg <- range(x)
+  if(all(x - round(x) == 0)) {
     if( rg[[1]] >= 0 && rg[[2]] <= 255 ) {
       # UINT8
       datatype_code <- 2L
       bitpix <- 8L
-      storage.mode(data) <- "integer"
+      storage.mode(x) <- "integer"
     } else if ( rg[[1]] >= -32768 && rg[[2]] <= 32768 ) {
       # INT16
       datatype_code <- 4L
       bitpix <- 16L
-      storage.mode(data) <- "integer"
+      storage.mode(x) <- "integer"
     } else if ( rg[[1]] >= -2147483648 && rg[[2]] <= 2147483648 ) {
       # INT32
       datatype_code <- 8L
       bitpix <- 32L
-      storage.mode(data) <- "integer"
+      storage.mode(x) <- "integer"
     } else {
       # FLOAT32
       bitpix <- 32L
@@ -360,7 +360,7 @@ io_write_nii.array <- function(x, con, vox2ras = NULL, ...) {
   }
 
   # functional
-  nii <- oro.nifti::as.nifti(data)
+  nii <- oro.nifti::as.nifti(x)
   # sizeof_hdr = 348L,
   # dim_info = 0L,
   # dim = as.integer(c(length(x$shape), x$shape, rep(1, 7 - length(x$shape)))),
