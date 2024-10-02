@@ -15,6 +15,14 @@ get_vox2fsl <- function(shape, pixdim, vox2ras) {
   voxToScaledVoxMat
 }
 
+get_vox2ras_tkr <- function(vox2ras, crs_c) {
+  # Torig <- cbind(Norig[, 4], -Norig[, 4] %*% header$internal$Pcrs_c)
+  vox2ras_tkr <- vox2ras[1:3, 1:3]
+  vox2ras_tkr <- cbind(vox2ras_tkr, - vox2ras_tkr %*% crs_c[1:3])
+  vox2ras_tkr <- rbind(vox2ras_tkr, c(0, 0, 0, 1))
+  vox2ras_tkr
+}
+
 
 new_volume <- function(type, header, transforms, data, shape) {
   use_expression <- FALSE

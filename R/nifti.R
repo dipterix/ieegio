@@ -61,8 +61,9 @@ io_read_nii <- function(file, method = c("oro", "rnifti", "ants"), header_only =
       }
 
       # vox2ras_tkr
-      vox2ras_tkr <- vox2ras
-      vox2ras_tkr[1:3, 4] <- - shape[1:3] / 2
+      # vox2ras_tkr <- vox2ras
+      # vox2ras_tkr[1:3, 4] <- - vox2ras[1:3, 1:3] %*% shape[1:3] / 2
+      vox2ras_tkr <- get_vox2ras_tkr(vox2ras, shape / 2)
 
       # vox2fsl
       vox2fsl <- get_vox2fsl(shape = shape, pixdim = pixdim, vox2ras = vox2ras)
@@ -110,8 +111,9 @@ io_read_nii <- function(file, method = c("oro", "rnifti", "ants"), header_only =
       }
 
       # vox2ras_tkr
-      vox2ras_tkr <- vox2ras
-      vox2ras_tkr[1:3, 4] <- - shape[1:3] / 2
+      # vox2ras_tkr <- vox2ras
+      # vox2ras_tkr[1:3, 4] <- - vox2ras[1:3, 1:3] %*% shape[1:3] / 2
+      vox2ras_tkr <- get_vox2ras_tkr(vox2ras, shape / 2)
 
       # vox2fsl
       vox2fsl <- get_vox2fsl(shape = shape, pixdim = pixdim, vox2ras = vox2ras)
@@ -149,8 +151,9 @@ io_read_nii <- function(file, method = c("oro", "rnifti", "ants"), header_only =
       attr(vox2ras, "which_xform") <- "qform"
 
       # vox2ras_tkr
-      vox2ras_tkr <- vox2ras
-      vox2ras_tkr[1:3, 4] <- - shape[1:3] / 2
+      # vox2ras_tkr <- vox2ras
+      # vox2ras_tkr[1:3, 4] <- - vox2ras[1:3, 1:3] %*% shape[1:3] / 2
+      vox2ras_tkr <- get_vox2ras_tkr(vox2ras, shape / 2)
 
       # vox2fsl
       vox2fsl <- get_vox2fsl(shape = shape, pixdim = pixdim, vox2ras = vox2ras)

@@ -120,9 +120,10 @@ io_read_mgz <- function(file, header_only = FALSE) {
   Norig <- header$vox2ras_matrix
 
   # Torig: IJK to tkr-RAS
-  Torig <- Norig[1:4, 1:3]
-  Torig <- cbind(Torig, -Torig %*% header$internal$Pcrs_c)
-  Torig[4, 4] <- 1
+  # Torig <- Norig[1:4, 1:3]
+  # Torig <- cbind(Torig, -Torig %*% header$internal$Pcrs_c)
+  # Torig[4, 4] <- 1
+  Torig <- get_vox2ras_tkr(Norig, header$internal$Pcrs_c)
 
   # IJK to fsl
   vox2fsl <- get_vox2fsl(shape = shape, pixdim = pixdim, vox2ras = Norig)

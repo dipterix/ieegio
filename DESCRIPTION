@@ -1,6 +1,6 @@
 Package: ieegio
 Title: File IO for Intracranial Electroencephalography
-Version: 0.0.1
+Version: 0.0.1.9000
 Language: en-US
 Encoding: UTF-8
 Authors@R: 
@@ -45,5 +45,7 @@ Suggests:
     xml2,
     knitr,
     rmarkdown,
-    tools
+    tools,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
+Config/testthat/edition: 3
