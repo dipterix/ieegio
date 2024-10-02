@@ -245,9 +245,9 @@ read_volume <- function(file, header_only = FALSE,
   if( format == "auto" ) {
     fname <- tolower(basename(file))
     if( endsWith(fname, "mgh") || endsWith(fname, "mgz") ) {
-      fname <- "mgh"
+      format <- "mgh"
     } else {
-      fname <- "nifti"
+      format <- "nifti"
     }
   }
 
