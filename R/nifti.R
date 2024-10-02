@@ -182,6 +182,7 @@ io_write_nii <- function(x, con, ...) {
   UseMethod("io_write_nii")
 }
 
+#' @rdname imaging-volume
 #' @export
 io_write_nii.ieegio_nifti <- function(x, con, ...) {
   if(.subset2(x, "header_only")) {
@@ -190,18 +191,21 @@ io_write_nii.ieegio_nifti <- function(x, con, ...) {
   io_write_nii(x = x$header, con = con, ...)
 }
 
+#' @rdname imaging-volume
 #' @export
 io_write_nii.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
   con <- normalizePath(con, winslash = "/", mustWork = FALSE)
   x$to_file(con)
-  invisible()
+  normalizePath(con)
 }
 
+#' @rdname imaging-volume
 #' @export
 io_write_nii.niftiImage <- function(x, con, ...) {
   RNifti::writeNifti(image = x, file = con, ...)
 }
 
+#' @rdname imaging-volume
 #' @export
 io_write_nii.nifti <- function(x, con, gzipped = NA, ...) {
   if(is.na(gzipped)) {
@@ -216,6 +220,7 @@ io_write_nii.nifti <- function(x, con, gzipped = NA, ...) {
   oro.nifti::writeNIfTI(nim = x, filename = con, gzipped = gzipped, ...)
 }
 
+#' @rdname imaging-volume
 #' @export
 io_write_nii.ieegio_mgh <- function(x, con, ...) {
 

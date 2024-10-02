@@ -14,6 +14,11 @@
 \alias{io_write_mgz.array}
 \alias{io_read_nii}
 \alias{io_write_nii}
+\alias{io_write_nii.ieegio_nifti}
+\alias{io_write_nii.ants.core.ants_image.ANTsImage}
+\alias{io_write_nii.niftiImage}
+\alias{io_write_nii.nifti}
+\alias{io_write_nii.ieegio_mgh}
 \alias{io_write_nii.array}
 \title{Read and write volume data}
 \format{
@@ -50,6 +55,16 @@ io_read_nii(
 
 io_write_nii(x, con, ...)
 
+\method{io_write_nii}{ieegio_nifti}(x, con, ...)
+
+\method{io_write_nii}{ants.core.ants_image.ANTsImage}(x, con, ...)
+
+\method{io_write_nii}{niftiImage}(x, con, ...)
+
+\method{io_write_nii}{nifti}(x, con, gzipped = NA, ...)
+
+\method{io_write_nii}{ieegio_mgh}(x, con, ...)
+
 \method{io_write_nii}{array}(x, con, vox2ras = NULL, ...)
 }
 \arguments{
@@ -79,6 +94,12 @@ row, slice) to scanner (often 'T1-weighted' image) 'RAS'
 \code{\link[oro.nifti]{readNIfTI}}), \code{'rnifti'} (using
 \code{\link[RNifti]{readNifti}}), and \code{'ants'} (using
 \code{\link[rpyANTs]{as_ANTsImage}}).}
+
+\item{gzipped}{for writing \code{'nii'} data: whether the file needs to be
+compressed; default is inferred from the file name. When the file ends
+with \code{'nii'}, then no compression is used; otherwise the file will
+be compressed. If the file name does not end with \code{'nii'} nor
+\code{'nii.gz'}, then the file extension will be added automatically.}
 }
 \value{
 imaging readers return \code{ieegio_volume} objects.

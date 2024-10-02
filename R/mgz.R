@@ -157,6 +157,7 @@ io_write_mgz.ieegio_volume <- function(x, con, ...) {
     stop("`io_write_mgz`: input `x` is header-only. No data is to be written")
   }
   freesurferformats::write.fs.mgh(filepath = con, data = x$data, vox2ras_matrix = x$transforms$vox2ras, ...)
+  normalizePath(con)
 }
 
 #' @rdname imaging-volume
@@ -166,6 +167,7 @@ io_write_mgz.ieegio_mgh <- function(x, con, ...) {
     stop("`io_write_mgz`: input `x` is header-only. No data is to be written")
   }
   freesurferformats::write.fs.mgh(filepath = con, data = x$data, vox2ras_matrix = x$transforms$vox2ras, mr_params = x$header$mr_params, ...)
+  normalizePath(con)
 }
 
 #' @rdname imaging-volume
@@ -180,6 +182,7 @@ io_write_mgz.nifti <- function(x, con, ...) {
     xform <- rbind(xform, c(0, 0, 0, 1))
   }
   freesurferformats::write.fs.mgh(filepath = con, data = x[drop = FALSE], vox2ras_matrix = xform, ...)
+  normalizePath(con)
 }
 
 #' @rdname imaging-volume
@@ -195,6 +198,7 @@ io_write_mgz.niftiImage <- function(x, con, ...) {
     xform <- rbind(xform, c(0, 0, 0, 1))
   }
   freesurferformats::write.fs.mgh(filepath = con, data = x[drop = FALSE], vox2ras_matrix = xform, ...)
+  normalizePath(con)
 }
 
 #' @rdname imaging-volume
@@ -208,6 +212,7 @@ io_write_mgz.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
   attr(vox2ras, "which_xform") <- "qform"
 
   freesurferformats::write.fs.mgh(filepath = con, data = x[drop = FALSE], vox2ras_matrix = vox2ras, ...)
+  normalizePath(con)
 }
 
 #' @rdname imaging-volume
@@ -220,4 +225,5 @@ io_write_mgz.array <- function(x, con, vox2ras = NULL, ...) {
   stopifnot(is.matrix(vox2ras) && nrow(vox2ras) == 4 && ncol(vox2ras) == 4)
 
   freesurferformats::write.fs.mgh(filepath = con, data = x, vox2ras_matrix = vox2ras, ...)
+  normalizePath(con)
 }

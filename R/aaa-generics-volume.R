@@ -177,6 +177,11 @@ names.ieegio_volume <- function(x) {
 #' @param vox2ras a \code{4x4} transform matrix from voxel indexing (column,
 #' row, slice) to scanner (often 'T1-weighted' image) 'RAS'
 #' (right-anterior-superior) coordinate
+#' @param gzipped for writing \code{'nii'} data: whether the file needs to be
+#' compressed; default is inferred from the file name. When the file ends
+#' with \code{'nii'}, then no compression is used; otherwise the file will
+#' be compressed. If the file name does not end with \code{'nii'} nor
+#' \code{'nii.gz'}, then the file extension will be added automatically.
 #' @param ... passed to other methods
 #' @returns imaging readers return \code{ieegio_volume} objects.
 #'
