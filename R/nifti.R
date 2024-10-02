@@ -74,7 +74,7 @@ io_read_nii <- function(file, method = c("oro", "rnifti", "ants"), header_only =
       )
 
       return(new_volume(
-        type = c("rnifti", "nifti"),
+        type = c("oro", "nifti"),
         header = volume,
         transforms = transforms,
         data = data,
@@ -123,7 +123,7 @@ io_read_nii <- function(file, method = c("oro", "rnifti", "ants"), header_only =
       )
 
       return(new_volume(
-        type = c("oro", "nifti"),
+        type = c("rnifti", "nifti"),
         header = volume,
         transforms = transforms,
         shape = shape,
