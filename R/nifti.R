@@ -139,6 +139,13 @@ io_read_nii <- function(file, method = c("oro", "rnifti", "ants"), header_only =
 
     },
     "ants" = {
+      if(!rpyANTs::ants_available(module = "ants")) {
+        if(dir.exists(rpymat::env_path())) {
+          rpyANTs::install_ants(python_ver = "auto")
+        } else {
+          rpyANTs::install_ants()
+        }
+      }
       volume <- rpyANTs::as_ANTsImage(file, ...)
       header <- volume
       shape <- unlist(rpymat::py_to_r(volume$shape))

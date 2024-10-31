@@ -79,6 +79,11 @@ test_that("HDF5 IO with R backend", {
     Sys.unsetenv("IEEGIO_USE_H5PY")
   })
 
+  h5py <- ensure_hdf5_backend()
+
+  # Skip if h5py is null (no python)
+  testthat::skip_if(is.null(h5py))
+
   x <- array(1:24, c(1,2,3,1,4,1))
 
   f <- tempfile()

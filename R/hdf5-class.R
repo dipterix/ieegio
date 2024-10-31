@@ -56,7 +56,7 @@ ensure_hdf5_backend <- local({
           rpymat$import("h5py")
         },
         error = function(e) {
-          rpymat$add_packages("h5py")
+          ensure_py_package("h5py")
           rpymat$import("h5py")
         }
       )

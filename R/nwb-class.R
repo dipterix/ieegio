@@ -54,6 +54,7 @@ NWBHDF5IO <- R6::R6Class(
       private$construct_params <- list(
         path = path, mode = mode, ...
       )
+      ensure_py_package("pynwb")
     },
 
     #' @description
