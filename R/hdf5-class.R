@@ -50,14 +50,13 @@ ensure_hdf5_backend <- local({
     }
 
     if( h5py_isnull ) {
-      message("Trying to load via python `h5py`")
-      h5py <<- tryCatch(
+      tryCatch(
         {
-          rpymat$import("h5py")
+          message("Trying to use python `h5py` as the HDF5 backend")
+          ensure_py_package("h5py")
+          h5py <<- rpymat$import("h5py")
         },
         error = function(e) {
-          ensure_py_package("h5py")
-          rpymat$import("h5py")
         }
       )
     }
