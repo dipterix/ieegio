@@ -233,7 +233,8 @@ io_h5_names <- function(file){
       }, error = function(e){})
     })
 
-    group_classes <- rpymat::py_tuple(h5py$File, h5py$Group)
+    rpymat <- asNamespace("rpymat")
+    group_classes <- rpymat$py_tuple(h5py$File, h5py$Group)
 
     iter_func <- function(x, ...) {
       if(inherits(x, "python.builtin.object")) {
@@ -249,7 +250,7 @@ io_h5_names <- function(file){
       }
 
       if( py_isinstance(item, group_classes )  ) {
-        re <- reticulate::iterate(item$items(), iter_func, simplify = FALSE)
+        re <- rpymat$run_package_function("reticulate", "iterate", item$items(), iter_func, simplify = FALSE)
         return(sprintf("%s/%s", name, re))
       }
       return(character())
