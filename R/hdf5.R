@@ -104,8 +104,17 @@ io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE)
 #' @export
 io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4,replace = TRUE,
                     new_file = FALSE, ctype = NULL, quiet = FALSE, ...){
+  # DIPSAUS DEBUG START
+  # file <- tempfile()
+  # name = 'data'
+  # x <- array(1:24, c(1,2,3,1,4,1))
+  # ctype = "numeric"
+  # quiet=FALSE
+  # Sys.setenv("IEEGIO_USE_H5PY" = "TRUE")
   f <- tryCatch({
     f <- LazyH5$new(file, name, read_only = FALSE, quiet = quiet)
+    on.exit({ f$close(all = TRUE) }, add = TRUE)
+
     f$open()
     f$close()
     f
@@ -122,11 +131,10 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4,replace = TRUE,
       unlink(tmpf)
     }
     # Otherwise it's some weird error, or dirname not exists, expose the error
-    LazyH5$new(file, name, read_only = FALSE)
-  })
-  on.exit({
+    f <- LazyH5$new(file, name, read_only = FALSE)
     f$close(all = TRUE)
-  }, add = TRUE)
+  })
+  on.exit({ f$close(all = TRUE) }, add = TRUE)
   f$save(x, chunk = chunk, level = level, replace = replace, new_file = new_file, ctype = ctype, force = TRUE, ...)
 
   return(invisible(normalizePath(file, winslash = "/")))
@@ -174,18 +182,32 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4,replace = TRUE,
 #' @export
 io_h5_valid <- function(file, mode = c('r', 'w'), close_all = FALSE){
   mode <- match.arg(mode)
+
+  h5py <- ensure_hdf5_backend()
+
   tryCatch({
     file <- normalizePath(file, mustWork = TRUE)
-    f <- hdf5r::H5File$new(filename = file, mode = mode)
-    if(close_all){
-      f$close_all()
+
+    if(is.null(h5py)) {
+      f <- hdf5r::H5File$new(filename = file, mode = mode)
+      if(close_all){
+        f$close_all()
+      } else {
+        f$close()
+      }
     } else {
-      f$close()
+
+      if(mode == "w") {
+        mode <- "r+"
+      }
+      ptr <- h5py$File(file, mode = mode)
+      ptr$close()
     }
     TRUE
   }, error = function(e){
     FALSE
   })
+
 
 }
 
@@ -196,8 +218,49 @@ io_h5_names <- function(file){
   # make sure the file is valid
   if(!io_h5_valid(file, 'r')){ return(FALSE) }
   file <- normalizePath(file, mustWork = TRUE)
-  f <- hdf5r::H5File$new(filename = file, mode = 'r')
-  names <- hdf5r::list.datasets(f)
-  f$close()
+
+  h5py <- ensure_hdf5_backend()
+
+  if(is.null(h5py)) {
+    f <- hdf5r::H5File$new(filename = file, mode = 'r')
+    on.exit({ f$close() })
+    names <- hdf5r::list.datasets(f)
+  } else {
+    ptr <- h5py$File(file, mode = "r")
+    on.exit({
+      tryCatch({
+        ptr$close()
+      }, error = function(e){})
+    })
+
+    group_classes <- rpymat::py_tuple(h5py$File, h5py$Group)
+
+    iter_func <- function(x, ...) {
+      if(inherits(x, "python.builtin.object")) {
+        name <- py_to_r(x[0L])
+        item <- x[1L]
+      } else {
+        name <- x[[1]]
+        item <- x[[2]]
+      }
+
+      if( py_isinstance(item, h5py$Dataset) ) {
+        return(name)
+      }
+
+      if( py_isinstance(item, group_classes )  ) {
+        re <- reticulate::iterate(item$items(), iter_func, simplify = FALSE)
+        return(sprintf("%s/%s", name, re))
+      }
+      return(character())
+    }
+
+    names <- iter_func(list("", ptr))
+
+    ptr$close()
+
+    names <- gsub("^[/]+", "", names)
+  }
+
   names
 }
