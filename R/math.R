@@ -47,7 +47,19 @@ mat_to_quaternion <- function(m) {
     y <- (m23 + m32) / s
     z <- 0.25 * s
   }
-  c(x = x, y = y, z = z, w = w)
+
+  re <- c(x = x, y = y, z = z, w = w)
+
+  if(w < 0) {
+    # make sure w is positive as described: https://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h
+    # Requiring a >= 0 is equivalent to requiring -Pi <= h <= Pi.  (Note that
+    # [-a,-b,-c,-d] represents the same rotation as [a,b,c,d]; there are 2
+    # quaternions that can be used to represent a given rotation matrix R.)
+    # To rotate a 3-vector (x,y,z) using quaternions, we compute the
+    # quaternion product
+    re <- re * -1
+  }
+  re
 }
 
 #
