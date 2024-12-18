@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,6 +81,8 @@ data and creates a <code>FileCache</code> object that stores the signals
 channel-by-channel for fast access:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">edf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_edf.html">read_edf</a></span><span class="op">(</span><span class="va">edf_path</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
+<span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">edf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;ieegio::EBDFCache&gt;</span></span>
 <span><span class="co">#&gt;   File type  : EDF+</span></span>
@@ -120,32 +122,39 @@ following methods:</p>
 <span><span class="co">#&gt; ---                                                                </span></span>
 <span><span class="co">#&gt; 11:      11      sine 50 Hz      FALSE                    uV       </span></span>
 <span><span class="co">#&gt; 12:      12 EDF Annotations       TRUE                             </span></span>
-<span><span class="co">#&gt;     SamplesPerRecord SampleRate      Slope  Intercept Comment</span></span>
-<span><span class="co">#&gt;                &lt;num&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;  &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  1:              200        200 0.03051804 0.01525902        </span></span>
-<span><span class="co">#&gt;  2:              200        200 0.03051804 0.01525902        </span></span>
-<span><span class="co">#&gt; ---                                                          </span></span>
-<span><span class="co">#&gt; 11:              200        200 0.03051804 0.01525902        </span></span>
-<span><span class="co">#&gt; 12:               51         51 1.00000000 0.00000000</span></span>
+<span><span class="co">#&gt;     SamplesPerRecord SampleRate      Slope  Intercept DigitalMin DigitalMax</span></span>
+<span><span class="co">#&gt;                &lt;num&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:              200        200 0.03051804 0.01525902     -32768      32767</span></span>
+<span><span class="co">#&gt;  2:              200        200 0.03051804 0.01525902     -32768      32767</span></span>
+<span><span class="co">#&gt; ---                                                                        </span></span>
+<span><span class="co">#&gt; 11:              200        200 0.03051804 0.01525902     -32768      32767</span></span>
+<span><span class="co">#&gt; 12:               51         51 1.00000000 0.00000000     -32768      32767</span></span>
+<span><span class="co">#&gt;     PhysicalMin PhysicalMax Comment</span></span>
+<span><span class="co">#&gt;           &lt;num&gt;       &lt;num&gt;  &lt;char&gt;</span></span>
+<span><span class="co">#&gt;  1:       -1000        1000        </span></span>
+<span><span class="co">#&gt;  2:       -1000        1000        </span></span>
+<span><span class="co">#&gt; ---                                </span></span>
+<span><span class="co">#&gt; 11:       -1000        1000        </span></span>
+<span><span class="co">#&gt; 12:          -1           1</span></span>
 <span></span>
 <span><span class="va">annot</span> <span class="op">&lt;-</span> <span class="va">edf</span><span class="op">$</span><span class="fu">get_annotations</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">annot</span></span>
 <span><span class="co">#&gt; &lt;fst file&gt;</span></span>
 <span><span class="co">#&gt; 11 rows, 4 columns (annot.fst)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">  </span> timestamp duration                comments     order</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8; font-style: italic;">    &lt;double&gt; &lt;double&gt;             &lt;character&gt; &lt;integer&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">1 </span>         0        1 \n+0.0000\nRECORD START         1</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">2 </span>         2        1                                 2</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">3 </span>         4        1                                 3</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">4 </span>         5        1                                 4</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">5 </span>         6        1                                 5</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">6 </span>         7        1                                 6</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">7 </span>         8        1                                 7</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">8 </span>         9        1                                 8</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">9 </span>        12        1                                 9</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">10</span>        15        1                                10</span></span>
-<span><span class="co">#&gt; <span style="color: #A8A8A8;">11</span>        19        1                                11</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">  </span> timestamp duration     comments   channel</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8; font-style: italic;">    &lt;double&gt; &lt;double&gt;  &lt;character&gt; &lt;integer&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">1 </span>         0       NA RECORD START        12</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">2 </span>         2       NA                     12</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">3 </span>         4       NA                     12</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">4 </span>         5       NA                     12</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">5 </span>         6       NA                     12</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">6 </span>         7       NA                     12</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">7 </span>         8       NA                     12</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">8 </span>         9       NA                     12</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">9 </span>        12       NA                     12</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">10</span>        15       NA                     12</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">11</span>        19       NA                     12</span></span></code></pre></div>
 <p>You can also query a channel by calling the <code>get_channel</code>
 method.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
