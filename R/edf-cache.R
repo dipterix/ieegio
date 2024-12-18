@@ -59,23 +59,14 @@ EBDFCache <- R6::R6Class(
       if(is.na(begin)) { begin <- self$selection$begin }
       if(is.na(end)) { end <- self$selection$end }
 
-      # load time
-      annot_packet_start <- self$annotations$timestamp
-      packet_id <- self$annotations$order[annot_packet_start >= begin & (annot_packet_start + self$annotations$duration) <= end]
-      sample_rate <- self$channel_table$SampleRate[[chan]]
-      samples_per_record <- self$channel_table$SamplesPerRecord[[chan]]
-
-      # calculate index
-      index <- as.vector(outer(
-        seq_len(samples_per_record),
-        (packet_id - 1) * samples_per_record,
-        FUN = "+"
-      ))
-
       arr <- filearray::filearray_load(file_path(private$.root_path, sprintf("Ch%d", chan)), mode = "readonly")
-      re <- arr[index, , drop = FALSE, dimnames = FALSE]
-      time <- re[, 2]
+      # select time
+      time <- arr[, 2]
       sel <- time >= begin & time <= end
+
+      # load data
+      time <- time[sel]
+      value <- arr[sel, 1]
 
       structure(
         class = c("ieegio_edf_channel", "ieegio_get_channel"),
@@ -84,7 +75,7 @@ EBDFCache <- R6::R6Class(
           info = arr$get_header("channel_info"),
           continuous = self$header$continuous_recording,
           time = time[sel],
-          value = re[sel, 1, drop = TRUE]
+          value = value
         )
       )
 

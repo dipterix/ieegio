@@ -1,26 +1,60 @@
 parse_edf_annot <- function(x) {
-  # x <- period[[12]]
-  idx <- which(x == 20)
 
-  # onset + duration
-  timestamp_with_duration <- x[seq_len(idx[[1]] - 1)]
+  list2env(list(eeee = x), envir=.GlobalEnv)
 
-  idx2 <- which(timestamp_with_duration == 21)
-  if(length(idx2)) {
-    idx2 <- idx2[[1]]
-    timestamp <- as.numeric(intToUtf8(timestamp_with_duration[seq_len(idx2 - 1)]))
-    duration <- as.numeric(intToUtf8(timestamp_with_duration[- seq_len(idx2)]))
-  } else {
-    timestamp <- as.numeric(intToUtf8(timestamp_with_duration))
-    duration <- NA_real_
+  seps <- which(x == 0)
+  nsegs <- length(seps)
+
+  if(nsegs == length(x)) {
+    # no annotations
+    return(NULL)
   }
 
-  comments <- intToUtf8(x[-seq_len(idx[[1]])])
+  parse_annot_seg <- function(x) {
 
-  if(length(idx) > 1) {
-    comments <- strsplit(comments, "\024")[[1]]
+    # x <- period[[12]]
+    idx <- which(x == 20)
+
+    if(!length(idx)) {
+      return(NULL)
+    }
+
+    # TAL starts with onset + (optional) duration
+    timestamp_with_duration <- x[seq_len(idx[[1]] - 1)]
+
+    idx2 <- which(timestamp_with_duration == 21)
+    if(length(idx2)) {
+      idx2 <- idx2[[1]]
+      timestamp <- as.numeric(intToUtf8(timestamp_with_duration[seq_len(idx2 - 1)]))
+      duration <- as.numeric(intToUtf8(timestamp_with_duration[- seq_len(idx2)]))
+    } else {
+      timestamp <- as.numeric(intToUtf8(timestamp_with_duration))
+      duration <- NA_real_
+    }
+
+    comments <- intToUtf8(x[-seq_len(idx[[1]])])
+    if(length(idx) > 1) {
+      comments <- strsplit(comments, "\024")[[1]]
+    }
+
+    idx <- which(comments == 20)
+
+    list(timestamp = timestamp, duration = duration, comments = comments)
   }
-  list(timestamp = timestamp, duration = duration, comments = paste(comments, collapse = "\n"))
+
+  seps <- c(0, seps)
+  annotations <- data.table::rbindlist(lapply(seq_len(nsegs), function(ii) {
+    idx1 <- seps[[ii]] + 1
+    idx2 <- seps[[ii + 1]]
+    if(idx1 == idx2) { return(NULL) }
+    parse_annot_seg(x[seq(idx1, idx2)])
+  }))
+
+  if(nrow(annotations) == 0) {
+    return(NULL)
+  }
+
+  return(annotations)
 }
 
 internal_read_edf_header <- function(con) {
@@ -173,6 +207,12 @@ internal_read_edf_header <- function(con) {
     Slope = slope,
     Intercept = intercept,
 
+    DigitalMin = digital_min,
+    DigitalMax = digital_max,
+
+    PhysicalMin = physical_min,
+    PhysicalMax = physical_max,
+
     Comment = reserved
   )
 
@@ -238,7 +278,170 @@ internal_read_edf_header <- function(con) {
   header
 }
 
+internal_write_edf_header <- function(header, con) {
+
+  hdr <- header
+  debug_pointer <- function() {}
+  fout <- con
+
+  # DIPSAUS DEBUG START
+  # con <- "/Users/dipterix/Library/R/arm64/4.4/library/edfReader/extdata/edfPlusC.edf"
+  # hdr <- internal_read_edf_header(con)
+  # fout <- rawConnection(raw(), "w+")
+  # debug_pointer <- function() {
+  #   cat("File size: ", seek(fout), "\n")
+  # }
+
+
+
+  write_string <- function(str, len = nchar(str), padding = " ", collapse = TRUE) {
+    if(collapse) {
+      str <- paste(str, collapse = "")
+    }
+    str <- charToRaw(str)
+    if(length(str) < len) {
+      str <- c(str, rep(charToRaw(padding)[[1]], len))
+    }
+    str <- str[seq_len(len)]
+    writeBin(str, fout, endian = "little", useBytes = TRUE)
+    debug_pointer()
+    invisible()
+  }
+  write_float <- function(x, len) {
+    sci <- FALSE
+
+    if(x > 0 && x < 0.1^len) {
+      sci <- TRUE
+    } else if (x < 0 && x > 0.1^(len - 1)) {
+      sci <- TRUE
+    } else {
+      n1 <- nchar(sprintf("%.0f", x))
+      if(n1 > len) {
+        # must support sci
+        warning("Number ", x, " is represented with scientific number")
+        sci <- TRUE
+      }
+    }
+
+    if( sci ) {
+      dec_len <- max(7L - nchar(sprintf("%.0e", x)), 0)
+      fmt <- sprintf("%%8.%de", dec_len)
+    } else {
+      dec_len <- max(7L - nchar(sprintf("%.0f", x)), 0)
+      fmt <- sprintf("%%8.%df", dec_len)
+    }
+    str <- sprintf(fmt, x)
+    stopifnot(nchar(str) == len)
+    write_string(trimws(str), len = len)
+    invisible()
+  }
+  write_int <- function(x, len) {
+    str <- sprintf("%.0f", x)
+    stopifnot(nchar(str) <= len)
+    write_string(trimws(str), len = len)
+    invisible()
+  }
+
+
+  # version little endian, unsigned 48, `0       `
+  write_string("0", len = 8L)
+
+  # patient
+  write_string(hdr$basic$patient, len = 80L)
+
+  # recording ID
+  write_string(hdr$basic$recording_id, len = 80L)
+
+  # Recording start time
+  write_string(format(hdr$basic$start_time, "%d.%m.%y%H.%M.%S"), len = 16L)
+
+  # header-length for data
+  write_int((hdr$basic$n_channels + 1) * 256, len = 8L)
+
+  # reserved (EDF+C or D)
+  write_string(ifelse(hdr$basic$continuous_recording, "EDF+C", "EDF+D"), len = 44L)
+
+  # # of recording
+  write_int(hdr$basic$n_records, len = 8L)
+
+  # duration
+  write_float(hdr$basic$record_duration, len = 8L) # 245 - 252
+
+  # # of signals
+  write_int(hdr$basic$n_channels, len = 4L) # 253 - 256
+
+  # channel labels 16 chars
+  if(length(hdr$channel_table$Annotation)) {
+    lapply(seq_len(nrow(hdr$channel_table)), function(ii) {
+      if(hdr$channel_table$Annotation[[ii]]) {
+        str <- "EDF Annotations"
+      } else {
+        str <- hdr$channel_table$Label[[ii]]
+      }
+      write_string(str, len = 16L)
+    })
+  } else {
+    lapply(hdr$channel_table$Label, function(str) {
+      write_string(str, len = 16L)
+    })
+  }
+
+  # transducer_type 80 chars
+  lapply(hdr$channel_table$TransducerType, function(str) {
+    write_string(str, len = 80L)
+  })
+
+  # physical unit 8 chars
+  lapply(hdr$channel_table$Unit, function(str) {
+    write_string(str, len = 8L)
+  })
+
+  # physical min and max 8 + 8 chars
+  lapply(hdr$channel_table$PhysicalMin, function(str) {
+    write_float(str, len = 8L)
+  })
+  lapply(hdr$channel_table$PhysicalMax, function(str) {
+    write_float(str, len = 8L)
+  })
+
+  # digital min and max 8 + 8 chars
+  lapply(hdr$channel_table$DigitalMin, function(str) {
+    write_int(str, len = 8L)
+  })
+  lapply(hdr$channel_table$DigitalMax, function(str) {
+    write_int(str, len = 8L)
+  })
+
+  # filters 80 chars
+  lapply(hdr$channel_table$Filter, function(str) {
+    write_string(str, len = 80L)
+  })
+
+  # samples_per_record (length of each record) 8 chars
+  lapply(hdr$channel_table$SamplesPerRecord, function(str) {
+    write_int(str, len = 8L)
+  })
+
+  # reserved, 32 chars
+  lapply(hdr$channel_table$Comment, function(str) {
+    write_string(str, len = 32L)
+  })
+
+  # actual <- rawConnectionValue(fout)
+  #
+  # expected <- readBin(con, "raw", n = length(actual), endian = "little")
+  #
+  # which(actual != expected)
+
+  # rawToChar(actual[1595:1696])
+  # rawToChar(expected[1595:1696])
+  # which(actual != expected)
+
+  invisible()
+}
+
 internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, convert = TRUE, header) {
+
 
   if(!isTRUE(begin < end)) {
     stop("Invalid time range: ", begin, " to ", end)
@@ -275,22 +478,35 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
     }
   }
 
-  # function to parse a recording
+  # DIPSAUS DEBUG START
+  # con <- "/Users/dipterix/Downloads/ST7011J0-PSG.edf"
+  # con <- "/Users/dipterix/Library/R/arm64/4.4/library/edfReader/extdata/edfAnnonC.edf"
+  # list2env(list(begin = 0, end = Inf, convert = TRUE), envir=.GlobalEnv)
+  # header <- internal_read_edf_header(con)
+  # n_channels <- header$basic$n_channels
+  # channels <- seq_len(n_channels)
+  # con <- file(con, "rb")
+  # readBin(con, "raw", n = header$basic$header_length)
+
   sampling_bytes <- header$basic$sampling_bits / 8
 
   # read raw
   is_annotation <- header$channel_table$Annotation
   n <- header$channel_table$SamplesPerRecord
+  # For signals, it's SamplesPerRecord x (2 bytes)
+  # for annots, it's (SamplesPerRecord x 2) x (1 chars)
   n[is_annotation] <- n[is_annotation] * sampling_bytes
   size <- ifelse(is_annotation, 1L, sampling_bytes)
 
   if(any(is_annotation)) {
-    annot_channel <- max(which(is_annotation))
-    if( !annot_channel %in% channels ) {
-      channels <- sort(c(channels, annot_channel))
+    annot_channel <- which(is_annotation)
+    first_annot_channel <- min(annot_channel)
+    if( !all(annot_channel %in% channels) ) {
+      channels <- unique(sort(c(channels, annot_channel)))
     }
   } else {
     annot_channel <- integer()
+    first_annot_channel <- NA
   }
 
   data <- fastmap::fastmap()
@@ -345,6 +561,8 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
   record_duration <- header$basic$record_duration
 
   annots <- fastmap::fastqueue()
+  timestamps <- fastmap::fastqueue()
+
   drop_nulls(lapply(seq_len(header$basic$n_records), function(ii_rec) {
     # trying to obtain the timestamp
     # estimate earliest start
@@ -353,30 +571,74 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
 
     record <- read_next_record()
 
-    if( length(annot_channel) ) {
-      annot <- record[[annot_channel]]
-    } else {
-      # continuous
-      annot <- list(
-        timestamp = record_duration * (ii_rec - 1),
-        duration = NA_real_,
-        comments = ""
-      )
-    }
-    annot$order <- ii_rec
+    # https://www.edfplus.info/specs/edfplus.html
+    # 2.2.4. Time keeping of data records
+    # ... the **first annotation** of the **first 'EDF Annotations' signal** in
+    # each data record is empty, but its timestamp specifies how many seconds
+    # after the file start date/time that data record starts. So, if the
+    # first TAL in a data record reads '+567\20\20', then that data record starts
+    # 567s after the startdate/time of the file. If the data records contain
+    # 'ordinary signals', then the starttime of each data record must be the
+    # starttime of its signals. If there are no 'ordinary signals', then a
+    # non-empty annotation immediately following the time-keeping annotation
+    # (in the same TAL) must specify what event defines the starttime of this
+    # data record. For example, '+3456.789\20\20R-wave\20' indicates that
+    # this data record starts at the occurrence of an R-wave, which is 3456.789s
+    # after file start.
+    #       The startdate/time of a file is specified in the EDF+ header fields
+    # 'startdate of recording' and 'starttime of recording'. These fields must
+    # indicate the absolute second in which the start of the first data record
+    # falls. So, the first TAL in the first data record always starts with
+    # +0.X\20\20, indicating that the first data record starts a fraction, X,
+    # of a second after the startdate/time that is specified in the EDF+ header.
+    # If X=0, then the .X may be omitted.
 
-    slice_start <- annot$timestamp
-    if(is.na(annot$duration)) {
-      slice_duration <- record_duration
+    if( length(annot_channel) ) {
+      timestamp <- NA_real_
+      first_annot <- record[[annot_channel[[1]]]]
+      if(!is.null(first_annot)) {
+        timestamp <- first_annot$timestamp[[1]]
+      }
+      annot <- data.table::rbindlist(lapply(annot_channel, function(annot_channel_ii) {
+        annot_item <- record[[annot_channel_ii]]
+        if( is.null(annot_item) ) { return(NULL) }
+        if(
+          isTRUE(annot_channel_ii == first_annot_channel) &&
+          isTRUE(annot_item$timestamp[[1]] == 0) &&
+          isTRUE(is.na(annot_item$duration[[1]])) &&
+          identical(annot_item$comments[[1]], "")
+        ) {
+          annot_item <- annot_item[-1, ]
+        }
+        if(nrow(annot_item) == 0) { return(NULL) }
+        annot_item$channel <- annot_channel_ii
+        return(annot_item)
+      }))
+      if(!nrow(annot)) {
+        annot <- NULL
+      }
     } else {
-      slice_duration <- annot$duration
+      # no annotation, assuming it's continuous
+      timestamp <- record_duration * (ii_rec - 1)
+      annot <- NULL
     }
-    slice_finish <- slice_start + slice_duration
+    if(is.na(timestamp)) {
+      # This normally shouldn't happen
+      timestamp <- earliest_start
+      warning("EDF file annotations: the first annotation in the first 'EDF Annotations' signal must have timestamp.")
+    }
+
+    annots$add(annot)
+    timestamps$add(timestamp)
+
+    slice_start <- timestamp
+
+    slice_finish <- slice_start + record_duration
 
     env$previous_finish <- slice_finish
     if( slice_finish < begin || slice_start > end ) { return() }
 
-    annot$duration <- slice_duration
+    # annot$duration <- slice_duration
 
     lapply(seq_len(n_channels), function(ii) {
       slice <- record[[ii]]
@@ -395,10 +657,10 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
 
       return()
     })
-    annots$add(annot)
     return()
   }))
   annots <- annots$as_list()
+  timestamps <- timestamps$as_list()
 
   # print(unlist(annots))
 
@@ -415,11 +677,7 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
 
     signal <- lapply(seq_len(n_segs), function(ii) {
       seg <- map$remove()
-      annot <- annots[[ii]]
-      seg_start <- annot$timestamp
-
-      # FIXME: what if seg_duration > record_duration?
-      seg_duration <- annot$duration
+      seg_start <- timestamps[[ii]]
 
       slen <- length(seg)
       if( slen > samples_per_record ) {
@@ -455,6 +713,9 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
 
   if(length(annots)) {
     annots <- data.table::rbindlist(annots)
+    if(nrow(annots) == 0) {
+      annots <- NULL
+    }
   } else {
     annots <- NULL
   }

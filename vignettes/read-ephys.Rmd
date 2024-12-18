@@ -8,6 +8,7 @@ vignette: >
 ---
 
 ```{r, include = FALSE, echo = FALSE, results='hide'}
+# Sys.setenv("IEEGIO_PKGDOWN" = "TRUE")
 if(identical(Sys.getenv("IEEGIO_PKGDOWN", unset = ""), "")) {
   knitr::opts_chunk$set(
     collapse = TRUE,
