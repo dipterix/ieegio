@@ -75,7 +75,7 @@ NSXCache <- R6::R6Class(
 
         slen <- length(part$data)
         time <- seq(part$meta$relative_time, length.out = slen, by = 1 / sample_rate)
-        sel <- time >= begin & time <= end
+        sel <- time >= begin & time < end
 
         if(!any(sel)) { return() }
 

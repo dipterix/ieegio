@@ -79,7 +79,7 @@ BCI2000Cache <- R6::R6Class(
       arr <- private$.filearray
       signals <- subset(arr,
                         Time ~ Time >= begin &
-                          Time <= end,
+                          Time < end,
                         ChannelOrder ~ ChannelOrder == x,
                         drop = FALSE)
       time <- as.numeric(rownames(signals))

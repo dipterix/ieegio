@@ -62,7 +62,7 @@ EBDFCache <- R6::R6Class(
       arr <- filearray::filearray_load(file_path(private$.root_path, sprintf("Ch%d", chan)), mode = "readonly")
       # select time
       time <- arr[, 2]
-      sel <- time >= begin & time <= end
+      sel <- time >= begin & time < end
 
       # load data
       time <- time[sel]

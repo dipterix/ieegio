@@ -567,7 +567,7 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
     # trying to obtain the timestamp
     # estimate earliest start
     earliest_start <- env$previous_finish
-    if( earliest_start > end ) { return() }
+    if( earliest_start >= end ) { return() }
 
     record <- read_next_record()
 
@@ -636,7 +636,7 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
     slice_finish <- slice_start + record_duration
 
     env$previous_finish <- slice_finish
-    if( slice_finish < begin || slice_start > end ) { return() }
+    if( slice_finish < begin || slice_start >= end ) { return() }
 
     # annot$duration <- slice_duration
 
@@ -688,7 +688,7 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
       time <- seg_start + time_0
 
       # cut time later
-      # if( time[[1]] < begin || time[[length(time)]] > end ) {
+      # if( time[[1]] < begin || time[[length(time)]] >= end ) {
       #   sel <- time >= begin & time < end
       #   seg <- seg[sel]
       #   time <- time[sel]
