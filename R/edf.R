@@ -628,15 +628,15 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
       warning("EDF file annotations: the first annotation in the first 'EDF Annotations' signal must have timestamp.")
     }
 
-    annots$add(annot)
-    timestamps$add(timestamp)
-
     slice_start <- timestamp
 
     slice_finish <- slice_start + record_duration
 
     env$previous_finish <- slice_finish
     if( slice_finish < begin || slice_start >= end ) { return() }
+
+    annots$add(annot)
+    timestamps$add(timestamp)
 
     # annot$duration <- slice_duration
 
@@ -686,7 +686,6 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
         seg <- c(seg, rep(0.0, samples_per_record - slen))
       }
       time <- seg_start + time_0
-
       # cut time later
       # if( time[[1]] < begin || time[[length(time)]] >= end ) {
       #   sel <- time >= begin & time < end
@@ -867,16 +866,18 @@ read_edf <- function(
     filebase <- file_path(extract_path, sprintf("Ch%d", chn))
     channel_data <- data$results[[ii]]
 
-    signal_length <- length(channel_data$value)
+    sel <- channel_data$time >= begin & channel_data$time < end
+    signal_length <- sum(sel)
+
     farr <- filearray::filearray_load_or_create(
       filebase,
       dimension = c(signal_length, 2L),
-      type = "double",
+      type = "float",
       partition_size = 2L,
       mode = "readwrite",
       symlink_ok = FALSE
     )
-    farr[] <- cbind(channel_data$value, channel_data$time)
+    farr[] <- cbind(channel_data$value[sel], channel_data$time[sel])
     farr$set_header(key = "source_header",
                     value = data$header,
                     save = FALSE)
