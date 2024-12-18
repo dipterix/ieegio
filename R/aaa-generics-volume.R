@@ -70,8 +70,10 @@ format.ieegio_volume <- function(x, ...) {
 
   if(x$header_only) {
     banner <- "<Image Volume, header-only>"
+    footer <- "* This object is read-only."
   } else {
     banner <- "<Image Volume>"
+    footer <- NULL
   }
 
   if(length(x$transforms)) {
@@ -93,12 +95,14 @@ format.ieegio_volume <- function(x, ...) {
     transforms_str <- "  Transforms: none"
   }
 
-  c(
+  re <- c(
     banner,
     sprintf("  Type : %s", paste(x$type, collapse = "/")),
     sprintf("  Shape: %s", deparse1(x$shape)),
-    transforms_str
+    transforms_str,
+    footer
   )
+  paste(re, collapse = "\n")
 }
 
 #' @export
@@ -677,4 +681,15 @@ plot.ieegio_volume <- function(
     lty = crosshair_lty
   )
 
+}
+
+
+#' @export
+dim.ieegio_volume <- function(x) {
+  x$shape
+}
+
+#' @export
+length.ieegio_volume <- function(x) {
+  prod(x$shape)
 }
