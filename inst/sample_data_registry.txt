@@ -5,6 +5,9 @@ brainvis.dat
 brainvis.vhdr
 brainvis.vmrk
 edfPlusD.edf
+nifti/rnifti_example.nii.gz
+nifti/rnifti_example_rgb.nii.gz
+nifti/rnifti_example_4d.nii.gz
 gifti/ASCII/fmri_sujet01_Lwhite_projection.time.gii
 gifti/ASCII/sujet01_Lwhite.inflated.surf.gii
 gifti/ASCII/sujet01_Lwhite.shape.gii
