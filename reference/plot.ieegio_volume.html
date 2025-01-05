@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,10 +54,12 @@
 <span>  transform <span class="op">=</span> <span class="st">"vox2ras"</span>,</span>
 <span>  zoom <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  pixel_width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">zoom</span><span class="op">/</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"white"</span><span class="op">)</span>,</span>
+<span>  alpha <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  crosshair_gap <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  crosshair_lty <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"white"</span><span class="op">)</span>,</span>
 <span>  crosshair_col <span class="op">=</span> <span class="st">"#00FF00A0"</span>,</span>
+<span>  label_col <span class="op">=</span> <span class="va">crosshair_col</span>,</span>
 <span>  continuous <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  vlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  add <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -79,7 +81,8 @@
 
 
 <dt id="arg-position">position<a class="anchor" aria-label="anchor" href="#arg-position"></a></dt>
-<dd><p>cross-hair focused position</p></dd>
+<dd><p>position in <code>'RAS'</code> (right-anterior-superior) coordinate
+system on which cross-hair should focus</p></dd>
 
 
 <dt id="arg-center-position">center_position<a class="anchor" aria-label="anchor" href="#arg-center-position"></a></dt>
@@ -116,6 +119,14 @@ default is the half of <code>zoom</code> or <code>1</code>, whichever is greater
 the unit of <code>pixel_width</code> divided by <code>zoom</code> is milliliter</p></dd>
 
 
+<dt id="arg-col">col<a class="anchor" aria-label="anchor" href="#arg-col"></a></dt>
+<dd><p>color palette for continuous <code>x</code> values</p></dd>
+
+
+<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
+<dd><p>opacity value if the image is to be displayed with transparency</p></dd>
+
+
 <dt id="arg-crosshair-gap">crosshair_gap<a class="anchor" aria-label="anchor" href="#arg-crosshair-gap"></a></dt>
 <dd><p>the cross-hair gap in milliliter</p></dd>
 
@@ -124,12 +135,14 @@ the unit of <code>pixel_width</code> divided by <code>zoom</code> is milliliter<
 <dd><p>the cross-hair line type</p></dd>
 
 
-<dt id="arg-col">col<a class="anchor" aria-label="anchor" href="#arg-col"></a></dt>
-<dd><p>color palette for continuous <code>x</code> values</p></dd>
-
-
 <dt id="arg-crosshair-col">crosshair_col<a class="anchor" aria-label="anchor" href="#arg-crosshair-col"></a></dt>
 <dd><p>the cross-hair color; set to <code>NA</code> to hide</p></dd>
+
+
+<dt id="arg-label-col">label_col<a class="anchor" aria-label="anchor" href="#arg-label-col"></a></dt>
+<dd><p>the color of anatomical axis labels (i.e. <code>"R"</code> for
+right, <code>"A"</code> for anterior, and <code>"S"</code> for superior); default is
+the same as <code>crosshair_col</code></p></dd>
 
 
 <dt id="arg-continuous">continuous<a class="anchor" aria-label="anchor" href="#arg-continuous"></a></dt>
@@ -170,35 +183,48 @@ when multiple different angles are to be plotted</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ieegio/">ieegio</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">nifti_file</span> <span class="op">&lt;-</span> <span class="st">"brain.demosubject.nii.gz"</span></span></span>
+<span class="r-in"><span><span class="va">nifti_file</span> <span class="op">&lt;-</span> <span class="st">"nifti/rnifti_example.nii.gz"</span></span></span>
+<span class="r-in"><span><span class="va">nifti_rgbfile</span> <span class="op">&lt;-</span> <span class="st">"nifti/rnifti_example_rgb.nii.gz"</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Use `ieegio_sample_data(nifti_file)`</span></span></span>
-<span class="r-in"><span><span class="co">#   to download sample data</span></span></span>
+<span class="r-in"><span><span class="co"># Use</span></span></span>
+<span class="r-in"><span><span class="co">#   `ieegio_sample_data(nifti_file)`</span></span></span>
+<span class="r-in"><span><span class="co"># and</span></span></span>
+<span class="r-in"><span><span class="co">#   `ieegio_sample_data(nifti_rgbfile)`</span></span></span>
+<span class="r-in"><span><span class="co"># to download sample data</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span><span class="op">(</span> <span class="fu"><a href="ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="va">nifti_file</span>, test <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="kw">if</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="va">nifti_file</span>, test <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="va">nifti_rgbfile</span>, test <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ---- NIfTI examples ---------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">file</span> <span class="op">&lt;-</span> <span class="fu"><a href="ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="va">nifti_file</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">underlay_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="va">nifti_file</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">overlay_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="va">nifti_rgbfile</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># basic read</span></span></span>
-<span class="r-in"><span><span class="va">vol</span> <span class="op">&lt;-</span> <span class="fu"><a href="imaging-volume.html">read_volume</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">underlay</span> <span class="op">&lt;-</span> <span class="fu"><a href="imaging-volume.html">read_volume</a></span><span class="op">(</span><span class="va">underlay_path</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">overlay</span> <span class="op">&lt;-</span> <span class="fu"><a href="imaging-volume.html">read_volume</a></span><span class="op">(</span><span class="va">overlay_path</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">3.1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">ras_position</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">50</span>, <span class="op">-</span><span class="fl">10</span>, <span class="fl">15</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ras_position</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="op">-</span><span class="fl">10</span>, <span class="fl">15</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ras_str</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%.0f"</span>, <span class="va">ras_position</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">","</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">for</span><span class="op">(</span><span class="va">which</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coronal"</span>, <span class="st">"axial"</span>, <span class="st">"sagittal"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">vol</span>, position <span class="op">=</span> <span class="va">ras_position</span>, crosshair_gap <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">underlay</span>, position <span class="op">=</span> <span class="va">ras_position</span>, crosshair_gap <span class="op">=</span> <span class="fl">10</span>,</span></span>
 <span class="r-in"><span>       crosshair_lty <span class="op">=</span> <span class="fl">2</span>, zoom <span class="op">=</span> <span class="fl">3</span>, which <span class="op">=</span> <span class="va">which</span>,</span></span>
 <span class="r-in"><span>       main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%s T1RAS=[%s]"</span>, <span class="va">which</span>, <span class="va">ras_str</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">overlay</span>, position <span class="op">=</span> <span class="va">ras_position</span>,</span></span>
+<span class="r-in"><span>       crosshair_gap <span class="op">=</span> <span class="fl">10</span>, label_col <span class="op">=</span> <span class="cn">NA</span>,</span></span>
+<span class="r-in"><span>       add <span class="op">=</span> <span class="cn">TRUE</span>, alpha <span class="op">=</span> <span class="fl">0.9</span>, zoom <span class="op">=</span> <span class="fl">5</span>, which <span class="op">=</span> <span class="va">which</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-plt img"><img src="plot.ieegio_volume-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
