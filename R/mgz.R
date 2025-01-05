@@ -140,7 +140,7 @@ io_read_mgz <- function(file, header_only = FALSE) {
     type <- "mgh"
   }
 
-  new_volume(type, header, transforms, data, shape = shape)
+  new_volume(type, header, NULL, transforms, data, shape = shape)
 
 }
 

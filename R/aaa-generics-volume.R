@@ -24,7 +24,7 @@ get_vox2ras_tkr <- function(vox2ras, crs_c) {
 }
 
 
-new_volume <- function(type, header, transforms, data, shape) {
+new_volume <- function(type, header, meta, transforms, data, shape) {
   use_expression <- FALSE
   if(is.null(data)) {
     class <- c(
@@ -50,6 +50,7 @@ new_volume <- function(type, header, transforms, data, shape) {
     list(
       type = type,
       header = header,
+      original_meta = meta,
       header_only = header_only,
       use_expression = use_expression,
       shape = shape,
@@ -130,11 +131,31 @@ names.ieegio_volume <- function(x) {
 }
 
 #' @export
-`[.ieegio_volume` <- function(x, ...) {
+`[.ieegio_volume` <- function(x, ..., unpack_rgba = TRUE) {
   if(isTRUE(.subset2(x, "header_only"))) {
     return(NULL)
   }
-  return(`$.ieegio_volume`(x, "data")[...])
+  re <- `$.ieegio_volume`(x, "data")[...]
+  if(unpack_rgba && inherits(x, "ieegio_rgba")) {
+    # make sure re is integer (32bit)
+    storage.mode(re) <- "integer"
+    shape <- dim(re)
+    # this is rgb(a) array and auto-expansion is on
+    alpha <- bitwShiftR(re, 24)
+    re <- re - bitwShiftL(alpha, 24)
+    blue <- bitwShiftR(re, 16)
+    re <- re - bitwShiftL(blue, 16)
+    green <- bitwShiftR(re, 8)
+    red <- as.vector(re - bitwShiftL(green, 8))
+
+    if(all(alpha == 0)) {
+      re <- grDevices::rgb(red = red, green = green, blue = blue, maxColorValue = 255)
+    } else {
+      re <- grDevices::rgb(red = red, green = green, blue = blue, alpha = alpha, maxColorValue = 255)
+    }
+    dim(re) <- shape
+  }
+  return(re)
 }
 
 #' @export
@@ -142,6 +163,17 @@ names.ieegio_volume <- function(x) {
 
   if(isTRUE(.subset2(x, "header_only"))) {
     stop("Head-only image. Cannot assign data")
+  }
+
+  if(inherits(x, "ieegio_rgba")) {
+    # this is rgb(a), and value is treated as rgba
+    shape <- dim(value)
+    value <- grDevices::col2rgb(value, alpha = TRUE)
+    if(all(value[4, ] == 255)) {
+      value[4, ] <- 0L
+    }
+    value <- bitwShiftL(bitwShiftL(bitwShiftL(value[4, ], 8) + value[3, ], 8) + value[2, ], 8) + value[1, ]
+    dim(value) <- shape
   }
 
   if(isTRUE(.subset2(x, "use_expression"))) {
@@ -186,6 +218,8 @@ names.ieegio_volume <- function(x) {
 #' with \code{'nii'}, then no compression is used; otherwise the file will
 #' be compressed. If the file name does not end with \code{'nii'} nor
 #' \code{'nii.gz'}, then the file extension will be added automatically.
+#' @param datatype_code,xyzt_units,intent_code additional flags for
+#' 'NIfTI' headers, for advanced users
 #' @param ... passed to other methods
 #' @returns imaging readers return \code{ieegio_volume} objects.
 #'
@@ -218,7 +252,7 @@ names.ieegio_volume <- function(x) {
 #' # to FSL
 #' vol$transforms$vox2fsl
 #'
-#' image(vol$data[,,128], asp = 1, axes = FALSE)
+#' plot(vol, position = c(10, 0, 30))
 #'
 #' # ---- using other methods --------------------------------------
 #' # default
@@ -294,7 +328,8 @@ write_volume <- function(x, con, format = c("auto", "nifti", "mgh"), ...) {
 
 #' @title Plot '3D' volume in anatomical slices
 #' @param x \code{'ieegio_volume'} object; see \code{\link{read_volume}}
-#' @param position cross-hair focused position
+#' @param position position in \code{'RAS'} (right-anterior-superior) coordinate
+#' system on which cross-hair should focus
 #' @param center_position whether to center canvas at \code{position},
 #' default is \code{FALSE}
 #' @param which which slice to plot; choices are \code{"coronal"},
@@ -312,9 +347,13 @@ write_volume <- function(x, con, format = c("auto", "nifti", "mgh"), ...) {
 #' default is the half of \code{zoom} or \code{1}, whichever is greater;
 #' the unit of \code{pixel_width} divided by \code{zoom} is milliliter
 #' @param col color palette for continuous \code{x} values
+#' @param alpha opacity value if the image is to be displayed with transparency
 #' @param crosshair_gap the cross-hair gap in milliliter
 #' @param crosshair_lty the cross-hair line type
 #' @param crosshair_col the cross-hair color; set to \code{NA} to hide
+#' @param label_col the color of anatomical axis labels (i.e. \code{"R"} for
+#' right, \code{"A"} for anterior, and \code{"S"} for superior); default is
+#' the same as \code{crosshair_col}
 #' @param continuous reserved
 #' @param vlim the range limit of the data; default is computed from range of
 #' \code{x$data}; data values exceeding the range will be trimmed
@@ -330,31 +369,43 @@ write_volume <- function(x, con, format = c("auto", "nifti", "mgh"), ...) {
 #'
 #' library(ieegio)
 #'
-#' nifti_file <- "brain.demosubject.nii.gz"
+#' nifti_file <- "nifti/rnifti_example.nii.gz"
+#' nifti_rgbfile <- "nifti/rnifti_example_rgb.nii.gz"
 #'
-#' # Use `ieegio_sample_data(nifti_file)`
-#' #   to download sample data
+#' # Use
+#' #   `ieegio_sample_data(nifti_file)`
+#' # and
+#' #   `ieegio_sample_data(nifti_rgbfile)`
+#' # to download sample data
 #'
 #'
-#' if( ieegio_sample_data(nifti_file, test = TRUE) ) {
+#' if(
+#'   ieegio_sample_data(nifti_file, test = TRUE) &&
+#'   ieegio_sample_data(nifti_rgbfile, test = TRUE)
+#' ) {
 #'
 #' # ---- NIfTI examples ---------------------------------------------
 #'
-#' file <- ieegio_sample_data(nifti_file)
+#' underlay_path <- ieegio_sample_data(nifti_file)
+#' overlay_path <- ieegio_sample_data(nifti_rgbfile)
 #'
 #' # basic read
-#' vol <- read_volume(file)
+#' underlay <- read_volume(underlay_path)
+#' overlay <- read_volume(overlay_path)
 #'
 #' par(mfrow = c(1, 3), mar = c(0, 0, 3.1, 0))
 #'
-#' ras_position <- c(-50, -10, 15)
+#' ras_position <- c(50, -10, 15)
 #'
 #' ras_str <- paste(sprintf("%.0f", ras_position), collapse = ",")
 #'
 #' for(which in c("coronal", "axial", "sagittal")) {
-#'   plot(x = vol, position = ras_position, crosshair_gap = 10,
+#'   plot(x = underlay, position = ras_position, crosshair_gap = 10,
 #'        crosshair_lty = 2, zoom = 3, which = which,
 #'        main = sprintf("%s T1RAS=[%s]", which, ras_str))
+#'   plot(x = overlay, position = ras_position,
+#'        crosshair_gap = 10, label_col = NA,
+#'        add = TRUE, alpha = 0.9, zoom = 5, which = which)
 #' }
 #'
 #'
@@ -365,8 +416,9 @@ plot.ieegio_volume <- function(
     x, position = c(0, 0, 0), center_position = FALSE,
     which = c("coronal", "axial", "sagittal"), slice_index = 1L,
     transform = "vox2ras", zoom = 1, pixel_width = max(zoom / 2, 1),
+    col = c("black", "white"), alpha = NA,
     crosshair_gap = 4, crosshair_lty = 2,
-    col = c("black", "white"), crosshair_col = "#00FF00A0",
+    crosshair_col = "#00FF00A0", label_col = crosshair_col,
     continuous = TRUE, vlim = NULL,
     add = FALSE, main = "", axes = FALSE,
     background = col[[1]], foreground = col[[length(col)]],
@@ -376,6 +428,8 @@ plot.ieegio_volume <- function(
 
   # DIPSAUS DEBUG START
   # x <- read_volume(ieegio_sample_data("brain.demosubject.nii.gz"))
+  # x <- ieegio::read_volume(system.file("extdata", "example_rgb.nii.gz", package="RNifti"))
+  # x <- read_volume(ieegio_sample_data("nifti/rnifti_example.nii.gz"))
   # transform = "vox2ras"
   # which <- "coronal"
   # position <- c(10, 10, 10)
@@ -400,7 +454,6 @@ plot.ieegio_volume <- function(
   }
   ras2vox <- solve(mat)
 
-  x_data <- .xdata
   x_shape <- x$shape
 
   slice_index <- as.integer(slice_index[[1]])
@@ -415,45 +468,68 @@ plot.ieegio_volume <- function(
     slice_index <- 1L
   }
 
-  if( continuous ) {
-    if(length(vlim) == 1) {
-      vlim <- c(-1, 1) * abs(vlim)
-    } else if (length(vlim) >= 2) {
-      vlim <- range(vlim, na.rm = TRUE)
-    } else {
-      vlim <- range(x_data, na.rm = TRUE)
-      mode <- storage.mode(x_data)
-      if( vlim[[1]] > 0 ) { vlim[[1]] <- 0 }
-      if( mode == "integer" ) {
-        if( vlim[[2]] >= 2 ) {
-          if(vlim[[2]] < 255) {
-            vlim[[2]] <- 255
-            vlim[[1]] <- 0
-          } else if (vlim[[2]] <- 32768) {
-            vlim[[2]] <- 32768
-            vlim[[1]] <- -32767
-          } else if (vlim[[2]] <- 65535) {
-            vlim[[2]] <- 65535
-            vlim[[1]] <- 0
-          }
-        }
-      } else {
-        if( vlim[[1]] == 0 ) {
-          if(vlim[[2]] < 1) {
-            vlim[[2]] <- 1
-          }
-        } else if (vlim[[1]] < 0) {
-          # sym map
-          vlim <- max(abs(vlim)) * c(-1, 1)
-        }
-      }
-    }
-    if(length(col) < 256) {
-      col <- grDevices::colorRampPalette(col)(256)
-    }
+  if(inherits(x, "ieegio_rgba")) {
+    # this is RGB(A) image
+    is_rgba <- TRUE
+    x_data <- x[drop = FALSE]
   } else {
-    # TODO: add atlas labels if given
-    vlim <- range(x_data)
+    is_rgba <- FALSE
+    x_data <- .xdata
+    if( continuous ) {
+      if(length(vlim) == 1) {
+        vlim <- c(-1, 1) * abs(vlim)
+      } else if (length(vlim) >= 2) {
+        vlim <- range(vlim, na.rm = TRUE)
+      } else {
+        vlim <- range(x_data, na.rm = TRUE)
+        mode <- storage.mode(x_data)
+        if( vlim[[1]] > 0 ) { vlim[[1]] <- 0 }
+        if( mode == "integer" ) {
+          if( vlim[[2]] >= 2 ) {
+            if(vlim[[2]] < 255) {
+              vlim[[2]] <- 255
+              vlim[[1]] <- 0
+            } else if (vlim[[2]] <- 32768) {
+              vlim[[2]] <- 32768
+              vlim[[1]] <- -32767
+            } else if (vlim[[2]] <- 65535) {
+              vlim[[2]] <- 65535
+              vlim[[1]] <- 0
+            }
+          }
+        } else {
+          if( vlim[[1]] == 0 ) {
+            if(vlim[[2]] < 1) {
+              vlim[[2]] <- 1
+            }
+          } else if (vlim[[1]] < 0) {
+            # sym map
+            vlim <- max(abs(vlim)) * c(-1, 1)
+          }
+        }
+
+        # check if meta has valid cal_min and cal_max
+        original_meta <- .subset2(x, "original_meta")
+        if(is.list(original_meta) && all(c("cal_max", "cal_min") %in% names(original_meta))) {
+          cal_min <- original_meta$cal_min
+          cal_max <- original_meta$cal_max
+          if(any(c(cal_min, cal_max) != 0) && cal_max != cal_min) {
+            # need to rescale to 0 - 1
+            vlim <- c(0, 1)
+            x_data <- (x_data - cal_min) / (cal_max - cal_min)
+            x_data[x_data < 0] <- 0
+            x_data[x_data > 1] <- 1
+          }
+        }
+
+      }
+      if(length(col) < 256) {
+        col <- grDevices::colorRampPalette(col)(256)
+      }
+    } else {
+      # TODO: add atlas labels if given
+      vlim <- range(x_data)
+    }
   }
 
   if(length(pixel_width) < 1) {
@@ -564,22 +640,71 @@ plot.ieegio_volume <- function(
     on.exit({ graphics::par(oldpar) })
   }
 
-  graphics::image(
-    z = vox_data,
-    x = x_axis,
-    y = y_axis,
-    col = col,
-    zlim = vlim,
-    add = add,
-    axes = axes,
-    asp = 1,
-    xlab = "",
-    ylab = "",
-    useRaster = TRUE,
-    main = main,
-    ...
-  )
+  if( is_rgba ) {
+    # RGBA raster
+    xlim <- range(x_axis, na.rm = TRUE)
+    ylim <- range(y_axis, na.rm = TRUE)
+    if( !add ) {
+      plot(
+        x = xlim,
+        y = ylim,
+        type = "n",
+        axes = axes,
+        asp = 1,
+        xlab = "",
+        ylab = "",
+        # ...,
+        main = main
+      )
+    }
+    vox_data <- t(vox_data)[ncol(vox_data):1L, , drop = FALSE]
+    if(!is.na(alpha)) {
+      alpha_255 <- floor(alpha * 255)
+      alpha_255[alpha_255 < 0] <- 0
+      alpha_255[alpha_255 > 255] <- 255
+      vox_dm <- dim(vox_data)
+      vox_data <- as.vector(vox_data)
+      missing_color <- is.na(vox_data)
+      vox_data <- grDevices::col2rgb(vox_data, alpha = TRUE)
+      vox_data[4, ] <- alpha_255
+      vox_data <- array(
+        grDevices::rgb(vox_data[1, ], vox_data[2, ], vox_data[3, ], vox_data[4, ], maxColorValue = 255),
+        dim = vox_dm
+      )
+      vox_data[missing_color] <- NA_character_
+    }
+    graphics::rasterImage(grDevices::as.raster(vox_data),
+                           xlim[[1]],
+                           ylim[[1]],
+                           xlim[[2]],
+                           ylim[[2]],
+                           interpolate = FALSE)
+  } else {
+    if(!is.na(alpha)) {
+      alpha_255 <- floor(alpha * 255)
+      alpha_255[alpha_255 < 0] <- 0
+      alpha_255[alpha_255 > 255] <- 255
+      col <- grDevices::col2rgb(col, alpha = TRUE)
+      col[4, ] <- alpha_255
+      col <- grDevices::rgb(col[1, ], col[2, ], col[3, ], col[4, ], maxColorValue = 255)
+    }
 
+    graphics::image(
+      z = vox_data,
+      x = x_axis,
+      y = y_axis,
+      col = col,
+      zlim = vlim,
+      add = add,
+      axes = axes,
+      asp = 1,
+      xlab = "",
+      ylab = "",
+      useRaster = TRUE,
+      main = main,
+      ...
+    )
+  }
 
   xrg <- range(x_axis)
   xrg <- c(xrg[[1]], mean(xrg), xrg[[2]])
@@ -613,73 +738,76 @@ plot.ieegio_volume <- function(
   )
 
   # bottom
-  graphics::text(
-    x = xrg[[2]],
-    y = yrg[[1]],
-    labels = ax_label[[1]],
-    adj = c(0.5, -1),
-    col = crosshair_col,
-  )
-  # left
-  graphics::text(
-    x = xrg[[1]],
-    y = yrg[[2]],
-    labels = ax_label[[2]],
-    adj = c(-1, 0.5),
-    col = crosshair_col,
-  )
-  # top
-  graphics::text(
-    x = xrg[[2]],
-    y = yrg[[3]],
-    labels = ax_label[[3]],
-    adj = c(0.5, 2),
-    col = crosshair_col,
-  )
-  # right
-  graphics::text(
-    x = xrg[[3]],
-    y = yrg[[2]],
-    labels = ax_label[[4]],
-    adj = c(2, 0.5),
-    col = crosshair_col,
-  )
+  if(!is.na(label_col)) {
+    graphics::text(
+      x = xrg[[2]],
+      y = yrg[[1]],
+      labels = ax_label[[1]],
+      adj = c(0.5, -1),
+      col = label_col,
+    )
+    # left
+    graphics::text(
+      x = xrg[[1]],
+      y = yrg[[2]],
+      labels = ax_label[[2]],
+      adj = c(-1, 0.5),
+      col = label_col,
+    )
+    # top
+    graphics::text(
+      x = xrg[[2]],
+      y = yrg[[3]],
+      labels = ax_label[[3]],
+      adj = c(0.5, 2),
+      col = label_col,
+    )
+    # right
+    graphics::text(
+      x = xrg[[3]],
+      y = yrg[[2]],
+      labels = ax_label[[4]],
+      adj = c(2, 0.5),
+      col = label_col,
+    )
+  }
+  if(!is.na(crosshair_col) && !is.na(crosshair_gap)) {
+    crosshair_delta <- crosshair_gap / 2
 
-  crosshair_delta <- crosshair_gap / 2
+    graphics::segments(
+      x0 = c_xy[[1]] - crosshair_delta,
+      y0 = c_xy[[2]],
+      x1 = xrg[[1]],
+      y1 = c_xy[[2]],
+      col = crosshair_col,
+      lty = crosshair_lty
+    )
+    graphics::segments(
+      x0 = c_xy[[1]] + crosshair_delta,
+      y0 = c_xy[[2]],
+      x1 = xrg[[3]],
+      y1 = c_xy[[2]],
+      col = crosshair_col,
+      lty = crosshair_lty
+    )
 
-  graphics::segments(
-    x0 = c_xy[[1]] - crosshair_delta,
-    y0 = c_xy[[2]],
-    x1 = xrg[[1]],
-    y1 = c_xy[[2]],
-    col = crosshair_col,
-    lty = crosshair_lty
-  )
-  graphics::segments(
-    x0 = c_xy[[1]] + crosshair_delta,
-    y0 = c_xy[[2]],
-    x1 = xrg[[3]],
-    y1 = c_xy[[2]],
-    col = crosshair_col,
-    lty = crosshair_lty
-  )
-
-  graphics::segments(
-    x0 = c_xy[[1]],
-    y0 = c_xy[[2]] - crosshair_delta,
-    x1 = c_xy[[1]],
-    y1 = yrg[[1]],
-    col = crosshair_col,
-    lty = crosshair_lty
-  )
-  graphics::segments(
-    x0 = c_xy[[1]],
-    y0 = c_xy[[2]] + crosshair_delta,
-    x1 = c_xy[[1]],
-    y1 = yrg[[3]],
-    col = crosshair_col,
-    lty = crosshair_lty
-  )
+    graphics::segments(
+      x0 = c_xy[[1]],
+      y0 = c_xy[[2]] - crosshair_delta,
+      x1 = c_xy[[1]],
+      y1 = yrg[[1]],
+      col = crosshair_col,
+      lty = crosshair_lty
+    )
+    graphics::segments(
+      x0 = c_xy[[1]],
+      y0 = c_xy[[2]] + crosshair_delta,
+      x1 = c_xy[[1]],
+      y1 = yrg[[3]],
+      col = crosshair_col,
+      lty = crosshair_lty
+    )
+  }
 
 }
 

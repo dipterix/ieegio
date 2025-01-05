@@ -13,10 +13,12 @@
   transform = "vox2ras",
   zoom = 1,
   pixel_width = max(zoom/2, 1),
+  col = c("black", "white"),
+  alpha = NA,
   crosshair_gap = 4,
   crosshair_lty = 2,
-  col = c("black", "white"),
   crosshair_col = "#00FF00A0",
+  label_col = crosshair_col,
   continuous = TRUE,
   vlim = NULL,
   add = FALSE,
@@ -31,7 +33,8 @@
 \arguments{
 \item{x}{\code{'ieegio_volume'} object; see \code{\link{read_volume}}}
 
-\item{position}{cross-hair focused position}
+\item{position}{position in \code{'RAS'} (right-anterior-superior) coordinate
+system on which cross-hair should focus}
 
 \item{center_position}{whether to center canvas at \code{position},
 default is \code{FALSE}}
@@ -55,13 +58,19 @@ to be the transform matrix from voxel index to 'RAS'
 default is the half of \code{zoom} or \code{1}, whichever is greater;
 the unit of \code{pixel_width} divided by \code{zoom} is milliliter}
 
+\item{col}{color palette for continuous \code{x} values}
+
+\item{alpha}{opacity value if the image is to be displayed with transparency}
+
 \item{crosshair_gap}{the cross-hair gap in milliliter}
 
 \item{crosshair_lty}{the cross-hair line type}
 
-\item{col}{color palette for continuous \code{x} values}
-
 \item{crosshair_col}{the cross-hair color; set to \code{NA} to hide}
+
+\item{label_col}{the color of anatomical axis labels (i.e. \code{"R"} for
+right, \code{"A"} for anterior, and \code{"S"} for superior); default is
+the same as \code{crosshair_col}}
 
 \item{continuous}{reserved}
 
@@ -88,31 +97,43 @@ Plot '3D' volume in anatomical slices
 
 library(ieegio)
 
-nifti_file <- "brain.demosubject.nii.gz"
+nifti_file <- "nifti/rnifti_example.nii.gz"
+nifti_rgbfile <- "nifti/rnifti_example_rgb.nii.gz"
 
-# Use `ieegio_sample_data(nifti_file)`
-#   to download sample data
+# Use
+#   `ieegio_sample_data(nifti_file)`
+# and
+#   `ieegio_sample_data(nifti_rgbfile)`
+# to download sample data
 
 
-if( ieegio_sample_data(nifti_file, test = TRUE) ) {
+if(
+  ieegio_sample_data(nifti_file, test = TRUE) &&
+  ieegio_sample_data(nifti_rgbfile, test = TRUE)
+) {
 
 # ---- NIfTI examples ---------------------------------------------
 
-file <- ieegio_sample_data(nifti_file)
+underlay_path <- ieegio_sample_data(nifti_file)
+overlay_path <- ieegio_sample_data(nifti_rgbfile)
 
 # basic read
-vol <- read_volume(file)
+underlay <- read_volume(underlay_path)
+overlay <- read_volume(overlay_path)
 
 par(mfrow = c(1, 3), mar = c(0, 0, 3.1, 0))
 
-ras_position <- c(-50, -10, 15)
+ras_position <- c(50, -10, 15)
 
 ras_str <- paste(sprintf("\%.0f", ras_position), collapse = ",")
 
 for(which in c("coronal", "axial", "sagittal")) {
-  plot(x = vol, position = ras_position, crosshair_gap = 10,
+  plot(x = underlay, position = ras_position, crosshair_gap = 10,
        crosshair_lty = 2, zoom = 3, which = which,
        main = sprintf("\%s T1RAS=[\%s]", which, ras_str))
+  plot(x = overlay, position = ras_position,
+       crosshair_gap = 10, label_col = NA,
+       add = TRUE, alpha = 0.9, zoom = 5, which = which)
 }
 
 
