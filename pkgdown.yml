@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   read-ephys: read-ephys.html
   read-imaging-data: read-imaging-data.html
-last_built: 2024-12-19T00:10Z
+last_built: 2025-01-05T00:25Z
 urls:
   reference: http://dipterix.org/ieegio/reference
   article: http://dipterix.org/ieegio/articles
