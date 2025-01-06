@@ -122,3 +122,195 @@ resample_volume <- function(x, new_dim, na_fill = NA) {
   re$original_meta <- RNifti::niftiHeader(re$header)
   re
 }
+
+resample_vox2ras <- function(vox2ras, old_dim, new_dim) {
+  dim0 <- old_dim[c(1, 2, 3)]
+
+  crs0_half <- c(dim0 / 2, 1)
+  # RAS of center of the volume
+  ras0 <- vox2ras %*% crs0_half
+
+  dim1 <- new_dim[c(1, 2, 3)]
+  crs1_half <- c(dim1 / 2, 1)
+  # ras0 <- vox2ras1 %*% crs1_half
+
+  vox2ras1 <- vox2ras %*% diag(c(dim0 / dim1, 1))
+  vox2ras1[1:3, 4] <- 0
+  translation <- ras0 - vox2ras1 %*% crs1_half
+  vox2ras1[1:3, 4] <- translation[1:3]
+  vox2ras1
+}
+
+#' Burn image at given positions
+#' @description
+#' Burn image at given positions with given color and radius.
+#' @param image volume
+#' @param ras_position image-defined right-anterior-posterior positions, an
+#' \code{nx3} matrix, each row is an 'RAS' coordinate
+#' @param col vector of integer or characters, color of each contact
+#' @param radius vector of positive number indicating the burning radius
+#' @param reshape whether to reshape the image at a different resolution;
+#' default is false; can be \code{TRUE} (image resolution will be doubled),
+#' a single number (size of isotropic volume along one side), or
+#' a length of three defining the new shape.
+#' @param ... passed to \code{\link{as_ieegio_volume}}, useful if \code{image}
+#' is an array
+#' @param preview indices (integer) of the position to visualize; default is
+#' \code{NULL} (no preview)
+#' @returns Color image that is burnt
+#'
+#' @examples
+#'
+#' if(interactive()) {
+#'
+#' image <- as_ieegio_volume(
+#'   array(rnorm(125000), c(50, 50, 50)),
+#'   vox2ras = rbind(cbind(diag(1, 3), c(-25, -25, -25)),
+#'                   c(0, 0, 0, 1))
+#' )
+#'
+#' ras_positions <- rbind(c(1, -0.5, 1.5), c(15, -15.7, 16.1))
+#' burned <- burn_volume(
+#'   image,
+#'   ras_positions,
+#'   col = c("red", "green"),
+#'   radius = 2,
+#'   reshape = c(150, 150, 150)
+#' )
+#'
+#' plot(image, position = ras_positions[1, ], zoom = 5, pixel_width = 0.5, center_position = FALSE)
+#' plot(burned, position = ras_positions[1, ], zoom = 5, pixel_width = 0.2,
+#'      add = TRUE, center_position = FALSE, alpha = 0.5)
+#'
+#' }
+#' @export
+burn_volume <- function(image, ras_position, col = "red", radius = 1,
+                        reshape = FALSE, ..., preview = NULL) {
+
+  # DIPSAUS DEBUG START
+  # image <- read_volume(ieegio_sample_data( "brain.demosubject.nii.gz"))
+  # ras_position = array(rnorm(30), c(10, 3))
+  # col <- sample(2:100, 10)
+  # radius = 1
+  # reshape <- FALSE
+  # preview <- TRUE
+
+  if(length(ras_position) == 3) {
+    ras_position <- matrix(ras_position, nrow = 1)
+  } else if(!is.matrix(ras_position)) {
+    ras_position <- as.matrix(ras_position)
+  }
+
+  if(ncol(ras_position) != 3) {
+    stop("`ras_position` must be a matrix of nx3")
+  }
+
+  n_contacts <- nrow(ras_position)
+  if(length(radius) < n_contacts) {
+    radius <- rep(radius, ceiling(nrow(ras_position) / length(radius)))
+  }
+  radius <- radius[seq_len(n_contacts)]
+
+  if(length(col) < n_contacts) {
+    col <- rep(col, ceiling(nrow(ras_position) / length(col)))
+  }
+  col <- col[seq_len(n_contacts)]
+
+  image <- as_ieegio_volume(image, ...)
+  shape <- dim(image)[c(1, 2, 3)]
+  vox2ras <- image$transforms$vox2ras
+  if(!isFALSE(reshape)) {
+    stopifnot(isTRUE(reshape) || (
+      is.numeric(reshape) &&
+        length(reshape) %in% c(1, 3) &&
+        all(reshape > 0)
+    ))
+
+    if(isTRUE(reshape)) {
+      reshape <- shape * 2
+    } else if(length(reshape) == 1) {
+      reshape <- c(reshape, reshape, reshape)
+    }
+    vox2ras <- resample_vox2ras(vox2ras = vox2ras, old_dim = shape, new_dim = reshape)
+    shape <- reshape
+  }
+
+  cum_shape <- c(1, cumprod(shape))
+
+  vox2scan <- image$transforms$vox2ras
+  scan2vox <- solve(vox2scan)
+  voxel_sizes <- sqrt(colSums((vox2scan[1:3, 1:3])^2))
+
+  col <- grDevices::adjustcolor(col)
+
+  arr <- array(NA_integer_, dim = shape)
+
+  nvox <- ceiling(max(radius, na.rm = TRUE) / voxel_sizes)
+  search_table <- t(as.matrix(expand.grid(
+    i = seq(-nvox[[1]], nvox[[1]]),
+    j = seq(-nvox[[2]], nvox[[2]]),
+    k = seq(-nvox[[3]], nvox[[3]])
+  )))
+  dimnames(search_table) <- NULL
+  dist <- sqrt(colSums((vox2scan[1:3, 1:3] %*% search_table)^2))
+
+  # burn sphere
+  for(ii in seq_len(n_contacts)) {
+    scan_pos <- ras_position[ii, ]
+    radius_ii <- radius[[ii]]
+
+    if( isTRUE(radius_ii > 0) && !anyNA(scan_pos) ) {
+
+      val <- as.integer(ii)
+      vox_pos <- round(scan2vox %*% c(scan_pos, 1))[1:3]
+
+      # 0-based
+      burn_index0 <- search_table + vox_pos
+
+      # filter within radius
+      burn_index0 <- burn_index0[, dist <= radius_ii, drop = FALSE]
+
+      # get rid of invalid indices
+      burn_index0[burn_index0 < 0 | burn_index0 >= shape] <- NA
+      burn_index0 <- burn_index0[, !is.na(colSums(burn_index0)), drop = FALSE]
+
+      burn_index <- colSums(burn_index0 * cum_shape[1:3]) + 1
+      arr[burn_index] <- val
+    }
+
+  }
+
+  current_palette <- grDevices::palette()
+  grDevices::palette(col)
+  on.exit({ grDevices::palette(current_palette) })
+
+  burnt <- as_ieegio_volume(arr, vox2ras = image$transforms$vox2ras, as_color = TRUE)
+  grDevices::palette(current_palette)
+
+  preview <- preview[preview %in% seq_len(n_contacts)]
+  if(length(preview)) {
+    mfrow <- grDevices::n2mfrow(length(preview))
+    oldpar <- graphics::par(mfrow = mfrow, mar = c(0, 0, 0, 0))
+    on.exit({ graphics::par(oldpar) }, add = TRUE)
+
+    lapply(preview, function(ii) {
+      plot(
+        image,
+        position = ras_position[ii, ],
+        center_position = TRUE,
+        zoom = 5,
+        crosshair_col = NA
+      )
+      plot(
+        burnt,
+        position = ras_position[ii, ],
+        center_position = TRUE,
+        zoom = 5,
+        add = TRUE,
+        alpha = 0.5
+      )
+    })
+  }
+
+  burnt
+}
