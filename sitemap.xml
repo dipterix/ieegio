@@ -11,6 +11,8 @@
 <url><loc>http://dipterix.org/ieegio/reference/LazyH5.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/NWBHDF5IO.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/SignalDataCache.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/as_ieegio_volume.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/burn_volume.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/ieegio_sample_data.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/imaging-surface.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/imaging-volume.html</loc></url>
@@ -27,5 +29,6 @@
 <url><loc>http://dipterix.org/ieegio/reference/read_edf.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/read_nsx.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/read_nwb.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/resample_volume.html</loc></url>
 </urlset>
 
