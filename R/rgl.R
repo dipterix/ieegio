@@ -15,7 +15,7 @@ check_rgl <- function (strict = NA) {
   if (getOption("ravetools.rgl.disabled", FALSE)) {
     return(rgl_unavailable())
   }
-  if (system.file(package = "rgl") == "") {
+  if (!package_installed("rgl")) {
     return(rgl_unavailable())
   }
   TRUE

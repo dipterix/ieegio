@@ -473,8 +473,7 @@ merge.ieegio_surface <- function(x, y, ...) {
 #'   print(merged)
 #'
 #'   # ---- plot method/style ------------------------------------
-#'   plot(merged, "basic")
-#'   plot(merged, "full")
+#'   plot(merged)
 #'
 #'   # ---- plot data --------------------------------------------
 #'
@@ -494,13 +493,14 @@ merge.ieegio_surface <- function(x, y, ...) {
 #'
 #'   # automatically select 4 slices, trim the color palette
 #'   # from -25 to 25
-#'   plot(merged, name = "time_series", vlim = c(-25, 25))
+#'   plot(merged, name = "time_series", vlim = c(-25, 25),
+#'        slice_index = 1L)
 #'
 #'   plot(
 #'     merged,
 #'     name = "time_series",
 #'     vlim = c(-25, 25),
-#'     slice_index = c(1, 17, 33, 49, 64, 80, 96, 112, 128),
+#'     slice_index = 64,
 #'     col = c("#053061", "#2166ac", "#4393c3",
 #'             "#92c5de", "#d1e5f0", "#ffffff",
 #'             "#fddbc7", "#f4a582", "#d6604d",
@@ -514,16 +514,16 @@ merge.ieegio_surface <- function(x, y, ...) {
 #'
 #' @export
 plot.ieegio_surface <- function(
-    x, method = c("basic", "full"), transform = 1L,
+    x, method = c("auto", "r3js", "rgl_basic", "rgl_full"), transform = 1L,
     name = "auto", vlim = NULL, col = c("black", "white"),
     slice_index = NULL, ...) {
   method <- match.arg(method)
 
   # DIPSAUS DEBUG START
-  # file <- "/Users/dipterix/rave_data/raw_dir/AnonSEEG_old2/rave-imaging/fs/surf/lh.pial.annot.gii"
-  # annot <- io_read_gii(file)
-  # file <- "/Users/dipterix/rave_data/raw_dir/AnonSEEG_old2/rave-imaging/fs/surf/lh.pial.gii"
-  # x <- merge(io_read_gii(file), annot)
+  # file <- "/Users/dipterix/rave_data/raw_dir/PAV044/rave-imaging/fs/label/lh.aparc.annot"
+  # annot <- read_surface(file)
+  # file <- "/Users/dipterix/rave_data/raw_dir/PAV044/rave-imaging/fs/surf/lh.pial"
+  # x <- merge(read_surface(file), annot)
   # method <- "fancy"
   # transform <- 1
   # vlim <- NULL
@@ -534,6 +534,7 @@ plot.ieegio_surface <- function(
   # )
   # slice_index <- NULL
   # name <- c("time_series")
+  # col = c("black", "white")
 
 
   if(!length(x$geometry)) {
@@ -687,50 +688,64 @@ plot.ieegio_surface <- function(
   if(name[[1]] == "time") {
     n_slices <- length(slice_index)
 
-    mfr <- grDevices::n2mfrow(n_slices, asp = 1)
-    helper_rgl_view({
-      helper_rgl_call("open3d")#, userMatrix = diag(1, 4))
-      # view3d(theta = -90, phi = 90, type = "userviewpoint")
-      helper_rgl_call(
-        "layout3d",
-        matrix(seq_len(n_slices * 2), nrow = mfr[[1]] * 2, byrow = FALSE),
-        sharedMouse = TRUE, heights = rep(c(3, 1), mfr[[1]])
-      )
-      # mfrow3d(mfr[[1]], mfr[[2]])
-      for (i in seq_len(n_slices)) {
-        helper_rgl_call("next3d")
-        helper_rgl_call("shade3d", mesh, col = col[i, ])
-        helper_rgl_call("next3d")
-        helper_rgl_call("text3d", 0, 0, 0,
-                        sprintf("Slice %d", slice_index[[i]]))
-      }
-      # To trigger display
+    if( package_installed("r3js") ) {
+      main <- sprintf("Slice %d", slice_index[[1]])
+      r3plot <- helper_r3js_render_mesh(mesh, col = col[1, ])
+      r3plot <- r3js::legend3js(r3plot, legend = main, fill = NA)
+      r3js::r3js(r3plot, rotation = c(0, 0, 0), zoom = 3, title = main)
+    } else {
+      mfr <- grDevices::n2mfrow(n_slices, asp = 1)
+      helper_rgl_view({
+        helper_rgl_call("open3d")#, userMatrix = diag(1, 4))
+        # view3d(theta = -90, phi = 90, type = "userviewpoint")
+        helper_rgl_call(
+          "layout3d",
+          matrix(seq_len(n_slices * 2), nrow = mfr[[1]] * 2, byrow = FALSE),
+          sharedMouse = TRUE, heights = rep(c(3, 1), mfr[[1]])
+        )
+        # mfrow3d(mfr[[1]], mfr[[2]])
+        for (i in seq_len(n_slices)) {
+          helper_rgl_call("next3d")
+          helper_rgl_call("shade3d", mesh, col = col[i, ])
+          helper_rgl_call("next3d")
+          helper_rgl_call("text3d", 0, 0, 0,
+                          sprintf("Slice %d", slice_index[[i]]))
+        }
+        # To trigger display
 
 
-      # helper_rgl_call("highlevel", integer())
+        # helper_rgl_call("highlevel", integer())
 
-      # open3d()
-      # mat <- matrix(1:4, 2, 2)
-      # mat <- cbind(mat, mat + 4, mat + 8)
-      # layout3d(mat, height = rep(c(3, 1), 3), sharedMouse = TRUE)
-      # for (i in 1:6) {
-      #   next3d()
-      #   shade3d(shapes[[i]], col = col[i])
-      #   next3d()
-      #   text3d(0, 0, 0, names(shapes)[i])
-      # }
-      # highlevel(integer())
-    })
-
+        # open3d()
+        # mat <- matrix(1:4, 2, 2)
+        # mat <- cbind(mat, mat + 4, mat + 8)
+        # layout3d(mat, height = rep(c(3, 1), 3), sharedMouse = TRUE)
+        # for (i in 1:6) {
+        #   next3d()
+        #   shade3d(shapes[[i]], col = col[i])
+        #   next3d()
+        #   text3d(0, 0, 0, names(shapes)[i])
+        # }
+        # highlevel(integer())
+      })
+    }
   } else {
+    if(identical(method, "auto")) {
+      if(package_installed("r3js")) {
+        method <- "r3js"
+      } else if (package_installed("rgl")) {
+        method <- "rgl_basic"
+      }
+    }
+
     switch(
       method,
-      "basic" = {
+      "rgl_basic" = {
         helper_rgl_view({
           helper_rgl_call("shade3d", mesh, col = col)
         })
       },
-      "full" = {
+      "rgl_full" = {
         helper_rgl_view({
           rg <- apply(mesh$vb, 1, range)[, 1:3]
           helper_rgl_call("shade3d", mesh, col = col)
@@ -748,6 +763,10 @@ plot.ieegio_surface <- function(
                           adj = c(1,1,1))
           helper_rgl_call("title3d", main = main, cex = 1.2)
         })
+      },
+      "r3js" = {
+        r3plot <- helper_r3js_render_mesh(mesh, col = col)
+        r3js::r3js(r3plot, rotation = c(0, 0, 0), zoom = 3, title = main)
       }, {
         # TODO: add RAVE and NiiVue 3D viewers
       }
@@ -755,6 +774,7 @@ plot.ieegio_surface <- function(
   }
 
 }
+
 
 
 

@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{ieegio_surface}(
   x,
-  method = c("basic", "full"),
+  method = c("auto", "r3js", "rgl_basic", "rgl_full"),
   transform = 1L,
   name = "auto",
   vlim = NULL,
@@ -88,8 +88,7 @@ if(ieegio_sample_data(geom_file, test = TRUE)) {
   print(merged)
 
   # ---- plot method/style ------------------------------------
-  plot(merged, "basic")
-  plot(merged, "full")
+  plot(merged)
 
   # ---- plot data --------------------------------------------
 
@@ -109,13 +108,14 @@ if(ieegio_sample_data(geom_file, test = TRUE)) {
 
   # automatically select 4 slices, trim the color palette
   # from -25 to 25
-  plot(merged, name = "time_series", vlim = c(-25, 25))
+  plot(merged, name = "time_series", vlim = c(-25, 25),
+       slice_index = 1L)
 
   plot(
     merged,
     name = "time_series",
     vlim = c(-25, 25),
-    slice_index = c(1, 17, 33, 49, 64, 80, 96, 112, 128),
+    slice_index = 64,
     col = c("#053061", "#2166ac", "#4393c3",
             "#92c5de", "#d1e5f0", "#ffffff",
             "#fddbc7", "#f4a582", "#d6604d",

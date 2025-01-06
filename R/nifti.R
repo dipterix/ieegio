@@ -568,7 +568,7 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
       )
 
       if(is_color) {
-        type <- c("rnifti", "rgba")
+        type <- c("rnifti", "rgba", "nifti")
       } else {
         type <- c("rnifti", "nifti")
       }
@@ -662,7 +662,12 @@ io_write_nii.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
 #' @rdname imaging-volume
 #' @export
 io_write_nii.niftiImage <- function(x, con, ...) {
-  RNifti::writeNifti(image = x, file = con, ...)
+  re <- RNifti::writeNifti(image = x, file = con, ...)
+  re <- unique(re)
+  if(length(re) > 1) {
+    re <- re[[2]]
+  }
+  re
 }
 
 #' @rdname imaging-volume
@@ -772,142 +777,15 @@ io_write_nii.array <- function(x, con, vox2ras = NULL,
                                xyzt_units = c("NIFTI_UNITS_MM", "NIFTI_UNITS_SEC"),
                                intent_code = "NIFTI_INTENT_NONE", ...,
                                gzipped = NA) {
-  if(!is.matrix(vox2ras)) {
-    warning("`io_write_nii.array`: `vox2ras` is missing, using identity matrix. Please specify voxel-to-RAS transform (4x4 matrix).")
-    vox2ras <- diag(1, 4)
+  if(is.na(gzipped)) {
+    gzipped <- TRUE
   }
-  stopifnot(is.matrix(vox2ras) && nrow(vox2ras) == 4 && ncol(vox2ras) == 4)
-
-  quaternion <- mat_to_quaternion(vox2ras)
-
-  shape <- dim(x)
-  nshapes <- length(shape)
-
-  # In NIFTI-1 files, dimensions 1,2,3 are for space, dimension 4 is for time,
-  # and dimension 5 is for storing multiple values at each spatiotemporal
-  # voxel.
-  stopifnot(nshapes %in% c(3, 4, 5))
-  if(length(shape) > 3) {
-    nframes <- shape[[4]]
-  } else {
-    nframes <- 1
-  }
-
-  m33 <- vox2ras[1:3, 1:3]
-  pixdim <- sqrt(colSums(m33^2))
-  pixdim <- c(sign(det(m33)), pixdim, nframes, 0, 0, 0)
-  pixdim <- as.double(pixdim)
-
-  # Drop frames if necessary
-  if( nframes == 1 && length(shape) == 4 ) {
-    pixdim[[5]] <- 0
-    shape <- shape[1:3]
-    x <- array(x[seq_len(prod(shape))], dim = shape)
-  }
-
-  nshapes <- length(shape)
-
-  dots <- list(...)
-
-  if(!length(xyzt_units)) {
-    if( nshapes == 3 ) {
-      xyzt_units <- "NIFTI_UNITS_MM"
-    } else if (nshapes == 4) {
-      xyzt_units <- c("NIFTI_UNITS_MM", "NIFTI_UNITS_SEC")
-    } else {
-      # nshapes == 5
-      if( all(shape[c(2,3,4)] == 1) ) {
-        xyzt_units <- "NIFTI_UNITS_SEC"
-      } else if( nframes == 1 ) {
-        xyzt_units <- "NIFTI_UNITS_MM"
-      } else {
-        xyzt_units <- c("NIFTI_UNITS_MM", "NIFTI_UNITS_SEC")
-      }
+  if(grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
+    if( grepl("\\.nii$", con, ignore.case = TRUE) ) {
+      gzipped <- FALSE
     }
+    con <- path_ext_remove(con)
   }
-
-
-
-  xyzt_units <- Reduce(x = xyzt_units, f = function(a, b) {
-    bitwOr(as_nifti_unit(a), as_nifti_unit(b))
-  })
-
-  intent_code <- as_nifti_intent(intent_code)
-  intent_p1 <- as_nifti_intent(c(dots$intent_p1, 0L)[[1]])
-  intent_p2 <- as_nifti_intent(c(dots$intent_p2, 0L)[[1]])
-  intent_p3 <- as_nifti_intent(c(dots$intent_p3, 0L)[[1]])
-
-
-  x[is.na(x)] <- 0
-  rg <- range(x)
-
-  if(length(datatype_code)) {
-    datatype_code <- as_nifti_type(datatype_code)
-    bitpix <- compute_nifti_bitpix(datatype_code)
-  } else {
-    if(all(x - round(x) == 0)) {
-      if( rg[[1]] >= 0 && rg[[2]] <= 255 ) {
-        # UINT8
-        datatype_code <- 2L
-        bitpix <- 8L
-        storage.mode(x) <- "integer"
-      } else if ( rg[[1]] >= -32768 && rg[[2]] <= 32768 ) {
-        # INT16
-        datatype_code <- 4L
-        bitpix <- 16L
-        storage.mode(x) <- "integer"
-      } else if ( rg[[1]] >= -2147483648 && rg[[2]] <= 2147483648 ) {
-        # INT32
-        datatype_code <- 8L
-        bitpix <- 32L
-        storage.mode(x) <- "integer"
-      } else {
-        # FLOAT32
-        bitpix <- 32L
-        datatype_code <- 16L
-      }
-    } else {
-      # FLOAT32
-      bitpix <- 32L
-      datatype_code <- 16L
-    }
-  }
-
-  # functional
-  nii <- oro.nifti::as.nifti(x)
-  # sizeof_hdr = 348L,
-  # dim_info = 0L,
-  # dim = as.integer(c(length(x$shape), x$shape, rep(1, 7 - length(x$shape)))),
-  nii@intent_p1 <- intent_p1
-  nii@intent_p2 <- intent_p2
-  nii@intent_p3 <- intent_p3
-  nii@intent_code <- intent_code
-  nii@datatype <- datatype_code
-  nii@data_type <- oro.nifti::convert.datatype(datatype_code)
-  nii@bitpix <- bitpix
-  # slice_start = 0L, slice_end = 0L, slice_code = 0L,
-  nii@pixdim <- pixdim
-  # vox_offset = 352,
-  # scl_slope = 0, scl_inter = 0,
-  # cal_max = 0, cal_min = 0,
-  nii@xyzt_units <- xyzt_units
-  # slice_duration = 0, toffset = 0,
-  # descrip = "Time=0.000", aux_file = "",
-  nii@qform_code <- 1L
-  nii@sform_code <- 1L
-  nii@quatern_b <- quaternion[[1]]
-  nii@quatern_c <- quaternion[[2]]
-  nii@quatern_d <- quaternion[[3]]
-  nii@qoffset_x <- vox2ras[1, 4]
-  nii@qoffset_y <- vox2ras[2, 4]
-  nii@qoffset_z <- vox2ras[3, 4]
-  nii@srow_x <- vox2ras[1, ]
-  nii@srow_y <- vox2ras[2, ]
-  nii@srow_z <- vox2ras[3, ]
-  # intent_name = "", magic = "n+1"
-  nii@regular <- "r"
-
-  io_write_nii.nifti(x = nii, con = con, ...)
+  x <- as_ieegio_volume(x, vox2ras = vox2ras, ...)
+  io_write_nii(x = x$header, con = con)
 }
-
-
