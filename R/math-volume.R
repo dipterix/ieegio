@@ -8,6 +8,41 @@
 #'
 #' @examples
 #'
+#' # ---- Toy example ----------------------------
+#'
+#' dm <- c(6, 6, 6)
+#' arr <- array(seq_len(prod(dm)) + 0.5, dm)
+#' orig <- as_ieegio_volume(
+#'   arr, vox2ras = cbind(diag(1, nrow = 4, ncol = 3), c(-dm / 2, 1)))
+#'
+#' # resample
+#' downsampled <- resample_volume(orig, new_dim = c(3, 3, 3))
+#' dim(downsampled)
+#'
+#' # up-sample on coronal
+#' upsampled <- resample_volume(orig, new_dim = c(20, 20, 24))
+#' dim(upsampled)
+#'
+#' par(mfrow = c(2, 2), mar = c(0, 0, 2.1, 0.1))
+#' plot(orig, pixel_width = 0.5, zoom = 20, main = "Original")
+#' plot(downsampled, pixel_width = 0.5, zoom = 20, main = "Down-sampled")
+#' plot(upsampled, pixel_width = 0.5, zoom = 20, main = "Super-sampled")
+#' plot(
+#'   orig,
+#'   main = "Overlay super-sample (diff)",
+#'   col = c("black", "white"),
+#'   pixel_width = 0.5, zoom = 20
+#' )
+#' plot(
+#'   upsampled,
+#'   add = TRUE,
+#'   col = c("white", "black"),
+#'   pixel_width = 0.5, zoom = 20,
+#'   alpha = 0.5
+#' )
+
+#'
+#' # ---- Real example ---------------------------
 #' nifti_file <- "brain.demosubject.nii.gz"
 #'
 #' if( ieegio_sample_data(nifti_file, test = TRUE) ) {
@@ -46,8 +81,6 @@
 #'
 #' }
 #'
-#'
-#'
 #' @export
 resample_volume <- function(x, new_dim, na_fill = NA) {
 
@@ -58,20 +91,10 @@ resample_volume <- function(x, new_dim, na_fill = NA) {
 
   x <- as_ieegio_volume(x)
   dim0 <- dim(x)[c(1, 2, 3)]
+  dim1 <- new_dim[1:3]
 
-  crs0_half <- c(dim0 / 2, 1)
   vox2ras0 <- x$transforms$vox2ras
-  # RAS of center of the volume
-  ras0 <- vox2ras0 %*% crs0_half
-
-  dim1 <- new_dim[c(1, 2, 3)]
-  crs1_half <- c(dim1 / 2, 1)
-  # ras0 <- vox2ras1 %*% crs1_half
-
-  vox2ras1 <- vox2ras0 %*% diag(c(dim0 / dim1, 1))
-  vox2ras1[1:3, 4] <- 0
-  translation <- ras0 - vox2ras1 %*% crs1_half
-  vox2ras1[1:3, 4] <- translation[1:3]
+  vox2ras1 <- resample_vox2ras(vox2ras = vox2ras0, old_dim = dim0, new_dim = dim1)
 
   # CRS/IJK in new image
   vox1 <- t(cbind(arrayInd(seq_len(prod(dim1)), dim1) - 1L, 1L))
@@ -124,20 +147,36 @@ resample_volume <- function(x, new_dim, na_fill = NA) {
 }
 
 resample_vox2ras <- function(vox2ras, old_dim, new_dim) {
+  # DIPSAUS DEBUG START
+  # vox2ras <- cbind(diag(1, nrow = 4, ncol = 3), c(rnorm(3), 1))
+  # old_dim <- c(5,5,5)
+  # new_dim <- c(16,16,14)
+
   dim0 <- old_dim[c(1, 2, 3)]
-
-  crs0_half <- c(dim0 / 2, 1)
-  # RAS of center of the volume
-  ras0 <- vox2ras %*% crs0_half
-
   dim1 <- new_dim[c(1, 2, 3)]
-  crs1_half <- c(dim1 / 2, 1)
-  # ras0 <- vox2ras1 %*% crs1_half
 
+  # set pixdim
   vox2ras1 <- vox2ras %*% diag(c(dim0 / dim1, 1))
   vox2ras1[1:3, 4] <- 0
-  translation <- ras0 - vox2ras1 %*% crs1_half
-  vox2ras1[1:3, 4] <- translation[1:3]
+
+  # vox 0,0,0 -> 0,0,0
+  # vox d0[1],d0[2],0 -> d1[1],d1[2],0
+  # vox 0,d0[2],d0[3] -> 0,d1[2],d1[3]
+  vox_corner0 <- cbind(
+    c(0, 0, 0),
+    c(dim0[[1]], dim0[[2]], 0),
+    c(0, dim0[[2]], dim0[[3]])
+  ) - 0.5
+  vox_corner1 <- cbind(
+    c(0, 0, 0),
+    c(dim1[[1]], dim1[[2]], 0),
+    c(0, dim1[[2]], dim1[[3]])
+  ) - 0.5
+
+  ras_corner0 <- vox2ras %*% rbind(vox_corner0, 1)
+
+  translation <- ras_corner0 - vox2ras1 %*% rbind(vox_corner1, 1)
+  vox2ras1[1:3, 4] <- rowMeans(translation)[1:3]
   vox2ras1
 }
 
@@ -153,6 +192,10 @@ resample_vox2ras <- function(vox2ras, old_dim, new_dim) {
 #' default is false; can be \code{TRUE} (image resolution will be doubled),
 #' a single number (size of isotropic volume along one side), or
 #' a length of three defining the new shape.
+#' @param alpha whether to include alpha (transparent) channel. Default is
+#' false for compatibility concerns (legacy software might not support
+#' reading alpha channel). In this case, the background will be black.
+#' If \code{alpha=TRUE} is set, then the background will be fully transparent.
 #' @param ... passed to \code{\link{as_ieegio_volume}}, useful if \code{image}
 #' is an array
 #' @param preview indices (integer) of the position to visualize; default is
@@ -163,37 +206,61 @@ resample_vox2ras <- function(vox2ras, old_dim, new_dim) {
 #'
 #' if(interactive()) {
 #'
+#' dim <- c(6, 6, 6)
 #' image <- as_ieegio_volume(
-#'   array(rnorm(125000), c(50, 50, 50)),
-#'   vox2ras = rbind(cbind(diag(1, 3), c(-25, -25, -25)),
+#'   array(rnorm(prod(dim)), dim),
+#'   vox2ras = rbind(cbind(diag(1, 3), -dim / 2),
 #'                   c(0, 0, 0, 1))
 #' )
 #'
-#' ras_positions <- rbind(c(1, -0.5, 1.5), c(15, -15.7, 16.1))
+#' ras_positions <- rbind(c(1, -1, 1.5), c(-2.25, -1, -0.75))
+#'
+#'
 #' burned <- burn_volume(
 #'   image,
 #'   ras_positions,
 #'   col = c("red", "green"),
-#'   radius = 2,
-#'   reshape = c(150, 150, 150)
+#'   radius = 0.5,
+#'   reshape = c(24, 24, 24)
 #' )
 #'
-#' plot(image, position = ras_positions[1, ], zoom = 5, pixel_width = 0.5, center_position = FALSE)
-#' plot(burned, position = ras_positions[1, ], zoom = 5, pixel_width = 0.2,
-#'      add = TRUE, center_position = FALSE, alpha = 0.5)
+#' plot(
+#'   image,
+#'   position = ras_positions[1, ],
+#'   zoom = 15,
+#'   pixel_width = 0.5
+#' )
+#' plot(
+#'   burned,
+#'   position = ras_positions[1, ],
+#'   zoom = 15,
+#'   pixel_width = 0.25,
+#'   add = TRUE, alpha = 0.5
+#' )
 #'
 #' }
 #' @export
 burn_volume <- function(image, ras_position, col = "red", radius = 1,
-                        reshape = FALSE, ..., preview = NULL) {
+                        reshape = FALSE, alpha = FALSE, ..., preview = NULL) {
 
   # DIPSAUS DEBUG START
   # image <- read_volume(ieegio_sample_data( "brain.demosubject.nii.gz"))
   # ras_position = array(rnorm(30), c(10, 3))
   # col <- sample(2:100, 10)
   # radius = 1
-  # reshape <- FALSE
+  # reshape <- TRUE
   # preview <- TRUE
+  #
+  # image <- as_ieegio_volume(
+  #   array(rnorm(125), c(5, 5, 5)),
+  #   vox2ras = rbind(cbind(diag(1, 3), c(-2, -2, -2)),
+  #                   c(0, 0, 0, 1))
+  # )
+  #
+  # ras_position <- rbind(c(1, -1, 1.5), c(-2, -1, -1))
+  # col = c("red", "green")
+  # reshape = c(20, 20, 20)
+  # radius = 0.5
 
   if(length(ras_position) == 3) {
     ras_position <- matrix(ras_position, nrow = 1)
@@ -231,28 +298,40 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
     } else if(length(reshape) == 1) {
       reshape <- c(reshape, reshape, reshape)
     }
-    vox2ras <- resample_vox2ras(vox2ras = vox2ras, old_dim = shape, new_dim = reshape)
-    shape <- reshape
+    burn_vox2ras <- resample_vox2ras(vox2ras = vox2ras, old_dim = shape, new_dim = reshape)
+    burn_shape <- reshape
+  } else {
+    burn_vox2ras <- vox2ras
+    burn_shape <- shape
   }
 
   cum_shape <- c(1, cumprod(shape))
+  burn_cum_shape <- c(1, cumprod(burn_shape))
 
-  vox2scan <- image$transforms$vox2ras
-  scan2vox <- solve(vox2scan)
-  voxel_sizes <- sqrt(colSums((vox2scan[1:3, 1:3])^2))
+  ras2vox <- solve(vox2ras)
+  burn_ras2vox <- solve(burn_vox2ras)
+  burn_voxel_sizes <- sqrt(colSums((burn_vox2ras[1:3, 1:3])^2))
 
   col <- grDevices::adjustcolor(col)
+  background <- NA_character_
 
-  arr <- array(NA_integer_, dim = shape)
+  if( !alpha ) {
+    col <- grDevices::col2rgb(col, alpha = FALSE)
+    col <- grDevices::rgb(col[1, ], col[2, ], col[3, ], maxColorValue = 255)
+    background <- "#000000"
+  }
 
-  nvox <- ceiling(max(radius, na.rm = TRUE) / voxel_sizes)
+  arr <- array(background, dim = burn_shape)
+
+  nvox <- ceiling(max(radius, na.rm = TRUE) / burn_voxel_sizes)
   search_table <- t(as.matrix(expand.grid(
     i = seq(-nvox[[1]], nvox[[1]]),
     j = seq(-nvox[[2]], nvox[[2]]),
     k = seq(-nvox[[3]], nvox[[3]])
   )))
+  # Speed up calculation
   dimnames(search_table) <- NULL
-  dist <- sqrt(colSums((vox2scan[1:3, 1:3] %*% search_table)^2))
+  # dist <- sqrt(colSums((vox2scan[1:3, 1:3] %*% search_table)^2))
 
   # burn sphere
   for(ii in seq_len(n_contacts)) {
@@ -261,37 +340,36 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
 
     if( isTRUE(radius_ii > 0) && !anyNA(scan_pos) ) {
 
-      val <- as.integer(ii)
-      vox_pos <- round(scan2vox %*% c(scan_pos, 1))[1:3]
+      # vox_pos is IJK in burning image
+      vox_pos <- (burn_ras2vox %*% c(scan_pos, 1))[1:3]
+      vox_pos0 <- round(vox_pos)[1:3]
 
-      # 0-based
-      burn_index0 <- search_table + vox_pos
+      # burn_index0 is 0-based index IJK in burning image
+      burn_index0 <- search_table + vox_pos0
+
+      # dist is distance in RAS
+      dist <- sqrt(colSums((burn_vox2ras[1:3, 1:3] %*% (burn_index0 - vox_pos))^2))
 
       # filter within radius
       burn_index0 <- burn_index0[, dist <= radius_ii, drop = FALSE]
 
       # get rid of invalid indices
-      burn_index0[burn_index0 < 0 | burn_index0 >= shape] <- NA
+      burn_index0[burn_index0 < 0 | burn_index0 >= burn_shape] <- NA
       burn_index0 <- burn_index0[, !is.na(colSums(burn_index0)), drop = FALSE]
 
-      burn_index <- colSums(burn_index0 * cum_shape[1:3]) + 1
-      arr[burn_index] <- val
+      burn_index <- colSums(burn_index0 * burn_cum_shape[1:3]) + 1
+      arr[burn_index] <- col[[ii]]
     }
 
   }
 
-  current_palette <- grDevices::palette()
-  grDevices::palette(col)
-  on.exit({ grDevices::palette(current_palette) })
-
-  burnt <- as_ieegio_volume(arr, vox2ras = image$transforms$vox2ras, as_color = TRUE)
-  grDevices::palette(current_palette)
+  burnt <- as_ieegio_volume(arr, vox2ras = burn_vox2ras, as_color = TRUE)
 
   preview <- preview[preview %in% seq_len(n_contacts)]
   if(length(preview)) {
     mfrow <- grDevices::n2mfrow(length(preview))
     oldpar <- graphics::par(mfrow = mfrow, mar = c(0, 0, 0, 0))
-    on.exit({ graphics::par(oldpar) }, add = TRUE)
+    on.exit({ graphics::par(oldpar) })
 
     lapply(preview, function(ii) {
       plot(

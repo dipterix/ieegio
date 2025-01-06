@@ -21,6 +21,40 @@ Using nearest-neighbor.
 }
 \examples{
 
+# ---- Toy example ----------------------------
+
+dm <- c(6, 6, 6)
+arr <- array(seq_len(prod(dm)) + 0.5, dm)
+orig <- as_ieegio_volume(
+  arr, vox2ras = cbind(diag(1, nrow = 4, ncol = 3), c(-dm / 2, 1)))
+
+# resample
+downsampled <- resample_volume(orig, new_dim = c(3, 3, 3))
+dim(downsampled)
+
+# up-sample on coronal
+upsampled <- resample_volume(orig, new_dim = c(20, 20, 24))
+dim(upsampled)
+
+par(mfrow = c(2, 2), mar = c(0, 0, 2.1, 0.1))
+plot(orig, pixel_width = 0.5, zoom = 20, main = "Original")
+plot(downsampled, pixel_width = 0.5, zoom = 20, main = "Down-sampled")
+plot(upsampled, pixel_width = 0.5, zoom = 20, main = "Super-sampled")
+plot(
+  orig,
+  main = "Overlay super-sample (diff)",
+  col = c("black", "white"),
+  pixel_width = 0.5, zoom = 20
+)
+plot(
+  upsampled,
+  add = TRUE,
+  col = c("white", "black"),
+  pixel_width = 0.5, zoom = 20,
+  alpha = 0.5
+)
+
+# ---- Real example ---------------------------
 nifti_file <- "brain.demosubject.nii.gz"
 
 if( ieegio_sample_data(nifti_file, test = TRUE) ) {
@@ -58,7 +92,5 @@ if( ieegio_sample_data(nifti_file, test = TRUE) ) {
 
 
 }
-
-
 
 }

@@ -10,6 +10,7 @@ burn_volume(
   col = "red",
   radius = 1,
   reshape = FALSE,
+  alpha = FALSE,
   ...,
   preview = NULL
 )
@@ -29,6 +30,11 @@ default is false; can be \code{TRUE} (image resolution will be doubled),
 a single number (size of isotropic volume along one side), or
 a length of three defining the new shape.}
 
+\item{alpha}{whether to include alpha (transparent) channel. Default is
+false for compatibility concerns (legacy software might not support
+reading alpha channel). In this case, the background will be black.
+If \code{alpha=TRUE} is set, then the background will be fully transparent.}
+
 \item{...}{passed to \code{\link{as_ieegio_volume}}, useful if \code{image}
 is an array}
 
@@ -45,24 +51,37 @@ Burn image at given positions with given color and radius.
 
 if(interactive()) {
 
+dim <- c(6, 6, 6)
 image <- as_ieegio_volume(
-  array(rnorm(125000), c(50, 50, 50)),
-  vox2ras = rbind(cbind(diag(1, 3), c(-25, -25, -25)),
+  array(rnorm(prod(dim)), dim),
+  vox2ras = rbind(cbind(diag(1, 3), -dim / 2),
                   c(0, 0, 0, 1))
 )
 
-ras_positions <- rbind(c(1, -0.5, 1.5), c(15, -15.7, 16.1))
+ras_positions <- rbind(c(1, -1, 1.5), c(-2.25, -1, -0.75))
+
+
 burned <- burn_volume(
   image,
   ras_positions,
   col = c("red", "green"),
-  radius = 2,
-  reshape = c(150, 150, 150)
+  radius = 0.5,
+  reshape = c(24, 24, 24)
 )
 
-plot(image, position = ras_positions[1, ], zoom = 5, pixel_width = 0.5, center_position = FALSE)
-plot(burned, position = ras_positions[1, ], zoom = 5, pixel_width = 0.2,
-     add = TRUE, center_position = FALSE, alpha = 0.5)
+plot(
+  image,
+  position = ras_positions[1, ],
+  zoom = 15,
+  pixel_width = 0.5
+)
+plot(
+  burned,
+  position = ras_positions[1, ],
+  zoom = 15,
+  pixel_width = 0.25,
+  add = TRUE, alpha = 0.5
+)
 
 }
 }
