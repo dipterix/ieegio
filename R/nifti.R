@@ -674,6 +674,8 @@ io_write_nii.niftiImage <- function(x, con, ...) {
     if(identical(as.double(x$datatype), 64.0)) {
       # using NIFTI_TYPE_FLOAT32 instead of NIFTI_TYPE_FLOAT64
       datatype <- "float"
+    } else {
+      datatype <- "auto"
     }
   }
   if(!length(version)) {
