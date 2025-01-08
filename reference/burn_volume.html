@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,7 @@
 <span>  radius <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  reshape <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  blank_underlay <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  preview <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -89,6 +90,13 @@ a length of three defining the new shape.</p></dd>
 false for compatibility concerns (legacy software might not support
 reading alpha channel). In this case, the background will be black.
 If <code>alpha=TRUE</code> is set, then the background will be fully transparent.</p></dd>
+
+
+<dt id="arg-blank-underlay">blank_underlay<a class="anchor" aria-label="anchor" href="#arg-blank-underlay"></a></dt>
+<dd><p>whether to use blank image or the input
+<code>image</code> as underlay; default is <code>FALSE</code> (using <code>image</code>
+as underlay); alternative is <code>TRUE</code>, and use black or transparent
+background</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -130,17 +138,10 @@ is an array</p></dd>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">image</span>,</span></span>
-<span class="r-in"><span>  position <span class="op">=</span> <span class="va">ras_positions</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>,</span></span>
-<span class="r-in"><span>  zoom <span class="op">=</span> <span class="fl">15</span>,</span></span>
-<span class="r-in"><span>  pixel_width <span class="op">=</span> <span class="fl">0.5</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">burned</span>,</span></span>
 <span class="r-in"><span>  position <span class="op">=</span> <span class="va">ras_positions</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>,</span></span>
 <span class="r-in"><span>  zoom <span class="op">=</span> <span class="fl">15</span>,</span></span>
-<span class="r-in"><span>  pixel_width <span class="op">=</span> <span class="fl">0.25</span>,</span></span>
-<span class="r-in"><span>  add <span class="op">=</span> <span class="cn">TRUE</span>, alpha <span class="op">=</span> <span class="fl">0.5</span></span></span>
+<span class="r-in"><span>  pixel_width <span class="op">=</span> <span class="fl">0.25</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
