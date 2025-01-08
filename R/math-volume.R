@@ -196,6 +196,10 @@ resample_vox2ras <- function(vox2ras, old_dim, new_dim) {
 #' false for compatibility concerns (legacy software might not support
 #' reading alpha channel). In this case, the background will be black.
 #' If \code{alpha=TRUE} is set, then the background will be fully transparent.
+#' @param blank_underlay whether to use blank image or the input
+#' \code{image} as underlay; default is \code{FALSE} (using \code{image}
+#' as underlay); alternative is \code{TRUE}, and use black or transparent
+#' background
 #' @param ... passed to \code{\link{as_ieegio_volume}}, useful if \code{image}
 #' is an array
 #' @param preview indices (integer) of the position to visualize; default is
@@ -225,23 +229,17 @@ resample_vox2ras <- function(vox2ras, old_dim, new_dim) {
 #' )
 #'
 #' plot(
-#'   image,
-#'   position = ras_positions[1, ],
-#'   zoom = 15,
-#'   pixel_width = 0.5
-#' )
-#' plot(
 #'   burned,
 #'   position = ras_positions[1, ],
 #'   zoom = 15,
-#'   pixel_width = 0.25,
-#'   add = TRUE, alpha = 0.5
+#'   pixel_width = 0.25
 #' )
 #'
 #' }
 #' @export
 burn_volume <- function(image, ras_position, col = "red", radius = 1,
-                        reshape = FALSE, alpha = FALSE, ..., preview = NULL) {
+                        reshape = FALSE, alpha = FALSE, blank_underlay = FALSE,
+                        ..., preview = NULL) {
 
   # DIPSAUS DEBUG START
   # image <- read_volume(ieegio_sample_data( "brain.demosubject.nii.gz"))
@@ -321,7 +319,47 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
     background <- "#000000"
   }
 
-  arr <- array(background, dim = burn_shape)
+  if( blank_underlay ) {
+    arr <- array(background, dim = burn_shape)
+    arr_dim <- burn_shape
+  } else {
+    if(!all(burn_shape == shape)) {
+      # resample_volume shares the same vox2ras so should be safe to use
+      arr <- resample_volume(image, new_dim = burn_shape)
+      arr_dim <- dim(arr)
+    } else {
+      arr <- image
+      arr_dim <- dim(image)
+    }
+    arr <- arr[drop = FALSE]
+    if( !inherits(arr, "ieegio_rgba") ) {
+      cal_min <- image$header$cal_min
+      cal_max <- image$header$cal_max
+      arr <- arr[drop = FALSE]
+      if(length(cal_min) != 1 || length(cal_max) != 1 ||
+         (cal_min == 0 && cal_max == 0)) {
+        rg <- range(arr, na.rm = TRUE)
+        cal_min <- rg[[1]]
+        cal_max <- rg[[2]]
+      }
+
+      arr <- (arr - cal_min) * (255 / (cal_max - cal_min))
+      arr <- round(arr)
+      arr[is.na(arr) | arr < 0] <- 0
+      arr[arr > 255] <- 255
+      if( alpha ) {
+        pal <- grDevices::gray.colors(256, start = 0, end = 1, alpha = 1)
+      } else {
+        pal <- grDevices::gray.colors(256, start = 0, end = 1)
+      }
+      arr <- pal[arr + 1]
+    }
+  }
+
+  nr <- prod(arr_dim)
+  dim(arr) <- c(nr, length(arr) / nr)
+
+
 
   nvox <- ceiling(max(radius, na.rm = TRUE) / burn_voxel_sizes)
   search_table <- t(as.matrix(expand.grid(
@@ -358,10 +396,12 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
       burn_index0 <- burn_index0[, !is.na(colSums(burn_index0)), drop = FALSE]
 
       burn_index <- colSums(burn_index0 * burn_cum_shape[1:3]) + 1
-      arr[burn_index] <- col[[ii]]
+      arr[burn_index, ] <- col[[ii]]
     }
 
   }
+
+  dim(arr) <- arr_dim
 
   burnt <- as_ieegio_volume(arr, vox2ras = burn_vox2ras, as_color = TRUE)
 
@@ -371,23 +411,36 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
     oldpar <- graphics::par(mfrow = mfrow, mar = c(0, 0, 0, 0))
     on.exit({ graphics::par(oldpar) })
 
-    lapply(preview, function(ii) {
-      plot(
-        image,
-        position = ras_position[ii, ],
-        center_position = TRUE,
-        zoom = 5,
-        crosshair_col = NA
-      )
-      plot(
-        burnt,
-        position = ras_position[ii, ],
-        center_position = TRUE,
-        zoom = 5,
-        add = TRUE,
-        alpha = 0.5
-      )
-    })
+    if( blank_underlay ) {
+      lapply(preview, function(ii) {
+        plot(
+          image,
+          position = ras_position[ii, ],
+          center_position = TRUE,
+          zoom = 5,
+          crosshair_col = NA
+        )
+        plot(
+          burnt,
+          position = ras_position[ii, ],
+          center_position = TRUE,
+          zoom = 5,
+          add = TRUE,
+          alpha = 0.5
+        )
+      })
+    } else {
+      lapply(preview, function(ii) {
+        plot(
+          burnt,
+          position = ras_position[ii, ],
+          center_position = TRUE,
+          zoom = 5,
+          alpha = 0.5
+        )
+      })
+    }
+
   }
 
   burnt

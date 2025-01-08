@@ -11,6 +11,7 @@ burn_volume(
   radius = 1,
   reshape = FALSE,
   alpha = FALSE,
+  blank_underlay = FALSE,
   ...,
   preview = NULL
 )
@@ -34,6 +35,11 @@ a length of three defining the new shape.}
 false for compatibility concerns (legacy software might not support
 reading alpha channel). In this case, the background will be black.
 If \code{alpha=TRUE} is set, then the background will be fully transparent.}
+
+\item{blank_underlay}{whether to use blank image or the input
+\code{image} as underlay; default is \code{FALSE} (using \code{image}
+as underlay); alternative is \code{TRUE}, and use black or transparent
+background}
 
 \item{...}{passed to \code{\link{as_ieegio_volume}}, useful if \code{image}
 is an array}
@@ -70,17 +76,10 @@ burned <- burn_volume(
 )
 
 plot(
-  image,
-  position = ras_positions[1, ],
-  zoom = 15,
-  pixel_width = 0.5
-)
-plot(
   burned,
   position = ras_positions[1, ],
   zoom = 15,
-  pixel_width = 0.25,
-  add = TRUE, alpha = 0.5
+  pixel_width = 0.25
 )
 
 }

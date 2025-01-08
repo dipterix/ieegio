@@ -883,7 +883,7 @@ as_ieegio_volume.default <- function(x, ...) {
 #' @export
 as_ieegio_volume.character <- function(x, ...) {
   stopifnot(file.exists(x))
-  read_volume(file = x, format = "nifti", method = "rnifti", ...)
+  read_volume(file = x, header_only = FALSE, ...)
 }
 
 #' @rdname as_ieegio_volume
@@ -988,7 +988,8 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
     srow_x = vox2ras[1, ],
     srow_y = vox2ras[2, ],
     srow_z = vox2ras[3, ],
-    regular = "r"
+    regular = "r",
+    ...
   ))
 
   meta <- RNifti::niftiHeader(header)

@@ -662,7 +662,32 @@ io_write_nii.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
 #' @rdname imaging-volume
 #' @export
 io_write_nii.niftiImage <- function(x, con, ...) {
-  re <- RNifti::writeNifti(image = x, file = con, ...)
+
+  x <- RNifti::asNifti(x, reference = NULL, internal = TRUE)
+
+  args <- list(...)
+  datatype <- args$datatype
+  version <- args$version
+  compression <- args$compression
+
+  if(!length(datatype)) {
+    if(identical(as.double(x$datatype), 64.0)) {
+      # using NIFTI_TYPE_FLOAT32 instead of NIFTI_TYPE_FLOAT64
+      datatype <- "float"
+    }
+  }
+  if(!length(version)) {
+    if(any(dim(x) > 512)) {
+      version <- 2
+    } else {
+      version <- 1
+    }
+  }
+  if(!length(compression)) {
+    compression <- 6
+  }
+
+  re <- RNifti::writeNifti(image = x, file = con, datatype = datatype, version = version, compression = compression)
   re <- unique(re)
   if(length(re) > 1) {
     re <- re[[2]]
