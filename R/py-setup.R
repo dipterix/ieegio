@@ -86,18 +86,31 @@ validate_python <- function(verbose = TRUE) {
   )
 })
 
-ensure_py_package <- function(packages, python_ver = "auto", ...) {
-  if(!dir.exists(rpymat::env_path())) {
-    standalone <- !file.exists(rpymat::conda_bin())
-    rpymat::configure_conda(python_ver = python_ver, force = TRUE, standalone = standalone)
+ensure_py_package <- local({
+
+  installed_pkgs_tbl <- NULL
+
+  function(packages, python_ver = "auto", ...) {
+    if(!dir.exists(rpymat::env_path())) {
+      standalone <- !file.exists(rpymat::conda_bin())
+      rpymat::configure_conda(python_ver = python_ver, force = TRUE, standalone = standalone)
+    }
+    rpymat::ensure_rpymat(verbose = FALSE)
+
+    if(is.null(installed_pkgs_tbl) || !is.data.frame(installed_pkgs_tbl) || !all(packages %in% installed_pkgs_tbl$package)) {
+      installed_pkgs_tbl <<- rpymat::list_pkgs()
+    }
+
+    packages <- packages[!packages %in% installed_pkgs_tbl$package]
+
+    if(length(packages)) {
+      rpymat::add_packages(packages, ...)
+      installed_pkgs_tbl <<- rpymat::list_pkgs()
+    }
+
+    invisible()
   }
-  rpymat::ensure_rpymat(verbose = FALSE)
-  installed_pkgs_tbl <- rpymat::list_pkgs()
-  packages <- packages[!packages %in% installed_pkgs_tbl$package]
-  if(length(packages)) {
-    rpymat::add_packages(packages, ...)
-  }
-}
+})
 
 import_py_module <- function(name, package = name, convert = FALSE) {
   rpymat::ensure_rpymat(verbose = FALSE, cache = TRUE)

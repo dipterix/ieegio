@@ -136,28 +136,6 @@ ensure_r_package <- function(pkg, ...) {
   stop("R package `", pkg, "` is missing. Please manually install them in interactive mode.")
 }
 
-ensure_py_package <- function(pkg, method = c("pip", "conda"), ...) {
-  if(!file.exists(rpymat::env_path())) {
-    if(package_installed("ravemanager")) {
-      ravemanager <- asNamespace("ravemanager")
-      ravemanager$configure_python()
-    } else {
-      rpyANTs::install_ants()
-    }
-  }
-  pkg_list <- rpymat::list_pkgs()
-  if(pkg %in% pkg_list$package) {
-    return(invisible())
-  }
-  method <- match.arg(method)
-  if (method == "pip") {
-    rpymat::add_packages(pkg, pip = TRUE)
-  } else {
-    rpymat::add_packages(pkg)
-  }
-  return(invisible())
-}
-
 ensure_package <- function(pkg, ..., lang = c("r", "python"), need_interactive = TRUE) {
   lang <- match.arg(lang)
   if(need_interactive && !interactive()) {
