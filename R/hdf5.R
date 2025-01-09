@@ -251,7 +251,7 @@ io_h5_names <- function(file){
 
       if( py_isinstance(item, group_classes )  ) {
         re <- rpymat$run_package_function("reticulate", "iterate", item$items(), iter_func, simplify = FALSE)
-        return(sprintf("%s/%s", name, re))
+        return(unique(sprintf("%s/%s", name, unlist(re))))
       }
       return(character())
     }
