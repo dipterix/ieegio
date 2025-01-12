@@ -541,21 +541,23 @@ plot.ieegio_surface <- function(
     stop("This `ieeg_surface` object does not contain any geometry.")
   }
 
-  if(is.null(transform)) {
+  if(is.matrix(transform)) {
+    stopifnot(nrow(transform) == 4 && ncol(transform) == 4)
+  } else if(is.null(transform) || !length(x$geometry$transforms)) {
     transform <- diag(1, 4)
   } else {
-    if(is.matrix(transform)) {
-      stopifnot(nrow(transform) == 4 && ncol(transform) == 4)
-    } else {
-      transform <- x$geometry$transforms[[transform]]
-      if(!is.matrix(transform)) {
-        stop("Unable to find transform matrix ", sQuote(transform))
-      }
+    transform <- x$geometry$transforms[[transform]]
+    if(!is.matrix(transform)) {
+      stop("Unable to find transform matrix ", sQuote(transform))
     }
   }
 
   # vert
-  vertices <- transform %*% x$geometry$vertices
+  vertices <- x$geometry$vertices
+  if(nrow(vertices) == 3) {
+    vertices <- rbind(vertices, 1)
+  }
+  vertices <- transform %*% vertices
   mesh <- structure(
     class = "mesh3d",
     list(vb = vertices,
@@ -692,7 +694,7 @@ plot.ieegio_surface <- function(
       main <- sprintf("Slice %d", slice_index[[1]])
       r3plot <- helper_r3js_render_mesh(mesh, col = col[1, ])
       r3plot <- r3js::legend3js(r3plot, legend = main, fill = NA)
-      r3js::r3js(r3plot, rotation = c(0, 0, 0), zoom = 3, title = main)
+      helper_r3js_plot(r3plot, zoom = 3, title = main)
     } else {
       mfr <- grDevices::n2mfrow(n_slices, asp = 1)
       helper_rgl_view({
@@ -766,7 +768,7 @@ plot.ieegio_surface <- function(
       },
       "r3js" = {
         r3plot <- helper_r3js_render_mesh(mesh, col = col)
-        r3js::r3js(r3plot, rotation = c(0, 0, 0), zoom = 3, title = main)
+        helper_r3js_plot(r3plot, zoom = 3, title = main)
       }, {
         # TODO: add RAVE and NiiVue 3D viewers
       }
@@ -980,4 +982,7 @@ write_surface <- function(
   )
 
 }
+
+
+
 
