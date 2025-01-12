@@ -1,6 +1,7 @@
 
 # Internally used for RAVE
 install_extras <- function() {
+  check_py_flag()
   sample_names <- ieegio_sample_data()
   lapply(sample_names, ieegio_sample_data)
 

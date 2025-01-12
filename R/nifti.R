@@ -589,6 +589,7 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
 
     },
     "ants" = {
+      check_py_flag()
       if(!rpyANTs::ants_available(module = "ants")) {
         if(dir.exists(rpymat::env_path())) {
           rpyANTs::install_ants(python_ver = "auto")

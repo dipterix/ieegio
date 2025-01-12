@@ -127,6 +127,7 @@ io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat7
       return(R.matlab::readMat(con = file, ...))
     },
     "pymatreader" = {
+      check_py_flag()
       verb(sprintf("Using Python `%s` to load the matlab file...", method))
 
       pymatreader <- import_py_module("pymatreader")
@@ -153,6 +154,7 @@ io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat7
       return(re)
     },
     "mat73" = {
+      check_py_flag()
       verb(sprintf("Using Python `%s` to load the matlab file (supporting MAT v7.3)...", method))
 
       mat73 <- import_py_module("mat73")
@@ -187,7 +189,8 @@ io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat7
       tryCatch({
         do.call(io_read_mat, args)
       }, error = function(e) {
-        verb("Failed to load matlab using native approach.")
+        verb("Failed to load matlab using native approach. Using `pymatreader` instead")
+        check_py_flag()
         args$method <- "pymatreader"
         do.call(io_read_mat, args)
       })
@@ -225,6 +228,7 @@ io_write_mat <- function(x, con, method = c("R.matlab", "scipy"), ...) {
       do.call(R.matlab::writeMat, args)
     },
     "scipy" = {
+      check_py_flag()
       scipy_io <- import_py_module("scipy.io", "scipy")
       scipy_io$savemat(con, x)
     }

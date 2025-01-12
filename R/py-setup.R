@@ -13,6 +13,7 @@ py_capture_output <- function(...) {
 
 # Installs
 validate_python <- function(verbose = TRUE) {
+  check_py_flag()
   verb <- function(expr) {
     if(verbose) {
       force( expr )
@@ -53,6 +54,7 @@ validate_python <- function(verbose = TRUE) {
   pynwb <- NULL
 
   get_pynwb <- function(force = FALSE, error_if_missing = TRUE) {
+    check_py_flag()
     if(!force && inherits(pynwb, "python.builtin.module")) {
       return( pynwb )
     }
@@ -91,6 +93,7 @@ ensure_py_package <- local({
   installed_pkgs_tbl <- NULL
 
   function(packages, python_ver = "auto", ...) {
+    check_py_flag()
     if(!dir.exists(rpymat::env_path())) {
       standalone <- !file.exists(rpymat::conda_bin())
       rpymat::configure_conda(python_ver = python_ver, force = TRUE, standalone = standalone)
@@ -113,6 +116,7 @@ ensure_py_package <- local({
 })
 
 import_py_module <- function(name, package = name, convert = FALSE) {
+  check_py_flag()
   rpymat::ensure_rpymat(verbose = FALSE, cache = TRUE)
   module <- tryCatch({
     rpymat::import(name, convert = convert)
@@ -145,6 +149,7 @@ pynwb_module <- .pynwb$get
 
 
 is_invalid_py_pointer <- function(x) {
+  check_py_flag()
   rpymat::ensure_rpymat(verbose = FALSE)
   asNamespace("reticulate")$py_is_null_xptr(x)
 }

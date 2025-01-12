@@ -69,8 +69,9 @@ test_that("HDF5 IO with R backend", {
 })
 
 
-test_that("HDF5 IO with R backend", {
+test_that("HDF5 IO with Python backend", {
 
+  testthat::skip_if(nzchar(Sys.getenv("IEEGIO_NO_PYTHON", unset = "")))
   testthat::skip_on_cran()
   testthat::skip_on_bioc()
 

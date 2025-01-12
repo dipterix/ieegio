@@ -33,6 +33,8 @@ ensure_hdf5_backend <- local({
       return()
     }
 
+    check_py_flag()
+
     if(!is.null(h5py)) { return(h5py) }
     rpymat <- asNamespace("rpymat")
 

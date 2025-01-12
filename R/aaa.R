@@ -121,6 +121,12 @@ package_installed <- function(pkg) {
   return( system.file(package = pkg) != "" )
 }
 
+check_py_flag <- function() {
+  if(nchar(Sys.getenv("IEEGIO_NO_PYTHON", unset = "")) > 0) {
+    stop("System environment 'IEEGIO_NO_PYTHON' is set, Python is disabled")
+  }
+}
+
 ensure_r_package <- function(pkg, ...) {
   if(package_installed(pkg)) { return(invisible()) }
   if(package_installed("ravemanager")) {

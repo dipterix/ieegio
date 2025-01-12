@@ -263,7 +263,8 @@ names.ieegio_volume <- function(x) {
 #' vol2 <- read_volume(file, method = "oro", format = "nifti")
 #' vol2$header
 #'
-#' if(interactive()) {
+#' \dontrun{
+#' # requires additional python environment
 #'
 #' # Using ANTsPyx
 #' vol3 <- read_volume(file, method = "ants", format = "nifti")
