@@ -155,16 +155,20 @@ plot(vol, position = c(10, 0, 30))
 
 # ---- using other methods --------------------------------------
 # default
-vol <- read_volume(file, method = "oro", format = "nifti")
+vol <- read_volume(file, method = "rnifti", format = "nifti")
 vol$header
 
 # lazy-load nifti
-vol2 <- read_volume(file, method = "rnifti", format = "nifti")
+vol2 <- read_volume(file, method = "oro", format = "nifti")
 vol2$header
+
+if(interactive()) {
 
 # Using ANTsPyx
 vol3 <- read_volume(file, method = "ants", format = "nifti")
 vol3$header
+
+}
 
 # ---- write --------------------------------------------------------
 
