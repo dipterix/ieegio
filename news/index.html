@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9011</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,27 @@
       <small>Source: <a href="https://github.com/dipterix/ieegio/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.3" id="ieegio-003">ieegio 0.0.3<a class="anchor" aria-label="anchor" href="#ieegio-003"></a></h2>
+<ul><li>Cleaned <code>h5py</code> loader</li>
+<li>
+<code>mat_to_quaternion</code> always returns non-negative <code>w</code> now</li>
+<li>Added generics <code>dim</code> and <code>length</code> to volume object</li>
+<li>Fixed annotation issues in <code>EDF</code> format</li>
+<li>Time selection is double-sided using greater equal and less equal signs</li>
+<li>Added more sample data</li>
+<li>Supports colored (<code>RGB[A]</code>) formats</li>
+<li>Fixed color intensity when <code>cal_min</code> and <code>cal_max</code> is set</li>
+<li>Using <code>r3js</code> for visualizing surfaces</li>
+<li>Added <code>resample_volume</code> to sample images (currently only nearest neighbor)</li>
+<li>Added <code>burn_volume</code> to burn contacts (positions given in the image native <code>RAS</code> coordinate) with any given colors</li>
+<li>Fixed <code>io_h5_names</code> returning wrong names when using with <code>h5py</code>
+</li>
+<li>Exported internal class <code>LazyH5</code> for down-stream packages</li>
+<li>Added <code>as_ieegio_volume</code> and <code>as_ieegio_surface</code> to enclose volume or surface data</li>
+<li>Added a flag to disable using <code>Python</code>
+</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.2" id="ieegio-002">ieegio 0.0.2<a class="anchor" aria-label="anchor" href="#ieegio-002"></a></h2><p class="text-muted">CRAN release: 2024-10-31</p>
 <ul><li>Added <code>h5py</code> as an alternative back-end support</li>
