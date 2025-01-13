@@ -13,7 +13,7 @@ will call other low-level functions internally."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -227,13 +227,14 @@ be compressed. If the file name does not end with <code>'nii'</code> nor
 <span class="r-in"><span><span class="va">vol2</span> <span class="op">&lt;-</span> <span class="fu">read_volume</span><span class="op">(</span><span class="va">file</span>, method <span class="op">=</span> <span class="st">"oro"</span>, format <span class="op">=</span> <span class="st">"nifti"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">vol2</span><span class="op">$</span><span class="va">header</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># requires additional python environment</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Using ANTsPyx</span></span></span>
 <span class="r-in"><span><span class="va">vol3</span> <span class="op">&lt;-</span> <span class="fu">read_volume</span><span class="op">(</span><span class="va">file</span>, method <span class="op">=</span> <span class="st">"ants"</span>, format <span class="op">=</span> <span class="st">"nifti"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">vol3</span><span class="op">$</span><span class="va">header</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ---- write --------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
