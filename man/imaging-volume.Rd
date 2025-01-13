@@ -114,7 +114,8 @@ be compressed. If the file name does not end with \code{'nii'} nor
 'NIfTI' headers, for advanced users}
 }
 \value{
-imaging readers return \code{ieegio_volume} objects.
+Imaging readers return \code{ieegio_volume} objects. The writers
+return the file path to where the file is saved to.
 }
 \description{
 Read and write volume data ('MRI', 'CT', etc.) in 'NIfTI' or 'MGH' formats.

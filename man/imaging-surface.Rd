@@ -62,7 +62,8 @@ domain) for each vertex node}
 \item{name}{name of the data; default is the file name}
 }
 \value{
-A surface object container
+A surface object container for \code{read_surface}, and
+the file path for \code{write_surface}
 }
 \description{
 Supports surface geometry, annotation, measurement, and

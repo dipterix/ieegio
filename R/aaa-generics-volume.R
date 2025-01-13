@@ -221,7 +221,8 @@ names.ieegio_volume <- function(x) {
 #' @param datatype_code,xyzt_units,intent_code additional flags for
 #' 'NIfTI' headers, for advanced users
 #' @param ... passed to other methods
-#' @returns imaging readers return \code{ieegio_volume} objects.
+#' @returns Imaging readers return \code{ieegio_volume} objects. The writers
+#' return the file path to where the file is saved to.
 #'
 #' @examples
 #'
@@ -662,7 +663,7 @@ plot.ieegio_volume <- function(
         main = main
       )
     }
-    vox_data <- t(vox_data)[ncol(vox_data):1L, , drop = FALSE]
+    vox_data <- t(vox_data)[rev(seq_len(ncol(vox_data))), , drop = FALSE]
     if(!is.na(alpha)) {
       alpha_255 <- floor(alpha * 255)
       alpha_255[alpha_255 < 0] <- 0
@@ -844,6 +845,8 @@ length.ieegio_volume <- function(x) {
 #' @param as_color for converting arrays to volume, whether to treat \code{x}
 #' as array of colors; default is true when \code{x} is a raster matrix (
 #' matrix of color strings) and false when \code{x} is not a character array.
+#'
+#' @returns An \code{ieegio} volume object; see \code{\link{imaging-volume}}
 #'
 #' @examples
 #'

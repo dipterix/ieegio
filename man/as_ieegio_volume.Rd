@@ -40,6 +40,9 @@ from 'voxel' index (column-row-slice) to 'RAS'
 as array of colors; default is true when \code{x} is a raster matrix (
 matrix of color strings) and false when \code{x} is not a character array.}
 }
+\value{
+An \code{ieegio} volume object; see \code{\link{imaging-volume}}
+}
 \description{
 Convert array, path, or 'NIfTI' images in other formats to \code{'ieegio'}
 image volume instance

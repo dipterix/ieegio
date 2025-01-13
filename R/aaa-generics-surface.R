@@ -810,7 +810,8 @@ plot.ieegio_surface <- function(
 #' @param name name of the data; default is the file name
 #' @param ... for \code{read_surface}, the arguments will be passed to
 #' \code{io_read_fs} if the file is a 'FreeSurfer' file.
-#' @returns A surface object container
+#' @returns A surface object container for \code{read_surface}, and
+#' the file path for \code{write_surface}
 #' @examples
 #'
 #'
@@ -888,7 +889,7 @@ write_surface <- function(
 
   if(format == "gifti") {
     re <- io_write_gii(x = x, con = con, ...)
-    return(re)
+    return(invisible(re))
   }
 
   type <- match.arg(type)
@@ -980,6 +981,8 @@ write_surface <- function(
       )
     }
   )
+
+  invisible(con)
 
 }
 

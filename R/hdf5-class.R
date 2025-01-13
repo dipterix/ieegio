@@ -89,7 +89,9 @@ h5FileValid <- function(filename){
 }
 
 #' @title Lazy 'HDF5' file loader
-#' @description provides hybrid data structure for 'HDF5' file
+#' @description Provides hybrid data structure for 'HDF5' file. The class is
+#' not intended for direct-use. Please see \code{\link{io_read_h5}} and
+#' \code{\link{io_write_h5}}.
 #' @export
 LazyH5 <- R6::R6Class(
   classname = 'LazyH5',

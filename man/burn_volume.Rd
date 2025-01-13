@@ -48,7 +48,7 @@ is an array}
 \code{NULL} (no preview)}
 }
 \value{
-Color image that is burnt
+Color image that is burnt; see \code{\link{imaging-volume}}.
 }
 \description{
 Burn image at given positions with given color and radius.

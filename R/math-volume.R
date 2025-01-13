@@ -204,7 +204,7 @@ resample_vox2ras <- function(vox2ras, old_dim, new_dim) {
 #' is an array
 #' @param preview indices (integer) of the position to visualize; default is
 #' \code{NULL} (no preview)
-#' @returns Color image that is burnt
+#' @returns Color image that is burnt; see \code{\link{imaging-volume}}.
 #'
 #' @examples
 #'

@@ -23,6 +23,7 @@ Neuroimaging
 PyNWB
 RAS
 YAML
+affine
 cloneable
 iEEG
 json

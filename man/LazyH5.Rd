@@ -4,7 +4,9 @@
 \alias{LazyH5}
 \title{Lazy 'HDF5' file loader}
 \description{
-provides hybrid data structure for 'HDF5' file
+Provides hybrid data structure for 'HDF5' file. The class is
+not intended for direct-use. Please see \code{\link{io_read_h5}} and
+\code{\link{io_write_h5}}.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
