@@ -1119,3 +1119,155 @@ as_ieegio_volume.ants.core.ants_image.ANTsImage <- function(x, ...) {
 
 }
 
+#' @title Merge \code{'ieegio'} volumes
+#' @description
+#' Merge volume data into base image. The images must be static 3-dimensional
+#' volume data. Currently time-series or 4-dimensional data is not supported.
+#' @param x base image to be merged
+#' @param y,... images to be merged into \code{x}
+#' @param thresholds numerical threshold for \code{y,...}, can be length of one
+#' or more, if images to overlay is more than one. The image values lower
+#' than the threshold will be trimmed out
+#' @param reshape output shape, default is the dimension of \code{x}; if
+#' changed, then the underlay will be sampled into the new shape
+#' @param na_fill how to handle missing values; default is \code{NA}; for
+#' compatibility, you might want to set to 0
+#' @returns Merged volume with dimension \code{reshape}.
+#'
+#' @examples
+#'
+#'
+#'
+#' base_array <- array(0, c(15, 15, 15))
+#' base_array[4:6, 4:6, 4:6] <- 1
+#'
+#' # generate a 15x15x15 mask with 1mm spacing
+#' vox2ras1 <- diag(1, 4)
+#' vox2ras1[1:3, 4] <- -5
+#' x <- as_ieegio_volume(base_array, vox2ras = vox2ras1)
+#' plot(x,
+#'      zoom = 10,
+#'      position = c(0, 0, 0),
+#'      pixel_width = 0.5)
+#'
+#' # 15x15x15 mask with 0.5mmx1mmx1mm spacing
+#' vox2ras2 <- diag(c(2, 1, 1, 1), 4)
+#' vox2ras2[1:3, 4] <- c(-3,-4, -1)
+#' y <- as_ieegio_volume(base_array, vox2ras = vox2ras2)
+#' plot(y,
+#'      zoom = 10,
+#'      position = c(0, 0, 0),
+#'      pixel_width = 0.5)
+#'
+#' # merge y into x and up-sample to 30x30x30 mask with 0.5mm spacing
+#' z <- merge(x, y, reshape = c(30, 30, 30))
+#' plot(
+#'   z,
+#'   zoom = 10,
+#'   position = c(0, 0, 0),
+#'   pixel_width = 0.5
+#' )
+#'
+#' @export
+merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_fill = NA) {
+
+  # DIPSAUS DEBUG START
+  # nifti_file <- "brain.demosubject.nii.gz"
+  # file <- ieegio_sample_data(nifti_file)
+  # x <- as_ieegio_volume(file)
+  # y <- as_ieegio_volume(file)
+  # y$transforms$vox2ras[1:3,4] <- y$transforms$vox2ras[1:3,4] + 5
+  # reshape = dim(x)
+  # thresholds = 0
+  # na_fill = NA
+  # merge_list <- list(y)
+
+  check_shape <- function(shape) {
+    if(length(shape) >= 4 && all(shape[-c(1,2,3)] == 1)) {
+      shape <- shape[1:3]
+    }
+    if(length(shape) != 3) {
+      stop("Not yer implemented: cannot merge volumes with 4th dimension (e.g. time-series...).")
+    }
+    shape
+  }
+  dmx <- check_shape(dim(x))
+  reshape <- check_shape(reshape)
+
+  # resample if reshape is not dim(x)
+  if(!all(dmx == reshape)) {
+    x <- resample_volume(x, new_dim = reshape, na_fill = na_fill)
+    dmx <- reshape
+  }
+
+  merge_list <- list(y, ...)
+  if(!length(merge_list)) { return(x) }
+  if(length(thresholds) < length(merge_list)) {
+    thresholds <- rep(thresholds, ceiling(length(merge_list) / length(thresholds)))
+  }
+
+  vox_idx <- t(cbind(arrayInd(seq_len(prod(reshape[1:2])), reshape[1:2]) - 1, 0, 1))
+
+  env <- new.env(parent = emptyenv())
+  env$xdata <- x[]
+  dim(env$xdata) <- c(prod(reshape[1:2]), reshape[[3]])
+
+  lapply(seq_along(merge_list), function(jj) {
+    y <- merge_list[[jj]]
+    thres <- thresholds[[jj]]
+    if(!is.finite(thres)) {
+      thres <- -Inf
+    }
+    dmy <- check_shape(dim(y))
+    cdmy <- c(1, cumprod(dmy))[1:3]
+    vx2vy <- solve(y$transforms$vox2ras) %*% x$transforms$vox2ras
+    dj <- as.vector(vx2vy %*% c(0, 0, 1, 0))[1:3]
+    vox_y_base <- (vx2vy %*% vox_idx)[1:3, , drop = FALSE]
+
+    lapply(seq_len(reshape[3]), function(ii) {
+      vox_plane <- round(vox_y_base + (ii - 1) * dj)
+      is_invalid <- colSums(is.na(vox_plane) | vox_plane < 0 | vox_plane >= dmy) > 0
+      if(all(is_invalid)) { return() }
+      vox_plane <- colSums(round(vox_plane) * cdmy) + 1
+      vox_plane[is_invalid] <- NA
+      plane_sample <- y[vox_plane]
+      sel <- !is.na(plane_sample) & plane_sample > thres
+      if(any(sel)) {
+        env$xdata[sel , ii] <- plane_sample[sel]
+      }
+      return()
+    })
+    return()
+  })
+
+  dim(env$xdata) <- reshape
+
+  na_fill <- na_fill[[1]]
+  if(!is.na(na_fill)) {
+    env$xdata[is.na(env$xdata)] <- na_fill
+  }
+
+
+  re <- as_ieegio_volume.array(x = env$xdata, vox2ras = x$transforms$vox2ras)
+  original_meta <- .subset2(x, "original_meta")
+  if(length(original_meta)) {
+
+    pixdim <- original_meta$pixdim
+    pixdim[2:4] <- re$header$pixdim[2:4]
+    re$header$pixdim <- pixdim
+
+    # scl_slope scl_inter ?
+    re$header$intent_code <- original_meta$intent_code
+    re$header$slice_start <- original_meta$slice_start
+    re$header$slice_end <- original_meta$slice_end
+    re$header$slice_code <- original_meta$slice_code
+    re$header$xyzt_units <- original_meta$xyzt_units
+    re$header$cal_max <- original_meta$cal_max
+    re$header$cal_min <- original_meta$cal_min
+    re$header$slice_duration <- original_meta$slice_duration
+  }
+
+  re$original_meta <- RNifti::niftiHeader(re$header)
+  re
+
+}
