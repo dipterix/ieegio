@@ -22,6 +22,8 @@
 <url><loc>http://dipterix.org/ieegio/reference/io_read_h5.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_write_h5.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/low-level-read-write.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/merge.ieegio_surface.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/merge.ieegio_volume.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/plot.ieegio_surface.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/plot.ieegio_volume.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/pynwb_module.html</loc></url>
