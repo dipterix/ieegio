@@ -298,12 +298,31 @@ fix_surface_class <- function(x) {
 #' as color, measurements, annotations, or time-series data, assuming
 #' \code{x,y,...} all refer to the same geometry, hence the underlying
 #' number of vertices should be the same.}
-#' \item{\code{"attribute"}}{merge \code{y,...} into x by geometry; this
+#' \item{\code{"geometry"}}{merge \code{y,...} into x by geometry; this
 #' requires the surfaces to merge have geometries and cannot be only surface
 #' attributes. Two mesh objects will be merged into one, and face index will
-#' be re-calculated. Notice the attributes will be ignored and eventually
+#' be re-calculated. The merge happens in transformed space, Notice the attributes will be ignored and eventually
 #' discarded during merge.}
 #' }
+#' @param merge_space space to merge the geometries; only used when
+#' \code{merge_type} is \code{"geometry"}. Default is to directly merge the
+#' surfaces in \code{"model"} space, i.e. assuming the surfaces share the same
+#' transform; alternatively, if the model to world transforms are different,
+#' users can choose to merge in \code{"world"} space, then all the surfaces
+#' will be transformed into world space and mapped back to the model space
+#' in \code{x}
+#' @param transform_index which local-to-world transform to use when merging
+#' geometries in the world space; default is the first transform for each
+#' surface object. The transform list can be obtained from
+#' \code{surface$geometry$transforms} and \code{transform_index} indicates the
+#' index of the transform matrices. The length of \code{transform_index} can be
+#' either 1 (same for all surfaces) or the length of all the surfaces, (i.e.
+#' length of \code{list(x,y,...)}), when the index needs to be set for each
+#' surface respectively. If any index is set to \code{NA}, then it means no
+#' transform is to be applied and that surface will be merged assuming its
+#' model space is the world space.
+#' @param verbose whether to verbose the messages
+#'
 #' @returns A merged surface object
 #' @examples
 #'
@@ -330,9 +349,9 @@ fix_surface_class <- function(x) {
 #'     6, 18, 8, 6, 8, 10, 6, 10, 9, 7, 10, 8, 7, 8, 14, 7, 14, 13)
 #' )
 #'
-#' x <- as_ieegio_surface(dodecahedron_vert, faces = dodecahedron_face)
+#' x0 <- as_ieegio_surface(dodecahedron_vert, faces = dodecahedron_face)
 #'
-#' plot(x)
+#' plot(x0)
 #'
 #'
 #' # ---- merge by attributes -----------------------------------
@@ -340,26 +359,50 @@ fix_surface_class <- function(x) {
 #' # point-cloud but with vertex measurements
 #' y1 <- as_ieegio_surface(
 #'   dodecahedron_vert,
-#'   measurements = data.frame(MyVariable = dodecahedron_vert[, 1])
+#'   measurements = data.frame(MyVariable = dodecahedron_vert[, 1]),
+#'   transform = diag(c(2,1,0.5,1))
 #' )
 #'
 #' plot(y1)
 #'
-#' z1 <- merge(x, y1, merge_type = "attribute")
+#' # the geometry of `y1` will be discarded and only attributes
+#' # (in this case, measurements:MyVariable) will be merged to `x`
+#'
+#' z1 <- merge(x0, y1, merge_type = "attribute")
 #'
 #' plot(z1)
 #'
 #' # ---- merge by geometry ----------------------------------------
 #'
-#' y2 <- as_ieegio_surface(dodecahedron_vert + 4, faces = dodecahedron_face)
-#' z2 <- merge(x, y2, merge_type = "geometry")
+#' y2 <- as_ieegio_surface(
+#'   dodecahedron_vert + 4, faces = dodecahedron_face,
+#'   transform = diag(c(2, 1, 0.5, 1))
+#' )
+#'
+#' plot(y2)
+#'
+#' # merge directly in model space: transform matrix of `y2` will be ignored
+#' z2 <- merge(x0, y2, merge_type = "geometry", merge_space = "model")
 #'
 #' plot(z2)
 #'
+#' # merge x, y2 in the world space where transforms will be respected
+#' z3 <- merge(x0, y2, merge_type = "geometry", merge_space = "world")
+#'
+#' plot(z3)
+#'
+#'
 #'
 #' @export
-merge.ieegio_surface <- function(x, y, ..., merge_type = c("attribute", "geometry")) {
+merge.ieegio_surface <- function(
+    x, y, ...,
+    merge_type = c("attribute", "geometry"),
+    merge_space = c("model", "world"),
+    transform_index = 1, verbose = TRUE) {
+
   merge_type <- match.arg(merge_type)
+  merge_space <- match.arg(merge_space)
+
   base_surface <- x
   if(missing(y)) {
     additional_surfaces <- list(...)
@@ -386,22 +429,69 @@ merge.ieegio_surface <- function(x, y, ..., merge_type = c("attribute", "geometr
     node_index <- seq_len(n_verts)
   }
 
+
+
+
   if( merge_type == "geometry" ) {
     # throw all the attributes: they will no longer be valid
     x$annotations <- NULL
     x$measurements <- NULL
     x$color <- NULL
     x$time_series <- NULL
+
+    if(merge_space == "world") {
+      if(verbose) {
+        message("Merging geometries in the transformed world space indicated by `transform_index` list.")
+      }
+      n_total_surfs <- length(additional_surfaces) + 1
+      if(length(transform_index) == 1) {
+        transform_index <- rep(transform_index, n_total_surfs)
+      } else {
+        if(length(transform_index) != n_total_surfs) {
+          stop(
+            "`transform_index` length must be either 1 ",
+            "(same transform index for all), or its length must equal ",
+            "to the total number of surfaces (=", n_total_surfs, ").")
+        }
+      }
+    } else {
+      if(verbose) {
+        message("Merging geometries directly without checking transforms (assuming the transforms are the same)")
+      }
+    }
+  } else if(verbose) {
+    message("Merging geometry attributes, assuming all the surface objects have the same number of vertices.")
   }
   # make dense x and make sure face starts from 1
   x <- sparse_to_dense_geometry(x)
 
+  x_matrix_world <- x$geometry$transforms
+
+  get_transform <- function(z, idx) {
+    transforms <- z$geometry$transforms
+    if(is.na(idx) || !length(transforms)) {
+      return(diag(1, 4))
+    }
+    if( idx <= 0 || idx > length(transforms) ) {
+      stop(sprintf("Surface has no transform index %s.", idx))
+    }
+    transforms[[idx]]
+  }
+
+  if(merge_type == "geometry" && merge_space == "world") {
+    x_world2local <- solve(get_transform(x, transform_index[[1]]))
+  } else {
+    x_world2local <- NULL
+  }
+
   x <- Reduce(
-    additional_surfaces,
+    seq_along(additional_surfaces),
     init = x,
-    f = function(x, y) {
+    f = function(x, kk) {
       # update x data in case y contains geometry
       n_verts <- ncol(x$geometry$vertices)
+
+      y <- additional_surfaces[[ kk ]]
 
       switch(
         merge_type,
@@ -413,8 +503,18 @@ merge.ieegio_surface <- function(x, y, ..., merge_type = c("attribute", "geometr
           y$time_series <- NULL
           y <- sparse_to_dense_geometry(y)
 
-          # bind vertices
-          x$geometry$vertices <- cbind(x$geometry$vertices, y$geometry$vertices)
+          if( merge_space == "world" ) {
+            t_idx <- transform_index[[ kk + 1 ]]
+            y_local2world <- get_transform(y, t_idx)
+            transform_y2x <- x_world2local %*% y_local2world
+
+            # bind vertices in the world space
+            x$geometry$vertices <- cbind(x$geometry$vertices, transform_y2x %*% y$geometry$vertices)
+          } else {
+
+            # bind vertices directly
+            x$geometry$vertices <- cbind(x$geometry$vertices, y$geometry$vertices)
+          }
           if(length(y$geometry$faces)) {
             x$geometry$faces <- cbind(x$geometry$faces, y$geometry$faces + n_verts)
           }

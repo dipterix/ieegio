@@ -4,7 +4,15 @@
 \alias{merge.ieegio_surface}
 \title{Merge two \code{'ieegio'} surfaces}
 \usage{
-\method{merge}{ieegio_surface}(x, y, ..., merge_type = c("attribute", "geometry"))
+\method{merge}{ieegio_surface}(
+  x,
+  y,
+  ...,
+  merge_type = c("attribute", "geometry"),
+  merge_space = c("model", "world"),
+  transform_index = 1,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x, y, ...}{\code{'ieegio'} surface objects, see
@@ -17,12 +25,33 @@
 as color, measurements, annotations, or time-series data, assuming
 \code{x,y,...} all refer to the same geometry, hence the underlying
 number of vertices should be the same.}
-\item{\code{"attribute"}}{merge \code{y,...} into x by geometry; this
+\item{\code{"geometry"}}{merge \code{y,...} into x by geometry; this
 requires the surfaces to merge have geometries and cannot be only surface
 attributes. Two mesh objects will be merged into one, and face index will
-be re-calculated. Notice the attributes will be ignored and eventually
+be re-calculated. The merge happens in transformed space, Notice the attributes will be ignored and eventually
 discarded during merge.}
 }}
+
+\item{merge_space}{space to merge the geometries; only used when
+\code{merge_type} is \code{"geometry"}. Default is to directly merge the
+surfaces in \code{"model"} space, i.e. assuming the surfaces share the same
+transform; alternatively, if the model to world transforms are different,
+users can choose to merge in \code{"world"} space, then all the surfaces
+will be transformed into world space and mapped back to the model space
+in \code{x}}
+
+\item{transform_index}{which local-to-world transform to use when merging
+geometries in the world space; default is the first transform for each
+surface object. The transform list can be obtained from
+\code{surface$geometry$transforms} and \code{transform_index} indicates the
+index of the transform matrices. The length of \code{transform_index} can be
+either 1 (same for all surfaces) or the length of all the surfaces, (i.e.
+length of \code{list(x,y,...)}), when the index needs to be set for each
+surface respectively. If any index is set to \code{NA}, then it means no
+transform is to be applied and that surface will be merged assuming its
+model space is the world space.}
+
+\item{verbose}{whether to verbose the messages}
 }
 \value{
 A merged surface object
@@ -55,9 +84,9 @@ dodecahedron_face <- matrix(
     6, 18, 8, 6, 8, 10, 6, 10, 9, 7, 10, 8, 7, 8, 14, 7, 14, 13)
 )
 
-x <- as_ieegio_surface(dodecahedron_vert, faces = dodecahedron_face)
+x0 <- as_ieegio_surface(dodecahedron_vert, faces = dodecahedron_face)
 
-plot(x)
+plot(x0)
 
 
 # ---- merge by attributes -----------------------------------
@@ -65,21 +94,38 @@ plot(x)
 # point-cloud but with vertex measurements
 y1 <- as_ieegio_surface(
   dodecahedron_vert,
-  measurements = data.frame(MyVariable = dodecahedron_vert[, 1])
+  measurements = data.frame(MyVariable = dodecahedron_vert[, 1]),
+  transform = diag(c(2,1,0.5,1))
 )
 
 plot(y1)
 
-z1 <- merge(x, y1, merge_type = "attribute")
+# the geometry of `y1` will be discarded and only attributes
+# (in this case, measurements:MyVariable) will be merged to `x`
+
+z1 <- merge(x0, y1, merge_type = "attribute")
 
 plot(z1)
 
 # ---- merge by geometry ----------------------------------------
 
-y2 <- as_ieegio_surface(dodecahedron_vert + 4, faces = dodecahedron_face)
-z2 <- merge(x, y2, merge_type = "geometry")
+y2 <- as_ieegio_surface(
+  dodecahedron_vert + 4, faces = dodecahedron_face,
+  transform = diag(c(2, 1, 0.5, 1))
+)
+
+plot(y2)
+
+# merge directly in model space: transform matrix of `y2` will be ignored
+z2 <- merge(x0, y2, merge_type = "geometry", merge_space = "model")
 
 plot(z2)
+
+# merge x, y2 in the world space where transforms will be respected
+z3 <- merge(x0, y2, merge_type = "geometry", merge_space = "world")
+
+plot(z3)
+
 
 
 }
