@@ -39,6 +39,7 @@ Imports:
     yaml
 Suggests: 
     reticulate,
+    ravetools,
     rgl,
     RNifti (>= 1.7.0),
     rpymat (>= 0.1.7),

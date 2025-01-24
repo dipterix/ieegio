@@ -1136,37 +1136,63 @@ as_ieegio_volume.ants.core.ants_image.ANTsImage <- function(x, ...) {
 #'
 #' @examples
 #'
-#'
-#'
 #' base_array <- array(0, c(15, 15, 15))
-#' base_array[4:6, 4:6, 4:6] <- 1
+#' base_array[4:6, 4:6, 4:6] <- runif(27) * 255
 #'
 #' # generate a 15x15x15 mask with 1mm spacing
 #' vox2ras1 <- diag(1, 4)
 #' vox2ras1[1:3, 4] <- -5
 #' x <- as_ieegio_volume(base_array, vox2ras = vox2ras1)
-#' plot(x,
-#'      zoom = 10,
-#'      position = c(0, 0, 0),
-#'      pixel_width = 0.5)
 #'
-#' # 15x15x15 mask with 0.5mmx1mmx1mm spacing
-#' vox2ras2 <- diag(c(2, 1, 1, 1), 4)
-#' vox2ras2[1:3, 4] <- c(-3,-4, -1)
+#'
+#' # 15x15x15 mask with 0.5mmx1mmx1mm spacing but oblique to `x`
+#' vox2ras2 <- matrix(
+#'   nrow = 4, byrow = TRUE,
+#'   c(
+#'     2, 0.2, -0.1, -3,
+#'     -0.2, 1, 0.4, -4,
+#'     0.3, -0.1, 1, -1,
+#'     0, 0, 0, 1
+#'   )
+#' )
+#' # vox2ras2[1:3, 4] <- c(-3,-4, -1)
+#' base_array[4:6, 4:6, 4:6] <- runif(27) * 255
 #' y <- as_ieegio_volume(base_array, vox2ras = vox2ras2)
-#' plot(y,
-#'      zoom = 10,
-#'      position = c(0, 0, 0),
-#'      pixel_width = 0.5)
 #'
-#' # merge y into x and up-sample to 30x30x30 mask with 0.5mm spacing
-#' z <- merge(x, y, reshape = c(30, 30, 30))
+#'
+#' # merge y into x and up-sample mask to 64^3 volume
+#' # set to higher number to get better interpolation quality
+#' # Only voxels of y>0 will be merged to x
+#' z <- merge(x, y, reshape = c(64, 64, 64), thresholds = 0)
+#'
+#' # Visualize
+#'
+#' oldpar <- par(mfrow = c(1, 3), mar = c(0, 0, 2, 0))
+#'
+#' zoom <- 10
+#' crosshair_ras <- c(0, 0, 0)
+#' pixel_width <- 2
+#'
+#' plot(x,
+#'      zoom = zoom,
+#'      position = crosshair_ras,
+#'      pixel_width = pixel_width,
+#'      main = "Original - underlay")
+#' plot(y,
+#'      zoom = zoom,
+#'      position = crosshair_ras,
+#'      pixel_width = pixel_width,
+#'      main = "Original - overlay")
 #' plot(
 #'   z,
-#'   zoom = 10,
-#'   position = c(0, 0, 0),
-#'   pixel_width = 0.5
-#' )
+#'   zoom = zoom,
+#'   position = crosshair_ras,
+#'   pixel_width = pixel_width,
+#'   main = "Merged & up-sampled")
+#'
+#' # reset graphical state
+#' par(oldpar)
+#'
 #'
 #' @export
 merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_fill = NA) {
@@ -1206,55 +1232,78 @@ merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_
     thresholds <- rep(thresholds, ceiling(length(merge_list) / length(thresholds)))
   }
 
-  vox_idx <- t(cbind(arrayInd(seq_len(prod(reshape[1:2])), reshape[1:2]) - 1, 0, 1))
-
   env <- new.env(parent = emptyenv())
-  env$xdata <- x[]
-  dim(env$xdata) <- c(prod(reshape[1:2]), reshape[[3]])
+  env$xdata <- array(x[], reshape)
 
-  lapply(seq_along(merge_list), function(jj) {
-    y <- merge_list[[jj]]
-    thres <- thresholds[[jj]]
-    if(!is.finite(thres)) {
-      thres <- -Inf
-    }
-    dmy <- check_shape(dim(y))
-    cdmy <- c(1, cumprod(dmy))[1:3]
-    vx2vy <- solve(y$transforms$vox2ras) %*% x$transforms$vox2ras
-    dj <- as.vector(vx2vy %*% c(0, 0, 1, 0))[1:3]
-    vox_y_base <- (vx2vy %*% vox_idx)[1:3, , drop = FALSE]
-
-    lapply(seq_len(reshape[3]), function(ii) {
-      vox_plane <- round(vox_y_base + (ii - 1) * dj)
-      is_invalid <- colSums(is.na(vox_plane) | vox_plane < 0 | vox_plane >= dmy) > 0
-      if(all(is_invalid)) { return() }
-      vox_plane <- colSums(round(vox_plane) * cdmy) + 1
-      vox_plane[is_invalid] <- NA
-      plane_sample <- y[vox_plane]
-      sel <- !is.na(plane_sample) & plane_sample > thres
-      if(any(sel)) {
-        env$xdata[sel , ii] <- plane_sample[sel]
+  # If we have ravetools installed
+  ravetools <- check_ravetools_flag()
+  if(!isFALSE(ravetools)) {
+    # use ravetools resample_3d_volume
+    lapply(seq_along(merge_list), function(jj) {
+      y <- merge_list[[jj]]
+      thres <- thresholds[[jj]]
+      if(!is.finite(thres)) {
+        thres <- -Inf
       }
+      dmy <- check_shape(dim(y))
+      y_resamp <- ravetools$resample_3d_volume(
+        x = array(y[], dmy),
+        new_dim = reshape,
+        vox2ras_old = y$transforms$vox2ras,
+        vox2ras_new = x$transforms$vox2ras,
+        na_fill = NA
+      )
+      sel <- !is.na(y_resamp) & y_resamp > thres
+
+      env$xdata[sel] <- y_resamp[sel]
       return()
     })
-    return()
-  })
+  } else {
+    dim(env$xdata) <- c(prod(reshape[1:2]), reshape[[3]])
+    vox_idx <- t(cbind(arrayInd(seq_len(prod(reshape[1:2])), reshape[1:2]) - 1, 0, 1))
+    lapply(seq_along(merge_list), function(jj) {
+      y <- merge_list[[jj]]
+      thres <- thresholds[[jj]]
+      if(!is.finite(thres)) {
+        thres <- -Inf
+      }
+      dmy <- check_shape(dim(y))
+      cdmy <- c(1, cumprod(dmy))[1:3]
+      vx2vy <- solve(y$transforms$vox2ras) %*% x$transforms$vox2ras
+      dj <- as.vector(vx2vy %*% c(0, 0, 1, 0))[1:3]
+      vox_y_base <- (vx2vy %*% vox_idx)[1:3, , drop = FALSE]
 
-  dim(env$xdata) <- reshape
+      lapply(seq_len(reshape[3]), function(ii) {
+        vox_plane <- round(vox_y_base + (ii - 1) * dj)
+        is_invalid <- colSums(is.na(vox_plane) | vox_plane < 0 | vox_plane >= dmy) > 0
+        if(all(is_invalid)) { return() }
+        vox_plane <- colSums(round(vox_plane) * cdmy) + 1
+        vox_plane[is_invalid] <- NA
+        plane_sample <- y[vox_plane]
+        sel <- !is.na(plane_sample) & plane_sample > thres
+        if(any(sel)) {
+          env$xdata[sel , ii] <- plane_sample[sel]
+        }
+        return()
+      })
+      return()
+    })
+    dim(env$xdata) <- reshape
+  }
 
   na_fill <- na_fill[[1]]
   if(!is.na(na_fill)) {
     env$xdata[is.na(env$xdata)] <- na_fill
   }
 
-
   re <- as_ieegio_volume.array(x = env$xdata, vox2ras = x$transforms$vox2ras)
   original_meta <- .subset2(x, "original_meta")
   if(length(original_meta)) {
 
-    pixdim <- original_meta$pixdim
-    pixdim[2:4] <- re$header$pixdim[2:4]
-    re$header$pixdim <- pixdim
+    # No need to set pixdim as the 4-7th components are lost
+    # pixdim <- original_meta$pixdim
+    # pixdim[2:4] <- re$header$pixdim[2:4]
+    # re$header$pixdim <- pixdim
 
     # scl_slope scl_inter ?
     re$header$intent_code <- original_meta$intent_code

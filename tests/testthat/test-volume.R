@@ -104,7 +104,8 @@ test_that("io_nii", {
   expect_equal(v2$transforms$vox2ras_tkr, get_vox2ras_tkr(vox2ras, v$shape/2), tolerance = 1e-4, ignore_attr = TRUE)
 
   # ANTs
-  testthat::skip_if(nzchar(Sys.getenv("IEEGIO_NO_PYTHON", unset = "")))
+  testthat::skip_on_cran()
+  testthat::skip_on_bioc()
   testthat::skip_if(nzchar(Sys.getenv("IEEGIO_NO_PYTHON", unset = "")))
   skip_if_not(rpyANTs::ants_available("ants"), message = "ANTs is not installed")
   v <- read_volume(file = f, method = 'ants')

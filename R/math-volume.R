@@ -1,88 +1,39 @@
-#' Down-sample or super-sample volume
-#' @description
-#' Using nearest-neighbor.
-#' @param x image volume
-#' @param new_dim new dimension
-#' @param na_fill value to fill if missing
-#' @returns A new volume with desired shape
-#'
-#' @examples
-#'
-#' # ---- Toy example ----------------------------
-#'
-#' dm <- c(6, 6, 6)
-#' arr <- array(seq_len(prod(dm)) + 0.5, dm)
-#' orig <- as_ieegio_volume(
-#'   arr, vox2ras = cbind(diag(1, nrow = 4, ncol = 3), c(-dm / 2, 1)))
-#'
-#' # resample
-#' downsampled <- resample_volume(orig, new_dim = c(3, 3, 3))
-#' dim(downsampled)
-#'
-#' # up-sample on coronal
-#' upsampled <- resample_volume(orig, new_dim = c(20, 20, 24))
-#' dim(upsampled)
-#'
-#' par(mfrow = c(2, 2), mar = c(0, 0, 2.1, 0.1))
-#' plot(orig, pixel_width = 0.5, zoom = 20, main = "Original")
-#' plot(downsampled, pixel_width = 0.5, zoom = 20, main = "Down-sampled")
-#' plot(upsampled, pixel_width = 0.5, zoom = 20, main = "Super-sampled")
-#' plot(
-#'   orig,
-#'   main = "Overlay super-sample (diff)",
-#'   col = c("black", "white"),
-#'   pixel_width = 0.5, zoom = 20
-#' )
-#' plot(
-#'   upsampled,
-#'   add = TRUE,
-#'   col = c("white", "black"),
-#'   pixel_width = 0.5, zoom = 20,
-#'   alpha = 0.5
-#' )
+# Calcualte v2ras matrix given new dimensions
+resample_vox2ras <- function(vox2ras, old_dim, new_dim) {
+  # DIPSAUS DEBUG START
+  # vox2ras <- cbind(diag(1, nrow = 4, ncol = 3), c(rnorm(3), 1))
+  # old_dim <- c(5,5,5)
+  # new_dim <- c(16,16,14)
 
-#'
-#' # ---- Real example ---------------------------
-#' nifti_file <- "brain.demosubject.nii.gz"
-#'
-#' if( ieegio_sample_data(nifti_file, test = TRUE) ) {
-#'
-#'   orig <- read_volume(ieegio_sample_data(nifti_file))
-#'   dim(orig)
-#'
-#'   # resample
-#'   downsampled <- resample_volume(orig, new_dim = c(30, 30, 30))
-#'   dim(downsampled)
-#'
-#'   # up-sample on coronal
-#'   upsampled <- resample_volume(orig, new_dim = c(300, 300, 64))
-#'   dim(upsampled)
-#'
-#'   par(mfrow = c(2, 2), mar = c(0, 0, 2.1, 0.1))
-#'   plot(orig, main = "Original")
-#'   plot(downsampled, main = "Down-sampled")
-#'   plot(upsampled, main = "Super-sampled")
-#'   plot(
-#'     orig,
-#'     main = "Overlay super-sample",
-#'     col = c("black", "white"),
-#'     zoom = 2,
-#'     vlim = c(0, 255)
-#'   )
-#'   plot(
-#'     upsampled,
-#'     add = TRUE,
-#'     col = c("white", "black"),
-#'     zoom = 2,
-#'     alpha = 0.5,
-#'     vlim = c(0, 255)
-#'   )
-#'
-#'
-#' }
-#'
-#' @export
-resample_volume <- function(x, new_dim, na_fill = NA) {
+  dim0 <- old_dim[c(1, 2, 3)]
+  dim1 <- new_dim[c(1, 2, 3)]
+
+  # set pixdim
+  vox2ras1 <- vox2ras %*% diag(c(dim0 / dim1, 1))
+  vox2ras1[1:3, 4] <- 0
+
+  # vox 0,0,0 -> 0,0,0
+  # vox d0[1],d0[2],0 -> d1[1],d1[2],0
+  # vox 0,d0[2],d0[3] -> 0,d1[2],d1[3]
+  vox_corner0 <- cbind(
+    c(0, 0, 0),
+    c(dim0[[1]], dim0[[2]], 0),
+    c(0, dim0[[2]], dim0[[3]])
+  ) - 0.5
+  vox_corner1 <- cbind(
+    c(0, 0, 0),
+    c(dim1[[1]], dim1[[2]], 0),
+    c(0, dim1[[2]], dim1[[3]])
+  ) - 0.5
+
+  ras_corner0 <- vox2ras %*% rbind(vox_corner0, 1)
+
+  translation <- ras_corner0 - vox2ras1 %*% rbind(vox_corner1, 1)
+  vox2ras1[1:3, 4] <- rowMeans(translation)[1:3]
+  vox2ras1
+}
+
+resample_volume_naive <- function(x, new_dim, na_fill = NA) {
 
   # DIPSAUS DEBUG START
   # nifti_file <- "brain.demosubject.nii.gz"
@@ -146,39 +97,162 @@ resample_volume <- function(x, new_dim, na_fill = NA) {
   re
 }
 
-resample_vox2ras <- function(vox2ras, old_dim, new_dim) {
+resample_volume_ravetools <- function(x, new_dim, na_fill = NA) {
+
   # DIPSAUS DEBUG START
-  # vox2ras <- cbind(diag(1, nrow = 4, ncol = 3), c(rnorm(3), 1))
-  # old_dim <- c(5,5,5)
-  # new_dim <- c(16,16,14)
+  # nifti_file <- "brain.demosubject.nii.gz"
+  # file <- ieegio_sample_data(nifti_file)
+  # x <- as_ieegio_volume(file)
+  # new_dim <- c(16, 16, 16)
+  # na_fill <- NA
+  ravetools <- check_ravetools_flag()
 
-  dim0 <- old_dim[c(1, 2, 3)]
-  dim1 <- new_dim[c(1, 2, 3)]
+  x <- as_ieegio_volume(x)
+  dim0 <- dim(x)[c(1, 2, 3)]
+  dim1 <- new_dim[1:3]
 
-  # set pixdim
-  vox2ras1 <- vox2ras %*% diag(c(dim0 / dim1, 1))
-  vox2ras1[1:3, 4] <- 0
+  vox2ras0 <- x$transforms$vox2ras
+  vox2ras1 <- resample_vox2ras(vox2ras = vox2ras0, old_dim = dim0, new_dim = dim1)
+  x_shape0 <- dim(x)
+  nvox <- prod(x_shape0[1:3])
 
-  # vox 0,0,0 -> 0,0,0
-  # vox d0[1],d0[2],0 -> d1[1],d1[2],0
-  # vox 0,d0[2],d0[3] -> 0,d1[2],d1[3]
-  vox_corner0 <- cbind(
-    c(0, 0, 0),
-    c(dim0[[1]], dim0[[2]], 0),
-    c(0, dim0[[2]], dim0[[3]])
-  ) - 0.5
-  vox_corner1 <- cbind(
-    c(0, 0, 0),
-    c(dim1[[1]], dim1[[2]], 0),
-    c(0, dim1[[2]], dim1[[3]])
-  ) - 0.5
+  x_idx <- array(seq_len(nvox), x_shape0[1:3])
+  x_idx <- ravetools$resample_3d_volume(x = x_idx, new_dim = dim1, vox2ras_old = vox2ras0, vox2ras_new = vox2ras1, na_fill = NA)
+  x_idx <- as.vector(x_idx)
 
-  ras_corner0 <- vox2ras %*% rbind(vox_corner0, 1)
+  x_data <- x[]
+  dim(x_data) <- c(nvox, length(x_data) / nvox)
+  x_data <- apply(x_data, 2L, function(slice) {
+    re <- slice[x_idx]
+    if(!is.na(na_fill)) {
+      re[is.na(re)] <- na_fill
+    }
+    re
+  })
 
-  translation <- ras_corner0 - vox2ras1 %*% rbind(vox_corner1, 1)
-  vox2ras1[1:3, 4] <- rowMeans(translation)[1:3]
-  vox2ras1
+  x_shape1 <- x_shape0
+  x_shape1[1:3] <- dim1
+  dim(x_data) <- x_shape1
+
+  re <- as_ieegio_volume.array(x = x_data, vox2ras = vox2ras1)
+
+  original_meta <- .subset2(x, "original_meta")
+  if(length(original_meta)) {
+
+    pixdim <- original_meta$pixdim
+    pixdim[2:4] <- re$header$pixdim[2:4]
+    re$header$pixdim <- pixdim
+
+    # scl_slope scl_inter ?
+    re$header$intent_code <- original_meta$intent_code
+    re$header$slice_start <- original_meta$slice_start
+    re$header$slice_end <- original_meta$slice_end
+    re$header$slice_code <- original_meta$slice_code
+    re$header$xyzt_units <- original_meta$xyzt_units
+    re$header$cal_max <- original_meta$cal_max
+    re$header$cal_min <- original_meta$cal_min
+    re$header$slice_duration <- original_meta$slice_duration
+  }
+
+  re$original_meta <- RNifti::niftiHeader(re$header)
+  re
 }
+
+
+#' Down-sample or super-sample volume
+#' @description
+#' Using nearest-neighbor.
+#' @param x image volume
+#' @param new_dim new dimension
+#' @param na_fill value to fill if missing
+#' @returns A new volume with desired shape
+#'
+#' @examples
+#'
+#' # ---- Toy example ----------------------------
+#'
+#' dm <- c(6, 6, 6)
+#' arr <- array(seq_len(prod(dm)) + 0.5, dm)
+#' orig <- as_ieegio_volume(
+#'   arr, vox2ras = cbind(diag(1, nrow = 4, ncol = 3), c(-dm / 2, 1)))
+#'
+#' # resample
+#' downsampled <- resample_volume(orig, new_dim = c(3, 3, 3))
+#' dim(downsampled)
+#'
+#' # up-sample on coronal
+#' upsampled <- resample_volume(orig, new_dim = c(20, 20, 24))
+#' dim(upsampled)
+#'
+#' par(mfrow = c(2, 2), mar = c(0, 0, 2.1, 0.1))
+#' plot(orig, pixel_width = 0.5, zoom = 20, main = "Original")
+#' plot(downsampled, pixel_width = 0.5, zoom = 20, main = "Down-sampled")
+#' plot(upsampled, pixel_width = 0.5, zoom = 20, main = "Super-sampled")
+#' plot(
+#'   orig,
+#'   main = "Overlay super-sample (diff)",
+#'   col = c("black", "white"),
+#'   pixel_width = 0.5, zoom = 20
+#' )
+#' plot(
+#'   upsampled,
+#'   add = TRUE,
+#'   col = c("white", "black"),
+#'   pixel_width = 0.5, zoom = 20,
+#'   alpha = 0.5
+#' )
+#'
+#' # ---- Real example ---------------------------
+#' nifti_file <- "brain.demosubject.nii.gz"
+#'
+#' if( ieegio_sample_data(nifti_file, test = TRUE) ) {
+#'
+#'   orig <- read_volume(ieegio_sample_data(nifti_file))
+#'   dim(orig)
+#'
+#'   # resample
+#'   downsampled <- resample_volume(orig, new_dim = c(30, 30, 30))
+#'   dim(downsampled)
+#'
+#'   # up-sample on coronal
+#'   upsampled <- resample_volume(orig, new_dim = c(300, 300, 64))
+#'   dim(upsampled)
+#'
+#'   par(mfrow = c(2, 2), mar = c(0, 0, 2.1, 0.1))
+#'   plot(orig, main = "Original")
+#'   plot(downsampled, main = "Down-sampled")
+#'   plot(upsampled, main = "Super-sampled")
+#'   plot(
+#'     orig,
+#'     main = "Overlay super-sample",
+#'     col = c("black", "white"),
+#'     zoom = 2,
+#'     vlim = c(0, 255)
+#'   )
+#'   plot(
+#'     upsampled,
+#'     add = TRUE,
+#'     col = c("white", "black"),
+#'     zoom = 2,
+#'     alpha = 0.5,
+#'     vlim = c(0, 255)
+#'   )
+#'
+#'
+#' }
+#'
+#' @export
+resample_volume <- function(x, new_dim, na_fill = NA) {
+  ravetools <- check_ravetools_flag()
+  if(isFALSE(ravetools)) {
+    re <- resample_volume_naive(x = x, new_dim = new_dim, na_fill = na_fill)
+  } else {
+    re <- resample_volume_ravetools(x = x, new_dim = new_dim, na_fill = na_fill)
+  }
+  re
+}
+
+
 
 #' Burn image at given positions
 #' @description

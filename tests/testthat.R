@@ -9,6 +9,4 @@
 library(testthat)
 library(ieegio)
 
-# Sys.setenv("IEEGIO_NO_PYTHON" = "TRUE")
-
 test_check("ieegio")

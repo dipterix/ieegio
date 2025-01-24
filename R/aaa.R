@@ -127,6 +127,20 @@ check_py_flag <- function() {
   }
 }
 
+check_ravetools_flag <- function() {
+  if(nzchar(Sys.getenv("IEEGIO_NO_RAVETOOLS", ""))) {
+    return(FALSE)
+  }
+  if(system.file(package = "ravetools") == "") {
+    return(FALSE)
+  }
+  ravetools <- tryCatch({
+    asNamespace("ravetools")
+  }, error = function(e) { NULL })
+  if(is.null(ravetools)) { return(FALSE) }
+  ravetools
+}
+
 ensure_r_package <- function(pkg, ...) {
   if(package_installed(pkg)) { return(invisible()) }
   if(package_installed("ravemanager")) {
