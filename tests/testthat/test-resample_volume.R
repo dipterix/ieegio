@@ -1,6 +1,7 @@
 test_that("resample_volume", {
 
-  testthat::skip_if(isFALSE(ieegio:::check_ravetools_flag()))
+  ravetools <- ieegio:::check_ravetools_flag()
+  testthat::skip_if(isFALSE(ravetools) || !is.function(ravetools$resample_3d_volume))
 
   dm <- c(6, 31, 23)
 

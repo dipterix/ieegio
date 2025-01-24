@@ -1237,7 +1237,7 @@ merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_
 
   # If we have ravetools installed
   ravetools <- check_ravetools_flag()
-  if(!isFALSE(ravetools)) {
+  if(!isFALSE(ravetools) && is.function(ravetools$resample_3d_volume)) {
     # use ravetools resample_3d_volume
     lapply(seq_along(merge_list), function(jj) {
       y <- merge_list[[jj]]

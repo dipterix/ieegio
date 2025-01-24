@@ -244,7 +244,7 @@ resample_volume_ravetools <- function(x, new_dim, na_fill = NA) {
 #' @export
 resample_volume <- function(x, new_dim, na_fill = NA) {
   ravetools <- check_ravetools_flag()
-  if(isFALSE(ravetools)) {
+  if(isFALSE(ravetools) || !is.function(ravetools$resample_3d_volume)) {
     re <- resample_volume_naive(x = x, new_dim = new_dim, na_fill = na_fill)
   } else {
     re <- resample_volume_ravetools(x = x, new_dim = new_dim, na_fill = na_fill)
