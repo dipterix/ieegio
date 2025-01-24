@@ -283,6 +283,29 @@ fix_surface_class <- function(x) {
   cls <- class(x)
   cls <- c(contain_classes, cls[!cls %in% remove_classes])
   class(x) <- unique(cls)
+
+  # also fix the internal header
+  if("ieegio_surface_contains_geometry" %in% contain_classes) {
+    geometry <- .subset2(x, "geometry")
+    nverts <- ncol(geometry$vertices)
+    if(length(geometry$faces)) {
+      type <- "tris"
+      nfaces <- ncol(geometry$faces)
+    } else {
+      type <- "points"
+      nfaces <- 0L
+    }
+    x$header <- structure(
+      class = "basic_geometry",
+      list(
+        internal = list(
+          num_vertices_expected = nverts,
+          num_faces_expected = nfaces
+        ),
+        mesh_face_type = type
+      )
+    )
+  }
   x
 }
 
@@ -464,8 +487,6 @@ merge.ieegio_surface <- function(
   }
   # make dense x and make sure face starts from 1
   x <- sparse_to_dense_geometry(x)
-
-  x_matrix_world <- x$geometry$transforms
 
   get_transform <- function(z, idx) {
     transforms <- z$geometry$transforms
