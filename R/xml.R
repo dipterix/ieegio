@@ -42,7 +42,12 @@ xml_node_gifti_coordtransform <- function (transform_matrix, data_space = "NIFTI
     stop("Parameter 'transformed_space' must be a character string.")
   }
   if (!is.matrix(transform_matrix)) {
-    stop("Parameter 'transform_matrix' must be a numerical matrix.")
+    if(is.null(transform_matrix)) {
+      # special case where there is no transform, use identity matrix
+      transform_matrix <- diag(1, 4)
+    } else {
+      stop("Parameter 'transform_matrix' must be a numerical matrix.")
+    }
   }
   if (!(ncol(transform_matrix) == 4L & nrow(transform_matrix) ==
         4L)) {

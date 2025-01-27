@@ -1107,6 +1107,8 @@ write_surface <- function(
     ...) {
 
   format <- match.arg(format)
+  x <- as_ieegio_surface(x)
+
 
   if(format == "gifti") {
     re <- io_write_gii(x = x, con = con, ...)

@@ -318,7 +318,10 @@ read_volume <- function(file, header_only = FALSE,
 #' @rdname imaging-volume
 #' @export
 write_volume <- function(x, con, format = c("auto", "nifti", "mgh"), ...) {
+
   format <- match.arg(format)
+  x <- as_ieegio_volume(x)
+
   if(format == "auto") {
     if(endsWith(tolower(con), "mgz") || endsWith(tolower(con), "mgh")) {
       format <- "mgh"
