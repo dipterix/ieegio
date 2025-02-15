@@ -13,7 +13,7 @@ other low-level functions internally."><!-- dependencies from examples --><scrip
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,8 @@ other low-level functions internally.</p>
 <span>  <span class="va">con</span>,</span>
 <span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gifti"</span>, <span class="st">"freesurfer"</span><span class="op">)</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"geometry"</span>, <span class="st">"annotations"</span>, <span class="st">"measurements"</span>, <span class="st">"color"</span>, <span class="st">"time_series"</span><span class="op">)</span>,</span>
-<span>  <span class="va">...</span></span>
+<span>  <span class="va">...</span>,</span>
+<span>  name <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">io_read_fs</span><span class="op">(</span></span>
@@ -85,9 +86,11 @@ other low-level functions internally.</p>
 
 
 <dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
-<dd><p>format of the file, see 'Arguments' section in
-<code><a href="https://rdrr.io/pkg/freesurferformats/man/read.fs.surface.html" class="external-link">read.fs.surface</a></code> (when file type is
-<code>'geometry'</code>) and <code><a href="https://rdrr.io/pkg/freesurferformats/man/read.fs.curv.html" class="external-link">read.fs.curv</a></code>
+<dd><p>format of the file, for <code>write_surface</code>, this is either
+<code>'gifti'</code> or <code>'freesurfer'</code>; for <code>read_surface</code>, see
+'Arguments' section in <code><a href="https://rdrr.io/pkg/freesurferformats/man/read.fs.surface.html" class="external-link">read.fs.surface</a></code>
+(when file type is <code>'geometry'</code>) and
+<code><a href="https://rdrr.io/pkg/freesurferformats/man/read.fs.curv.html" class="external-link">read.fs.curv</a></code>
 (when file type is <code>'measurements'</code>)</p></dd>
 
 
@@ -122,7 +125,10 @@ domain) for each vertex node</p></dd>
 
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
-<dd><p>name of the data; default is the file name</p></dd>
+<dd><p>name of the data; for <code>io_read_fs</code>, this argument must be
+a character, and default is the file name; for <code>write_surface</code>, this
+argument can be an integer or a character, representing the
+index or name of the corresponding measurement or annotation column.</p></dd>
 
 </dl></div>
     <div class="section level2">
