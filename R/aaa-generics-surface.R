@@ -1024,11 +1024,16 @@ plot.ieegio_surface <- function(
 #' \code{'curv'} files, containing numerical values (often with continuous
 #' domain) for each vertex node}
 #' }
-#' @param format format of the file, see 'Arguments' section in
-#' \code{\link[freesurferformats]{read.fs.surface}} (when file type is
-#' \code{'geometry'}) and \code{\link[freesurferformats]{read.fs.curv}}
+#' @param format format of the file, for \code{write_surface}, this is either
+#' \code{'gifti'} or \code{'freesurfer'}; for \code{read_surface}, see
+#' 'Arguments' section in \code{\link[freesurferformats]{read.fs.surface}}
+#' (when file type is \code{'geometry'}) and
+#' \code{\link[freesurferformats]{read.fs.curv}}
 #' (when file type is \code{'measurements'})
-#' @param name name of the data; default is the file name
+#' @param name name of the data; for \code{io_read_fs}, this argument must be
+#' a character, and default is the file name; for \code{write_surface}, this
+#' argument can be an integer or a character, representing the
+#' index or name of the corresponding measurement or annotation column.
 #' @param ... for \code{read_surface}, the arguments will be passed to
 #' \code{io_read_fs} if the file is a 'FreeSurfer' file.
 #' @returns A surface object container for \code{read_surface}, and
@@ -1104,7 +1109,7 @@ write_surface <- function(
     x, con, format = c("gifti", "freesurfer"),
     type = c("geometry", "annotations", "measurements", "color",
              "time_series"),
-    ...) {
+    ..., name = 1) {
 
   format <- match.arg(format)
   x <- as_ieegio_surface(x)
@@ -1155,6 +1160,30 @@ write_surface <- function(
         filepath = con, vertex_coords = vertices, faces = faces
       )
     },
+    "measurements" = {
+      n_verts <- 0
+      if( x$sparse ) {
+        start_index <- attr(x$sparse_node_index, "start_index")
+        n_verts <- max(x$sparse_node_index)
+        if(length(start_index) == 1 &&
+           !is.na(start_index) &&
+           is.numeric(start_index)) {
+          n_verts <- n_verts - start_index + 1
+        }
+      }
+      n_verts <- max(nrow(x$measurements$data_table), n_verts)
+
+      meas_data <- x$measurements$data_table[[name]]
+      if(length(meas_data) != n_verts) {
+        stop(sprintf(
+          "Number of measurement data points [%d] does not match with the expected number of vertex nodes [%d]",
+          length(meas_data), n_verts
+        ))
+      }
+      print('asdads')
+      freesurferformats::write.fs.curv(filepath = con, data = meas_data)
+
+    },
     "annotations" = {
       n_verts <- 0
       if( x$sparse ) {
@@ -1176,7 +1205,7 @@ write_surface <- function(
         names = sprintf("%d", label_table$Key),
         color_codes
       )
-      coloridx <- unname(clut[sprintf("%d", x$annotations$data_table[[1]])])
+      coloridx <- unname(clut[sprintf("%d", x$annotations$data_table[[name]])])
       coloridx <- as.integer(coloridx)
 
 
@@ -1202,6 +1231,9 @@ write_surface <- function(
         colortable = colortable,
         labels_as_colorcodes = coloridx,
       )
+    },
+    {
+      stop("Type ", sQuote(type), " is not supported under FreeSurfer format.")
     }
   )
 

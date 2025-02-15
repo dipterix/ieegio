@@ -17,7 +17,8 @@ write_surface(
   con,
   format = c("gifti", "freesurfer"),
   type = c("geometry", "annotations", "measurements", "color", "time_series"),
-  ...
+  ...,
+  name = 1
 )
 
 io_read_fs(
@@ -35,9 +36,11 @@ io_write_gii(x, con, ...)
 \arguments{
 \item{file, con}{path the file}
 
-\item{format}{format of the file, see 'Arguments' section in
-\code{\link[freesurferformats]{read.fs.surface}} (when file type is
-\code{'geometry'}) and \code{\link[freesurferformats]{read.fs.curv}}
+\item{format}{format of the file, for \code{write_surface}, this is either
+\code{'gifti'} or \code{'freesurfer'}; for \code{read_surface}, see
+'Arguments' section in \code{\link[freesurferformats]{read.fs.surface}}
+(when file type is \code{'geometry'}) and
+\code{\link[freesurferformats]{read.fs.curv}}
 (when file type is \code{'measurements'})}
 
 \item{type}{type of the data; ignored if the file format is 'GIfTI'. For
@@ -59,7 +62,10 @@ domain) for each vertex node}
 
 \item{x}{surface (geometry, annotation, measurement) data}
 
-\item{name}{name of the data; default is the file name}
+\item{name}{name of the data; for \code{io_read_fs}, this argument must be
+a character, and default is the file name; for \code{write_surface}, this
+argument can be an integer or a character, representing the
+index or name of the corresponding measurement or annotation column.}
 }
 \value{
 A surface object container for \code{read_surface}, and
