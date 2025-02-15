@@ -1180,7 +1180,6 @@ write_surface <- function(
           length(meas_data), n_verts
         ))
       }
-      print('asdads')
       freesurferformats::write.fs.curv(filepath = con, data = meas_data)
 
     },
