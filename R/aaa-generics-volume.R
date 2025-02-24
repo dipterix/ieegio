@@ -179,7 +179,7 @@ names.ieegio_volume <- function(x) {
   if(isTRUE(.subset2(x, "use_expression"))) {
     x$header[...] <- value
   } else {
-    x$data[...] <- array
+    x$data[...] <- value
   }
 
   x
