@@ -133,6 +133,14 @@ as_ieegio_surface.default <- function(
   # DIPSAUS DEBUG START
   # x <- rbind(array(rnorm(30), c(3, 10)), 1)
 
+  if(missing(x)) {
+    if(!missing(vertices)) {
+      x <- vertices
+    } else {
+      x <- NULL
+    }
+  }
+
   if(is.matrix(transform)) {
     stopifnot(nrow(transform) == 4 && ncol(transform) == 4)
     source_space <- attr(transform, "source_space")
@@ -150,42 +158,62 @@ as_ieegio_surface.default <- function(
     transforms <- NULL
   }
 
-  if(!is.matrix(vertices)) {
-    stop("`vertices` must be a nx3 or nx4 matrix")
-  }
-  dm_vert <- dim(vertices)
-  if(!dm_vert[2] %in% c(3, 4)) {
-    stop("`vertices` must be a nx3 or nx4 matrix")
-  }
+  n_verts <- NA_integer_
+  n_faces <- 0L
+  mesh_face_type <- "points"
+  if(!is.null(vertices)) {
+    if(!is.matrix(vertices)) {
+      stop("`vertices` must be a nx3 or nx4 matrix")
+    }
+    dm_vert <- dim(vertices)
+    if(!dm_vert[2] %in% c(3, 4)) {
+      stop("`vertices` must be a nx3 or nx4 matrix")
+    }
 
-  vertices <- t(cbind(vertices[, c(1, 2, 3), drop = FALSE], 1))
-  n_verts <- ncol(vertices)
+    vertices <- t(cbind(vertices[, c(1, 2, 3), drop = FALSE], 1))
+    n_verts <- ncol(vertices)
 
-  if(is.matrix(faces)) {
-    dm_faces <- dim(faces)
-    if(!dm_faces[2] %in% 3) {
-      stop("`faces`, if provided, must be a mx3 matrix")
+    if(is.matrix(faces)) {
+      dm_faces <- dim(faces)
+      if(!dm_faces[2] %in% 3) {
+        stop("`faces`, if provided, must be a mx3 matrix")
+      }
+      if(is.na(face_start)) {
+        face_start <- min(faces, na.rm = TRUE)
+      }
+      if(face_start <= 0) {
+        faces <- faces - face_start + 1
+      }
+      faces <- t(faces)
+      storage.mode(faces) <- "integer"
+      mesh_face_type <- "tris"
+      n_faces <- ncol(faces)
+    } else {
+      faces <- NULL
+      mesh_face_type <- "points"
+      n_faces <- 0
     }
-    if(is.na(face_start)) {
-      face_start <- min(faces, na.rm = TRUE)
-    }
-    if(face_start <= 0) {
-      faces <- faces - face_start + 1
-    }
-    faces <- t(faces)
-    storage.mode(faces) <- "integer"
-    mesh_face_type <- "tris"
-    n_faces <- ncol(faces)
+
+    geometry <- list(
+      vertices = vertices,
+      faces = faces,
+      transforms = transforms,
+      face_start = 1L,
+      meta = list(Name = name)
+    )
   } else {
-    faces <- NULL
-    mesh_face_type <- "points"
-    n_faces <- 0
+    geometry <- NULL
+    n_verts <- NA_integer_
   }
 
   if(length(vertex_colors) > 0) {
-    nmult <- ceiling(n_verts / length(vertex_colors))
-    if(nmult > 1) {
-      vertex_colors <- rep(vertex_colors, nmult)
+    if(is.na(n_verts)) {
+      n_verts <- length(vertex_colors)
+    } else {
+      nmult <- ceiling(n_verts / length(vertex_colors))
+      if(nmult > 1) {
+        vertex_colors <- rep(vertex_colors, nmult)
+      }
     }
     vertex_colors <- t(grDevices::col2rgb(vertex_colors[seq_len(n_verts)], alpha = FALSE))
   } else {
@@ -197,6 +225,9 @@ as_ieegio_surface.default <- function(
       stop("`measurements` must be a numeric table.")
     }
     measurements <- data.table::as.data.table(measurements, keep.rownames = FALSE)
+    if(is.na(n_verts)) {
+      n_verts <- nrow(measurements)
+    }
     meas_names <- names(measurements)
     meas_meta <- structure(lapply(meas_names, function(x) {
       list(intent = "NIFTI_INTENT_SHAPE")
@@ -222,6 +253,9 @@ as_ieegio_surface.default <- function(
       stop("`annotation_labels`, if provided, must be a table with integer `Key`, annotation `Label`, and `Color` string")
     }
     annotation_values <- data.table::as.data.table(annotation_values)
+    if(is.na(n_verts)) {
+      n_verts <- nrow(annotation_values)
+    }
     annot_names <- names(annotation_values)
     for(nm in annot_names) {
       storage.mode(annotation_values[[nm]]) <- "integer"
@@ -251,6 +285,9 @@ as_ieegio_surface.default <- function(
       stop("`time_series_value` must be numerical matrix")
     }
     n_time <- ncol(time_series_value)
+    if(is.na(n_verts)) {
+      n_verts <- nrow(time_series_value)
+    }
     if(length(time_series_slice_duration) > 0) {
       time_series_slice_duration <- as.double(time_series_slice_duration)
       if(length(time_series_slice_duration) < n_time) {
@@ -279,13 +316,7 @@ as_ieegio_surface.default <- function(
       ),
       mesh_face_type = mesh_face_type
     ), class = "basic_geometry"),
-    geometry = list(
-      vertices = vertices,
-      faces = faces,
-      transforms = transforms,
-      face_start = 1L,
-      meta = list(Name = name)
-    ),
+    geometry = geometry,
     color = vertex_colors,
     measurements = measurements,
     annotations = annotations,
