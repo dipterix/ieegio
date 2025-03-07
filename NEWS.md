@@ -1,3 +1,12 @@
+# ieegio 0.0.4
+
+* Added merge support for both volume and surface objects; for surface objects, users can choose whether to merge the objects in model or world space
+* Added dependency `ravetools` to help speed up sample volumes using `C++`
+* Fixed missing transform issue in writing to `GIfTI` format
+* Fixed `write_surface` not working when writing to `FreeSurfer` measurement (curvature) format
+* Fixed a typo that caused setting volume data resulting in errors
+* `as_ieegio_surface` does not require vertices
+
 # ieegio 0.0.3
 
 * Cleaned `h5py` loader
