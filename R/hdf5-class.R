@@ -103,7 +103,11 @@ LazyH5 <- R6::R6Class(
     read_only = TRUE,
     data_ptr = NULL,
     file_ptr = NULL,
-    last_dim = NULL
+    last_dim = NULL,
+
+    finalize = function(){
+      self$close(all = TRUE)
+    }
   ),
   public = list(
 
@@ -112,7 +116,7 @@ LazyH5 <- R6::R6Class(
 
     #' @description garbage collection method
     #' @return none
-    finalize = function(){
+    do_finalize = function(){
       self$close(all = TRUE)
     },
 

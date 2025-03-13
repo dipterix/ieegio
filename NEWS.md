@@ -1,3 +1,7 @@
+# ieegio 0.0.5
+
+* Added `LazyFST` class
+
 # ieegio 0.0.4
 
 * Added merge support for both volume and surface objects; for surface objects, users can choose whether to merge the objects in model or world space

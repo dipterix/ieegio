@@ -18,7 +18,7 @@ not intended for direct-use. Please see \code{\link{io_read_h5}} and
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-LazyH5-finalize}{\code{LazyH5$finalize()}}
+\item \href{#method-LazyH5-do_finalize}{\code{LazyH5$do_finalize()}}
 \item \href{#method-LazyH5-print}{\code{LazyH5$print()}}
 \item \href{#method-LazyH5-new}{\code{LazyH5$new()}}
 \item \href{#method-LazyH5-save}{\code{LazyH5$save()}}
@@ -30,12 +30,12 @@ not intended for direct-use. Please see \code{\link{io_read_h5}} and
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LazyH5-finalize"></a>}}
-\if{latex}{\out{\hypertarget{method-LazyH5-finalize}{}}}
-\subsection{Method \code{finalize()}}{
+\if{html}{\out{<a id="method-LazyH5-do_finalize"></a>}}
+\if{latex}{\out{\hypertarget{method-LazyH5-do_finalize}{}}}
+\subsection{Method \code{do_finalize()}}{
 garbage collection method
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LazyH5$finalize()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LazyH5$do_finalize()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
