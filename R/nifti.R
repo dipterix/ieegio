@@ -805,15 +805,19 @@ io_write_nii.array <- function(x, con, vox2ras = NULL,
                                xyzt_units = c("NIFTI_UNITS_MM", "NIFTI_UNITS_SEC"),
                                intent_code = "NIFTI_INTENT_NONE", ...,
                                gzipped = NA) {
-  if(is.na(gzipped)) {
-    gzipped <- TRUE
-  }
-  if(grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
-    if( grepl("\\.nii$", con, ignore.case = TRUE) ) {
-      gzipped <- FALSE
+  # We are using RNifti, which automatically handles gzipped issue
+
+  if(!is.na(gzipped)) {
+    if(grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
+      con <- path_ext_remove(con)
     }
-    con <- path_ext_remove(con)
+    if( gzipped ) {
+      con <- sprintf("%s.nii.gz", con)
+    } else {
+      con <- sprintf("%s.nii", con)
+    }
   }
+
   x <- as_ieegio_volume(x, vox2ras = vox2ras, ...)
   io_write_nii(x = x$header, con = con)
 }
