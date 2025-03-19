@@ -15,6 +15,25 @@ setup_test_env <- function() {
   }
 }
 
+get_os <- function(){
+  os <- R.version$os
+  if(grepl('^darwin', os, ignore.case = TRUE)){
+    return('darwin')
+  }
+  if(grepl('^linux', os, ignore.case = TRUE)){
+    return('linux')
+  }
+  if(grepl('^solaris', os, ignore.case = TRUE)){
+    return('solaris')
+  }
+  if(grepl('^win', os, ignore.case = TRUE)){
+    return('windows')
+  }
+  if(grepl("^(emscr|wasm)", os, ignore.case = TRUE)) {
+    return('emscripten')
+  }
+  return('unknown')
+}
 
 # load_py <- local({
 #

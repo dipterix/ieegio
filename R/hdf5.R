@@ -1,3 +1,12 @@
+alternative_h5_fname <- function(file) {
+  dir <- dirname(file)
+  fname <- basename(file)
+  if(!endsWith(tolower(fname), ".farr")) {
+    fname <- sprintf("%s.farr", fname)
+  }
+  file_path(dir, fname)
+}
+
 #' Lazy Load 'HDF5' File via \code{\link[hdf5r]{hdf5r-package}}
 #'
 #' @description Wrapper for class \code{\link{LazyH5}}, which load data with
@@ -102,7 +111,7 @@ io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE)
 #' unlink(file)
 #'
 #' @export
-io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4,replace = TRUE,
+io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4, replace = TRUE,
                     new_file = FALSE, ctype = NULL, quiet = FALSE, ...){
   # DIPSAUS DEBUG START
   # file <- tempfile()
@@ -111,6 +120,7 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4,replace = TRUE,
   # ctype = "numeric"
   # quiet=FALSE
   # Sys.setenv("IEEGIO_USE_H5PY" = "TRUE")
+
   f <- tryCatch({
     f <- LazyH5$new(file, name, read_only = FALSE, quiet = quiet)
     on.exit({ f$close(all = TRUE) }, add = TRUE)
@@ -133,11 +143,13 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4,replace = TRUE,
     # Otherwise it's some weird error, or dirname not exists, expose the error
     f <- LazyH5$new(file, name, read_only = FALSE)
     f$close(all = TRUE)
+    f
   })
   on.exit({ f$close(all = TRUE) }, add = TRUE)
   f$save(x, chunk = chunk, level = level, replace = replace, new_file = new_file, ctype = ctype, force = TRUE, ...)
 
-  return(invisible(normalizePath(file, winslash = "/")))
+
+  return(invisible(normalizePath(file, winslash = "/", mustWork = FALSE)))
 }
 
 
@@ -183,12 +195,18 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4,replace = TRUE,
 io_h5_valid <- function(file, mode = c('r', 'w'), close_all = FALSE){
   mode <- match.arg(mode)
 
-  h5py <- ensure_hdf5_backend()
+  h5backend <- ensure_hdf5_backend()
 
   tryCatch({
-    file <- normalizePath(file, mustWork = TRUE)
-
-    if(is.null(h5py)) {
+    if(inherits(h5backend, "python.builtin.module")) {
+      file <- normalizePath(file, mustWork = TRUE)
+      if(mode == "w") {
+        mode <- "r+"
+      }
+      ptr <- h5backend$File(file, mode = mode)
+      ptr$close()
+    } else if(isNamespace(h5backend)) {
+      file <- normalizePath(file, mustWork = TRUE)
       f <- hdf5r::H5File$new(filename = file, mode = mode)
       if(close_all){
         f$close_all()
@@ -196,13 +214,10 @@ io_h5_valid <- function(file, mode = c('r', 'w'), close_all = FALSE){
         f$close()
       }
     } else {
-
-      if(mode == "w") {
-        mode <- "r+"
-      }
-      ptr <- h5py$File(file, mode = mode)
-      ptr$close()
+      # HDF5 not available, using filearray
+      stopifnot(dir_exists(alternative_h5_fname(file)))
     }
+
     TRUE
   }, error = function(e){
     FALSE
@@ -219,14 +234,10 @@ io_h5_names <- function(file){
   if(!io_h5_valid(file, 'r')){ return(FALSE) }
   file <- normalizePath(file, mustWork = TRUE)
 
-  h5py <- ensure_hdf5_backend()
+  h5backend <- ensure_hdf5_backend()
 
-  if(is.null(h5py)) {
-    f <- hdf5r::H5File$new(filename = file, mode = 'r')
-    on.exit({ f$close() })
-    names <- hdf5r::list.datasets(f)
-  } else {
-    ptr <- h5py$File(file, mode = "r")
+  if(inherits(h5backend, "python.builtin.module")) {
+    ptr <- h5backend$File(file, mode = "r")
     on.exit({
       tryCatch({
         ptr$close()
@@ -234,7 +245,7 @@ io_h5_names <- function(file){
     })
 
     rpymat <- asNamespace("rpymat")
-    group_classes <- rpymat$py_tuple(h5py$File, h5py$Group)
+    group_classes <- rpymat$py_tuple(h5backend$File, h5backend$Group)
 
     iter_func <- function(x, ...) {
       if(inherits(x, "python.builtin.object")) {
@@ -245,7 +256,7 @@ io_h5_names <- function(file){
         item <- x[[2]]
       }
 
-      if( py_isinstance(item, h5py$Dataset) ) {
+      if( py_isinstance(item, h5backend$Dataset) ) {
         return(name)
       }
 
@@ -261,6 +272,14 @@ io_h5_names <- function(file){
     ptr$close()
 
     names <- gsub("^[/]+", "", names)
+  } else if (isNamespace(h5backend)) {
+    f <- hdf5r::H5File$new(filename = file, mode = 'r')
+    on.exit({ f$close() })
+    names <- hdf5r::list.datasets(f)
+  } else {
+    names <- list.dirs(alternative_h5_fname(file), recursive = TRUE, full.names = FALSE)
+    names <- gsub("^[/\\\\]+", "", names)
+    names <- gsub("[/\\\\]+", "/", names)
   }
 
   names
