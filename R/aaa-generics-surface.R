@@ -954,9 +954,8 @@ plot.ieegio_surface <- function(
     }
   } else {
     if(identical(method, "auto")) {
-      if(package_installed("r3js")) {
-        method <- "r3js"
-      } else if (package_installed("rgl")) {
+      method <- "r3js"
+      if(!package_installed("r3js") && package_installed("rgl")) {
         method <- "rgl_basic"
       }
     }
