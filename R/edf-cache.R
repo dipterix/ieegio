@@ -1,6 +1,7 @@
 EBDFCache <- R6::R6Class(
   classname = "ieegio_EBDFCache",
   inherit = SignalDataCache,
+  cloneable = FALSE,
   private = list(
     .root_path = character(0L),
     assert_valid = function() {

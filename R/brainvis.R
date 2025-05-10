@@ -316,6 +316,9 @@ impl_read_brainvis <- function(
   # DIPSAUS DEBUG START
   # file <- "/Users/dipterix/PennNeurosurgery Dropbox/Zhengjia Wang/RAVE/Samples/bids/FragilityEEGDataset/sub-jh103/ses-presurgery/ieeg/sub-jh103_ses-presurgery_task-ictal_acq-ecog_run-01_ieeg.eeg"
   # extract_path <- NULL; header_only = FALSE; cache_ok=FALSE
+  # file = "/Users/dipterix/rave_data/openneuro/ds005953/./sub-01/ses-01/ieeg/sub-01_ses-01_task-visual_run-01_ieeg.vhdr"
+  # extract_path <- "/Users/dipterix/rave_data/raw_dir/ds005953_01/sub-01_ses-01_task-visual_run-01_ieeg"
+  # header_only = FALSE; cache_ok = TRUE; verbose = TRUE
 
   if(length(file) < 3) {
     file <- c(file, NA, NA)
@@ -475,7 +478,7 @@ impl_read_brainvis <- function(
   dimnames(arr) <- dnames
 
   # also write annotations
-  if(!is.null(annotations)) {
+  if(!is.null(annotations) && is.data.frame(annotations$MarkerInfos)) {
     io_write_fst(x = annotations$MarkerInfos, con = file_path(cache_path, "annot.fst"))
   }
 

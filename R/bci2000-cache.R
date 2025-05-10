@@ -2,6 +2,7 @@
 BCI2000Cache <- R6::R6Class(
   classname = "ieegio_BCI2000Cache",
   inherit = SignalDataCache,
+  cloneable = FALSE,
   private = list(
     .filearray = NULL,
     assert_valid = function() {

@@ -2,6 +2,7 @@
 BrainVisionCache <- R6::R6Class(
   classname = "ieegio_BrainVisionCache",
   inherit = SignalDataCache,
+  cloneable = FALSE,
   private = list(
     .filearray = NULL,
     assert_valid = function() {
