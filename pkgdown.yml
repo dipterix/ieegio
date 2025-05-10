@@ -1,10 +1,10 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.1.2
 pkgdown_sha: ~
 articles:
   read-ephys: read-ephys.html
   read-imaging-data: read-imaging-data.html
-last_built: 2025-04-02T06:23Z
+last_built: 2025-05-10T03:22Z
 urls:
   reference: http://dipterix.org/ieegio/reference
   article: http://dipterix.org/ieegio/articles
