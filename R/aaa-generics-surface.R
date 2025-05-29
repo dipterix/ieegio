@@ -1155,9 +1155,14 @@ write_surface <- function(
          is.numeric(face_start) && face_start != 1) {
         faces <- faces - face_start + 1L
       }
-      freesurferformats::write.fs.surface(
-        filepath = con, vertex_coords = vertices, faces = faces
-      )
+      # check if the format ends with STL
+      if(endsWith(tolower(con), ".stl")) {
+        write_binary_stl(x, con)
+      } else {
+        freesurferformats::write.fs.surface(
+          filepath = con, vertex_coords = vertices, faces = faces
+        )
+      }
     },
     "measurements" = {
       n_verts <- 0
