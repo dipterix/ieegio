@@ -49,13 +49,13 @@ write_binary_stl <- function(surf, file) {
   # 2) number of triangles (uint32 little-endian)
   writeBin(as.integer(n_tris), con, size = 4, endian = "little")
   # 3) for each triangle: normal (3 × float32), v1/v2/v3 (9 × float32)
-  all_floats <- rbind(
-    matrix(c(nx, ny, nz), nrow = 3, byrow = TRUE),
-    v1, v2, v3
-  )
-  writeBin(as.numeric(all_floats), con, size = 4, endian = "little")
-  # 4) per-facet attribute byte count (uint16 little-endian); we set to zero
-  writeBin(integer(n_tris), con, size = 2, endian = "little")
+  all_floats <- rbind(nx, ny, nz, v1, v2, v3)
+
+  apply(all_floats, 2, function(x) {
+    writeBin(as.numeric(x), con, size = 4, endian = "little")
+    writeBin(0L, con, size = 2, endian = "little")
+  })
+
   close(con)
   con_is_closed <- TRUE
   invisible(con)
