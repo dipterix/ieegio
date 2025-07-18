@@ -26,4 +26,5 @@ gifti/icosahedron3d/rand.gii
 gifti/icosahedron3d/ts.gii
 mat_v73.mat
 nwb_sample.nwb
+streamlines/CNVII_R.tck
 placeholder
