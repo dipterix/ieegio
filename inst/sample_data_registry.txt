@@ -24,7 +24,11 @@ gifti/icosahedron3d/geometry.gii
 gifti/icosahedron3d/rand.curv
 gifti/icosahedron3d/rand.gii
 gifti/icosahedron3d/ts.gii
+streamlines/CNVII_R.tck
+streamlines/CNVII_R.trk.gz
+streamlines/CNVII_R.trk
+streamlines/CNVII_R.tt
+streamlines/CNVII_R.tt.gz
 mat_v73.mat
 nwb_sample.nwb
-streamlines/CNVII_R.tck
 placeholder
