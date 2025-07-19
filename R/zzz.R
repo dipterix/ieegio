@@ -6,7 +6,10 @@ install_extras <- function() {
   lapply(sample_names, ieegio_sample_data)
 
   rpymat::configure_conda("3.11")
-  rpymat::add_packages(c("numpy", "pynwb", "pymatreader", "mat73"))
+  tryCatch({
+    rpymat::run_command("conda tos accept --channel https://repo.anaconda.com/pkgs/r --channel https://repo.anaconda.com/pkgs/main")
+  }, error = function(e) {})
+  rpymat::add_packages(c("numpy", "pynwb", "pymatreader", "mat73", "vtk"))
 }
 
 setup_test_env <- function() {

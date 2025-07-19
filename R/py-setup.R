@@ -107,6 +107,9 @@ ensure_py_package <- local({
     packages <- packages[!packages %in% installed_pkgs_tbl$package]
 
     if(length(packages)) {
+      tryCatch({
+        rpymat::run_command("conda tos accept --channel https://repo.anaconda.com/pkgs/r --channel https://repo.anaconda.com/pkgs/main")
+      }, error = function(e) {})
       rpymat::add_packages(packages, ...)
       installed_pkgs_tbl <<- rpymat::list_pkgs()
     }
