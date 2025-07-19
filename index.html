@@ -204,6 +204,43 @@
 <code>read_surface</code> (<code>io_read_fs(type="annotations")</code>)</td>
 <td align="center"><code>write_surface(format="freesurfer", type="annotations")</code></td>
 </tr>
+<tr class="odd">
+<td align="left">TRK streamlines</td>
+<td align="center">
+<code>*.trk</code>, <code>*.trk.gz</code>
+</td>
+<td align="center">
+<code>read_streamlines</code> (<code>io_read_trk</code>)</td>
+<td align="center">
+<code>write_streamlines</code> (<code>io_write_trk</code>)</td>
+</tr>
+<tr class="even">
+<td align="left">TCK streamlines</td>
+<td align="center"><code>*.tck</code></td>
+<td align="center">
+<code>read_streamlines</code> (<code>io_read_tck</code>)</td>
+<td align="center">
+<code>write_streamlines</code> (<code>io_write_tck</code>)</td>
+</tr>
+<tr class="odd">
+<td align="left">TT (<code>DSI-Studio</code>) streamlines</td>
+<td align="center">
+<code>*.tt</code>, <code>*.tt.gz</code>
+</td>
+<td align="center">
+<code>read_streamlines</code> (<code>io_read_tt</code>)</td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">VTK poly-data (as streamlines)</td>
+<td align="center">
+<code>*.vtk</code>, <code>*.vtp</code>, <code>*.vtpb</code>
+</td>
+<td align="center">
+<code>read_streamlines</code> (<code>io_read_vtk_streamlines</code>)</td>
+<td align="center">
+<code>read_streamlines</code> (<code>io_write_vtk_streamlines</code>)</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -298,7 +335,6 @@
 <li><a href="https://CRAN.R-project.org/package=ieegio" class="external-link"><img src="https://www.r-pkg.org/badges/version/ieegio" alt="CRAN status"></a></li>
 <li><a href="https://dipterix.r-universe.dev/ieegio" class="external-link"><img src="https://dipterix.r-universe.dev/badges/ieegio" alt="r-universe"></a></li>
 <li><a href="https://github.com/dipterix/ieegio/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/dipterix/ieegio/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
 </ul>
 </div>
 
