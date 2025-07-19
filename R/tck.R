@@ -101,8 +101,8 @@ io_read_tck <- function(file) {
   }
 
 
-  all_lines = NULL
-  valid_datatypes = c("Float32BE", "Float32LE", "Float64BE", "Float64LE")
+  all_lines <- NULL
+  valid_datatypes <- c("Float32BE", "Float32LE", "Float64BE", "Float64LE")
   datatype_text <- header_text[grepl("datatype:", header_text, ignore.case = TRUE)]
   datatype <- trimws(gsub("datatype:", "", datatype_text, ignore.case = TRUE))
 

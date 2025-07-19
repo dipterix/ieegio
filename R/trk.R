@@ -1,5 +1,5 @@
 read_char <- function(conn, n, to = "UTF-8") {
-  txt = readBin(conn, "raw", n)
+  txt <- readBin(conn, "raw", n)
   return(iconv(rawToChar(txt[txt != as.raw(0)]), to = to))
 }
 
@@ -90,8 +90,8 @@ io_read_trk <- function(file, half_voxel_offset = TRUE) {
   half_voxel_offset <- !isFALSE(as.logical(half_voxel_offset))
 
   parse_header <- function(fh, endian) {
-    trk = list(header = list(endian = endian))
-    trk$header$id_string = read_char(fh, 6L)
+    trk <- list(header = list(endian = endian))
+    trk$header$id_string <- read_char(fh, 6L)
 
     # Trick: using dim to determine if the endian should be flipped
     # This trick works when the dim < 32768 (2^15) as the integers are stored in signed short (int16)
@@ -104,12 +104,12 @@ io_read_trk <- function(file, half_voxel_offset = TRUE) {
       dim <- readBin(dim_raw, "integer", n = 3, size = 2, endian = endian, signed = TRUE)
     }
     trk$header$dim <- dim
-    trk$header$voxel_size = readBin(fh, numeric(), n = 3, size = 4, endian = endian)
-    trk$header$origin = readBin(fh, numeric(), n = 3, size = 4, endian = endian)
-    trk$header$n_scalars = readBin(fh, integer(), n = 1, size = 2, endian = endian)
-    trk$header$scalar_names = read_char(fh, 200L)
-    trk$header$n_properties = readBin(fh, integer(), n = 1, size = 2, endian = endian)
-    trk$header$property_names = read_char(fh, 200L)
+    trk$header$voxel_size <- readBin(fh, numeric(), n = 3, size = 4, endian = endian)
+    trk$header$origin <- readBin(fh, numeric(), n = 3, size = 4, endian = endian)
+    trk$header$n_scalars <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
+    trk$header$scalar_names <- read_char(fh, 200L)
+    trk$header$n_properties <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
+    trk$header$property_names <- read_char(fh, 200L)
     # https://github.com/niivue/niivue/issues/926
     mm2ras <- matrix(readBin(fh, numeric(), n = 16, size = 4, endian = endian), ncol = 4, byrow = TRUE)
     if(mm2ras[[16]] == 0) { mm2ras <- diag(1, 4) }
@@ -117,21 +117,21 @@ io_read_trk <- function(file, half_voxel_offset = TRUE) {
     if(half_voxel_offset) {
       vox2mm[1:3, 4] <- -0.5
     }
-    trk$header$vox2ras = mm2ras %*% vox2mm
-    trk$header$reserved = read_char(fh, 444L)
-    trk$header$voxel_order = read_char(fh, 4L)
-    trk$header$pad2 = read_char(fh, 4L)
-    trk$header$image_orientation_patient = readBin(fh, numeric(), n = 6, size = 4, endian = endian)
-    trk$header$pad1 = read_char(fh, 2L)
-    trk$header$invert_x = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
-    trk$header$invert_y = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
-    trk$header$invert_z = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
-    trk$header$swap_xy = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
-    trk$header$swap_yz = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
-    trk$header$swap_zx = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
-    trk$header$n_count = readBin(fh, integer(), n = 1, size = 4, endian = endian)
-    trk$header$version = readBin(fh, integer(), n = 1, size = 4, endian = endian)
-    trk$header$hdr_size = readBin(fh, integer(), n = 1, size = 4, endian = endian)
+    trk$header$vox2ras <- mm2ras %*% vox2mm
+    trk$header$reserved <- read_char(fh, 444L)
+    trk$header$voxel_order <- read_char(fh, 4L)
+    trk$header$pad2 <- read_char(fh, 4L)
+    trk$header$image_orientation_patient <- readBin(fh, numeric(), n = 6, size = 4, endian = endian)
+    trk$header$pad1 <- read_char(fh, 2L)
+    trk$header$invert_x <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+    trk$header$invert_y <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+    trk$header$invert_z <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+    trk$header$swap_xy <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+    trk$header$swap_yz <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+    trk$header$swap_zx <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+    trk$header$n_count <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
+    trk$header$version <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
+    trk$header$hdr_size <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
     trk
   }
 
@@ -172,7 +172,7 @@ io_read_trk <- function(file, half_voxel_offset = TRUE) {
   n_properties <- trk$header$n_properties
 
   tracks <- lapply(seq_len(trk$header$n_count), function(track_idx) {
-    current_track = list(scalars = NULL, properties = NULL, coords = NULL)
+    current_track <- list(scalars = NULL, properties = NULL, coords = NULL)
     num_points <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
     current_track$num_points <- num_points
 
@@ -193,7 +193,7 @@ io_read_trk <- function(file, half_voxel_offset = TRUE) {
     current_track
   })
 
-  trk$data = tracks
+  trk$data <- tracks
 
   class(trk) <- c("ieegio_streamlines_trk", "ieegio_streamlines")
 

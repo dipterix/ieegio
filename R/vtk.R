@@ -1,10 +1,10 @@
 #' @name io-vtk-streamlines
-#' @title Read or write streamline data in 'VTK' format
+#' @title Read or write streamline data in \code{'VTK'} format
 #' @description
 #' This reader uses 'Python' \code{'vtk'} package, supports \code{'.vtk'},
 #' \code{'.vtp'}, \code{'.pvtp'}, \code{'.vtpb'} formats.
-#' @param file,con file path to the 'VTK' file, the format will be inferred
-#' from the file extension (with default \code{'.vtk'})
+#' @param file,con file path to the \code{'VTK'} file, the format will be
+#' inferred from the file extension (with default \code{'.vtk'})
 #' @param x An \code{\link{imaging-streamlines}} object
 #' @param binary for legacy \code{'.vtk'} file only, whether to store the
 #' data as binary file or 'ASCII' plain text; default is true (binary).
@@ -74,7 +74,7 @@ io_read_vtk_streamlines <- function(file) {
       reader <- vtk[[reader_name]]()
       reader$SetFileName(file)
       reader$Update()
-      polydata = reader$GetOutput()
+      polydata <- reader$GetOutput()
       pointdata <- polydata$GetPoints()$GetData()
       linedata <- polydata$GetLines()$GetData()
       coords <<- py_to_r(vtk$util$numpy_support$vtk_to_numpy(pointdata))
@@ -167,11 +167,11 @@ io_write_vtk_streamlines <- function(x, con, binary = TRUE) {
   vtk_points$SetData(numpy_to_vtk(points, deep = TRUE))
 
   # Create vtkCellArray for lines
-  vtk_lines = vtk$vtkCellArray()
+  vtk_lines <- vtk$vtkCellArray()
   lines_py <- rpymat::r_to_py(matrix(lines, nrow = 1))
   lines_py <- lines_py$astype("int64")
 
-  vtk_line_array = numpy_to_vtkIdTypeArray(lines_py, deep=TRUE)
+  vtk_line_array <- numpy_to_vtkIdTypeArray(lines_py, deep=TRUE)
   vtk_lines$SetCells(n, vtk_line_array)
 
   # Create PolyData

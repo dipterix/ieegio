@@ -4,15 +4,15 @@
 \alias{io-vtk-streamlines}
 \alias{io_read_vtk_streamlines}
 \alias{io_write_vtk_streamlines}
-\title{Read or write streamline data in 'VTK' format}
+\title{Read or write streamline data in \code{'VTK'} format}
 \usage{
 io_read_vtk_streamlines(file)
 
 io_write_vtk_streamlines(x, con, binary = TRUE)
 }
 \arguments{
-\item{file, con}{file path to the 'VTK' file, the format will be inferred
-from the file extension (with default \code{'.vtk'})}
+\item{file, con}{file path to the \code{'VTK'} file, the format will be
+inferred from the file extension (with default \code{'.vtk'})}
 
 \item{x}{An \code{\link{imaging-streamlines}} object}
 
