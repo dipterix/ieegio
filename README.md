@@ -5,7 +5,6 @@
 [![CRAN status](https://www.r-pkg.org/badges/version/ieegio)](https://CRAN.R-project.org/package=ieegio)
 [![r-universe](https://dipterix.r-universe.dev/badges/ieegio)](https://dipterix.r-universe.dev/ieegio)
 [![R-CMD-check](https://github.com/dipterix/ieegio/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dipterix/ieegio/actions/workflows/R-CMD-check.yaml)
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 The goal of `ieegio` is to provide integrated toolbox for common file formats used in intracranial Electroencephalography (iEEG) and deep-brain stimulation (DBS). Currently the package is under active development.
@@ -60,6 +59,10 @@ The following formats have been (or will be) supported. Please feel free to make
 | FreeSurfer surface                                     | e.g. `*h.pial`, `*h.white` | `read_surface` (`io_read_fs(type="geometry")`)  | `write_surface(format="freesurfer", type="geometry")` |
 | FreeSurfer node values/weights                         | e.g. `*h.curv`, `*h.sulc`  | `read_surface` (`io_read_fs(type="measurements")`)  | `write_surface(format="freesurfer", type="measurements")` |
 | Surface annotation                                     | `*.annot`                  | `read_surface` (`io_read_fs(type="annotations")`)  | `write_surface(format="freesurfer", type="annotations")` |
+| TRK streamlines                                        | `*.trk`, `*.trk.gz`        | `read_streamlines` (`io_read_trk`)  | `write_streamlines` (`io_write_trk`) |
+| TCK streamlines                                        | `*.tck`                    | `read_streamlines` (`io_read_tck`)  | `write_streamlines` (`io_write_tck`) |
+| TT (`DSI-Studio`) streamlines                          | `*.tt`, `*.tt.gz`          | `read_streamlines` (`io_read_tt`)  |  |
+| VTK poly-data (as streamlines)                         | `*.vtk`, `*.vtp`, `*.vtpb` | `read_streamlines` (`io_read_vtk_streamlines`)  | `read_streamlines` (`io_write_vtk_streamlines`) |
 
 
 ## List 3: common file formats used for meta data
