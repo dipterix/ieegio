@@ -1159,9 +1159,8 @@ write_surface <- function(
       if(endsWith(tolower(con), ".stl")) {
         write_binary_stl(x, con)
       } else {
-        freesurferformats::write.fs.surface(
-          filepath = con, vertex_coords = vertices, faces = faces
-        )
+        # freesurferformats::write.fs.surface(filepath = con, vertex_coords = vertices, faces = faces)
+        io_write_fs_geometry(con = con, vertex_coords = vertices, faces = faces, transforms = x$geometry$transforms)
       }
     },
     "measurements" = {

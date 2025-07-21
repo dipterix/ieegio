@@ -239,6 +239,49 @@ io_read_fs <- function(file, type = c("geometry", "annotations", "measurements")
 
 }
 
+io_write_fs_geometry <- function(con, vertex_coords, faces, transforms = NULL) {
+  # vertices <- t(x$geometry$vertices[1:3, , drop = FALSE])
+  # faces <- t(x$geometry$faces)
+  # face_start <- x$geometry$face_start
+  # if(length(face_start) == 1 && !is.na(face_start) &&
+  #    is.numeric(face_start) && face_start != 1) {
+  #   faces <- faces - face_start + 1L
+  # }
+  freesurferformats::write.fs.surface(filepath = con, vertex_coords = vertex_coords, faces = faces)
+
+  # get tkr-to-scan transform
+  # transforms <- x$geometry$transforms
+  tkr2ras <- NULL
+  if(is.matrix(transforms)) {
+    tkr2ras <- transforms
+  } else if(is.list(transforms)) {
+    if(length(transforms$ScannerAnat) == 16) {
+      tkr2ras <- transforms$ScannerAnat
+    } else if( length(transforms) ) {
+      tkr2ras <- transforms[[1]]
+    }
+  }
+  if(length(tkr2ras) == 16 && sum((tkr2ras[1:3, 4]) ^ 2) > 1e-4) {
+    # write comments
+    cras <- sprintf("%.15e", tkr2ras[1:3, 4])
+
+    str <- c(
+      "valid = 1  # volume info valid",
+      "filename = ../mri/orig.mgz",
+      "volume = 256 256 256",
+      "voxelsize = 1.000000000000000e+00 1.000000000000000e+00 1.000000000000000e+00",
+      "xras   = -1.000000000000000e+00 0.000000000000000e+00 0.000000000000000e+00",
+      "yras   = 0.000000000000000e+00 0.000000000000000e+00 -1.000000000000000e+00",
+      "zras   = 0.000000000000000e+00 1.000000000000000e+00 0.000000000000000e+00",
+      sprintf("cras   = %s", paste(cras, collapse = " "))
+    )
+
+    conn <- file(con, open = 'ab')
+    on.exit({ close(conn) })
+    writeBin(charToRaw(paste(str, collapse = "\n")), con = conn)
+  }
+}
+
 io_write_fs <- function(x, con, type = c("geometry", "annotations", "measurements"),
                         name = 1L, ...) {
 
@@ -273,7 +316,8 @@ io_write_fs <- function(x, con, type = c("geometry", "annotations", "measurement
          is.numeric(face_start) && face_start != 1) {
         faces <- faces - face_start + 1L
       }
-      freesurferformats::write.fs.surface(filepath = con, vertex_coords = vertices, faces = faces)
+      # freesurferformats::write.fs.surface(filepath = con, vertex_coords = vertices, faces = faces)
+      io_write_fs_geometry(con = con, vertex_coords = vertices, faces = faces, transforms = x$geometry$transforms)
     },
     "annotations" = {
       nms <- names(x$annotations$data_table)
