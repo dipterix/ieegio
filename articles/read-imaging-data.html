@@ -75,6 +75,8 @@ imaging formats:</p>
 </li>
 <li>Surface: <code>GIfTI</code> &amp; <code>FreeSurfer</code> geometry,
 annotation, curvature/measurement, <code>w</code> format</li>
+<li>Streamlines: <code>TRK</code>, <code>TCK</code>, <code>TT</code>
+(read-only), <code>VTK</code>, <code>VTP</code>, …</li>
 </ul>
 <p>To start, please load <code>ieegio</code>. This vignette uses sample
 data which requires extra download.</p>
@@ -95,10 +97,20 @@ data which requires extra download.</p>
 <span></span>
 <span><span class="co"># time series</span></span>
 <span><span class="va">ts_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span></span>
-<span>  <span class="st">"gifti/icosahedron3d/ts.gii"</span><span class="op">)</span></span></code></pre></div>
-<div class="section level2">
-<h2 id="volume-files">Volume files<a class="anchor" aria-label="anchor" href="#volume-files"></a>
-</h2>
+<span>  <span class="st">"gifti/icosahedron3d/ts.gii"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># streamlines</span></span>
+<span><span class="va">trk_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span></span>
+<span>  <span class="st">"streamlines/CNVII_R.trk"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tck_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span></span>
+<span>  <span class="st">"streamlines/CNVII_R.tck"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tt_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span></span>
+<span>  <span class="st">"streamlines/CNVII_R.tt"</span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="volume-files">Volume files<a class="anchor" aria-label="anchor" href="#volume-files"></a>
+</h3>
 <p><code><a href="../reference/imaging-volume.html">ieegio::read_volume</a></code> and
 <code><a href="../reference/imaging-volume.html">ieegio::write_volume</a></code> provides high-level interfaces for
 reading and writing volume data such as <code>MRI</code>,
@@ -152,9 +164,9 @@ example,</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="read-imaging-data_files/figure-html/plot_volume-1.png" width="95%"></p>
 </div>
-<div class="section level2">
-<h2 id="surface-files">Surface files<a class="anchor" aria-label="anchor" href="#surface-files"></a>
-</h2>
+<div class="section level3">
+<h3 id="surface-files">Surface files<a class="anchor" aria-label="anchor" href="#surface-files"></a>
+</h3>
 <p>Reading surface file using <code>read_surface</code> supports
 multiple data types</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -213,6 +225,40 @@ measurement</p>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="r3js html-widget html-fill-item" id="htmlwidget-e5c8c404fe174e4c81bd" style="width:100%;height:432.632880098888px;"></div>
 <script type="application/json" data-for="htmlwidget-e5c8c404fe174e4c81bd">{"x":{"data3js":{"ticks":[{},{},{}],"ID":"g5fivj57qv4af7ayh65s","scene":{"background":{"r":[1],"g":[1],"b":[1],"a":[1]},"rotation":[0,0,0],"zoom":3,"translation":[0,0,0]},"lims":[[-50,50],[-50,50],[-50,50]],"aspect":[1,1,1],"light":[{"type":["light"],"lighttype":"ambient","intensity":0.3,"color":{"r":[1],"g":[1],"b":[1],"a":[1]}},{"type":["light"],"lighttype":"directional","position":[1,0,0],"intensity":0.3,"color":{"r":[1],"g":[1],"b":[1],"a":[1]}},{"type":["light"],"lighttype":"directional","position":[-1,0,0],"intensity":0.3,"color":{"r":[1],"g":[1],"b":[1],"a":[1]}},{"type":["light"],"lighttype":"directional","position":[0,1,0],"intensity":0.3,"color":{"r":[1],"g":[1],"b":[1],"a":[1]}},{"type":["light"],"lighttype":"directional","position":[0,-1,0],"intensity":0.3,"color":{"r":[1],"g":[1],"b":[1],"a":[1]}},{"type":["light"],"lighttype":"directional","position":[0,0,1],"intensity":0.3,"color":{"r":[1],"g":[1],"b":[1],"a":[1]}},{"type":["light"],"lighttype":"directional","position":[0,0,-1],"intensity":0.3,"color":{"r":[1],"g":[1],"b":[1],"a":[1]}}],"lastID":[1],"plot":[{"type":["shape"],"vertices":[[0,30.9017,50],[0,30.9017,-50],[0,-30.9017,50],[0,-30.9017,-50],[30.9017,50,0],[30.9017,-50,0],[-30.9017,50,0],[-30.9017,-50,0],[50,0,30.9017],[-50,0,30.9017],[50,0,-30.9017],[-50,0,-30.9017]],"faces":[[0,2,8],[0,8,4],[0,4,6],[0,6,9],[0,9,2],[3,11,1],[3,1,10],[3,10,5],[3,5,7],[3,7,11],[8,2,5],[4,8,10],[6,4,1],[9,6,11],[2,9,7],[1,11,6],[10,1,4],[5,10,8],[7,5,2],[11,7,9]],"properties":{"mat":"phong","color":{"r":[0.8745,0.8078,0.9608,0.7373,0.9255,0.0196,0.4039,0.7647,0.9765,0.6627,0.4078,0.4706],"g":[0.9294,0.8902,0.6902,0.1765,0.5765,0.1882,0,0.2314,0.7647,0.8157,0.6667,0.0196],"b":[0.9569,0.9373,0.5647,0.2078,0.4549,0.3804,0.1216,0.2314,0.6627,0.8941,0.8118,0.1294],"a":[1,1,1,1,1,1,1,1,1,1,1,1]},"opacity":1,"xpd":true,"lwd":1,"transparent":false,"frontSide":true,"backSide":true,"shininess":30},"ID":[1]}],"legend":["<div style=\"position:absolute; bottom:12px; left:12px; white-space:normal;\">\n  <div style=\"line-height:14px; margin:4px;\">\n    <div style=\"line-height:14px;width:14px;height:14px;background-color:NA;display:inline-block;\"><\/div>\n    <div style=\"font-family:sans-serif;font-size:14px;display:inline-block;\">Slice 1<\/div>\n  <\/div>\n<\/div>"]},"settings":{"styles":[],"title":"Slice 1","ID":"g5fivj57qv4af7ayh65s"}},"evals":[],"jsHooks":{"render":[{"code":"function(el, x, data) {\n        var div = document.createElement('div');\n        div.innerHTML      = `<div style=\"position:absolute; bottom:12px; left:12px; white-space:normal;\">\n  <div style=\"line-height:14px; margin:4px;\">\n    <div style=\"line-height:14px;width:14px;height:14px;background-color:NA;display:inline-block;\"><\/div>\n    <div style=\"font-family:sans-serif;font-size:14px;display:inline-block;\">Slice 1<\/div>\n  <\/div>\n<\/div>`;\n        div.racviewer      = el.viewer;\n        el.viewer.viewport.div.appendChild(div);\n      }","data":null}]}}</script>
+</div>
+<div class="section level2">
+<h2 id="streamline-files">Streamline files<a class="anchor" aria-label="anchor" href="#streamline-files"></a>
+</h2>
+<p>Reading streamlines via universal entry function
+<code>read_streamlines</code></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">trk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/imaging-streamlines.html">read_streamlines</a></span><span class="op">(</span><span class="va">trk_file</span>, half_voxel_offset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">tck</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/imaging-streamlines.html">read_streamlines</a></span><span class="op">(</span><span class="va">tck_file</span><span class="op">)</span></span>
+<span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/imaging-streamlines.html">read_streamlines</a></span><span class="op">(</span><span class="va">tt_file</span><span class="op">)</span></span></code></pre></div>
+<p>To obtain the streamline data</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Total number of streamlines: "</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">trk</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Total number of streamlines: 54</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">trk</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">coords</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          [,1]      [,2]      [,3]</span></span>
+<span><span class="co">#&gt; [1,] 37.81250 -26.12500 -34.87500</span></span>
+<span><span class="co">#&gt; [2,] 37.37500 -26.28125 -34.96875</span></span>
+<span><span class="co">#&gt; [3,] 36.90625 -26.43750 -35.06250</span></span>
+<span><span class="co">#&gt; [4,] 36.43750 -26.62500 -35.18750</span></span>
+<span><span class="co">#&gt; [5,] 35.96875 -26.78125 -35.28125</span></span>
+<span><span class="co">#&gt; [6,] 35.53125 -26.93750 -35.37500</span></span></code></pre></div>
+<p>To preview the streamline data</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"navy"</span>, <span class="st">"grey"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">trk</span>, col <span class="op">=</span> <span class="fu">pal</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">trk</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="read-imaging-data_files/figure-html/streamline_plot-1.png" width="100%"></p>
+<p>To write the streamlines, for example, write <code>tck</code> file to
+<code>trk</code> file:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create a temporary file</span></span>
+<span><span class="va">tfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".trk"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/imaging-streamlines.html">write_streamlines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">tck</span>, con <span class="op">=</span> <span class="va">tfile</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
