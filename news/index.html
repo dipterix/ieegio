@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.4.9011</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,16 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.5" id="ieegio-005">ieegio 0.0.5<a class="anchor" aria-label="anchor" href="#ieegio-005"></a></h2>
 <ul><li>Added <code>LazyFST</code> class</li>
+<li>Fixed a bug where <code>gzipped</code> is ignored in <code>io_write_nii.array</code>
+</li>
+<li>
+<code>LazyH5</code> fall back to alternatives when <code>HDF5</code> is not supported in <code>wasm</code>
+</li>
+<li>Plotting surfaces use <code>r3js</code> by default</li>
+<li>Fixed <code>BrainVision</code> annotation bugs</li>
+<li>Supported writing to <code>STL</code> format (to support importing to <code>BrainLab</code>)</li>
+<li>Added supports to read streamlines data (<code>trk</code>, <code>tck</code>, <code>tt</code>, <code>vtk</code>)</li>
+<li>Writing to <code>freesurfer</code> surfaces also appends orientation information at the end.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.4" id="ieegio-004">ieegio 0.0.4<a class="anchor" aria-label="anchor" href="#ieegio-004"></a></h2><p class="text-muted">CRAN release: 2025-03-07</p>
