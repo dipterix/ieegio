@@ -35,6 +35,7 @@ if(identical(Sys.getenv("IEEGIO_PKGDOWN", unset = ""), "")) {
 
 * Volume: `NIfTI` & `FreeSurfer MGH/MGZ`
 * Surface: `GIfTI` & `FreeSurfer` geometry, annotation, curvature/measurement, `w` format
+* Streamlines: `TRK`, `TCK`, `TT` (read-only), `VTK`, `VTP`, ...
 
 To start, please load `ieegio`. This vignette uses sample data which requires extra download.
 
@@ -58,6 +59,15 @@ shape_file <- ieegio_sample_data(
 ts_file <- ieegio_sample_data(
   "gifti/icosahedron3d/ts.gii")
 
+# streamlines
+trk_file <- ieegio_sample_data(
+  "streamlines/CNVII_R.trk")
+
+tck_file <- ieegio_sample_data(
+  "streamlines/CNVII_R.tck")
+
+tt_file <- ieegio_sample_data(
+  "streamlines/CNVII_R.tt")
 ```
 
 
@@ -150,4 +160,42 @@ plot(
 )
 ```
 
+# Streamline files
 
+Reading streamlines via universal entry function `read_streamlines`
+
+```{r read_streamlines, results='hide'}
+trk <- read_streamlines(trk_file, half_voxel_offset = TRUE)
+tck <- read_streamlines(tck_file)
+tt <- read_streamlines(tt_file)
+```
+
+To obtain the streamline data
+
+```{r streamline_subset}
+message("Total number of streamlines: ", length(trk))
+
+head(trk[[1]]$coords)
+```
+
+To preview the streamline data
+
+```{r streamline_plot, out.width="100%", fig.width = 9, fig.height=3}
+pal <- colorRampPalette(c("navy", "grey", "red"))
+plot(trk, col = pal(length(trk)))
+```
+
+
+To write the streamlines, for example, write `tck` file to `trk` file:
+
+```{r streamline_write}
+# Create a temporary file
+tfile <- tempfile(fileext = ".trk")
+write_streamlines(x = tck, con = tfile)
+```
+
+```{r streamline_cleanup, echo = FALSE, results='hide'}
+if(file.exists(tfile)) {
+  unlink(tfile)
+}
+```
