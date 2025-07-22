@@ -1,6 +1,13 @@
 # ieegio 0.0.5
 
 * Added `LazyFST` class
+* Fixed a bug where `gzipped` is ignored in `io_write_nii.array`
+* `LazyH5` fall back to alternatives when `HDF5` is not supported in `wasm`
+* Plotting surfaces use `r3js` by default
+* Fixed `BrainVision` annotation bugs
+* Supported writing to `STL` format (to support importing to `BrainLab`)
+* Added supports to read streamlines data (`trk`, `tck`, `tt`, `vtk`)
+* Writing to `freesurfer` surfaces also appends orientation information at the end.
 
 # ieegio 0.0.4
 
