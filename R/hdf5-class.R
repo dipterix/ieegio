@@ -75,15 +75,15 @@ ensure_hdf5_backend <- local({
 
 
 h5FileValid <- function(filename){
-  if(!length(filename)){ return(FALSE) }
+  if(!length(filename)){ return(structure(FALSE, reasons = "file length must be one")) }
   filename <- filename[[1]]
 
 
   h5backend <- ensure_hdf5_backend()
 
   if(!is.null(h5backend)) {
-    if(!file.exists(filename)){ return(FALSE) }
-    if(isTRUE(file.info(filename)[['isdir']])){ return(FALSE) }
+    if(!file.exists(filename)){ return(structure(FALSE, reasons = "file must exist")) }
+    if(isTRUE(file.info(filename)[['isdir']])){ return(structure(FALSE, reasons = "file length must not be a directory")) }
 
     filename <- normalizePath(filename)
 
@@ -93,7 +93,9 @@ h5FileValid <- function(filename){
     } else if(isNamespace(h5backend)){
       return(tryCatch({
         hdf5r::is.h5file(filename)
-      }, error = function(e){ FALSE }))
+      }, error = function(e){
+        structure(FALSE, reasons = e$message)
+      }))
     }
   } else {
     return(dir.exists(alternative_h5_fname(filename)))
@@ -178,9 +180,15 @@ LazyH5 <- R6::R6Class(
       # First get absolute path, otherwise hdf5r may report file not found error
       private$file <- normalizePath(file_path, mustWork = FALSE)
       if(read_only){
-
-        if( !h5FileValid(private$file) ) {
-          stop("File is not an HDF5 file.")
+        is_h5_valid <- h5FileValid(private$file)
+        if(!is_h5_valid) {
+          reasons <- attr(is_h5_valid, "reasons")
+          if(length(reasons)) {
+            reasons <- sprintf(" Reasons: %s", paste(reasons, collapse = "\n"))
+          } else {
+            reasons <- ""
+          }
+          stop("File `", file_path, "` is not an HDF5 file.", reasons)
         }
       }else{
         private$file <- file_path

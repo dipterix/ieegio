@@ -1,3 +1,7 @@
+# ieegio 0.0.6
+
+* Added `write_edf` to save signals as continuous `EDF` format
+
 # ieegio 0.0.5
 
 * Added `LazyFST` class
