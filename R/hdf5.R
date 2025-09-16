@@ -63,7 +63,11 @@ io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE)
     # If read_only, then copy the file to local directory
     tmpf <- tempfile(fileext = 'conflict.h5')
     file.copy(file, tmpf)
-    LazyH5$new(file_path = tmpf, data_name = name, read_only = read_only)
+    tryCatch({
+      LazyH5$new(file_path = tmpf, data_name = name, read_only = read_only)
+    }, error = function(e2) {
+      stop(e)
+    })
   })
 
   if(ram){
