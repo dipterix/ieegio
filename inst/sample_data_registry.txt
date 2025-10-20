@@ -5,6 +5,8 @@ brainvis.dat
 brainvis.vhdr
 brainvis.vmrk
 edfPlusD.edf
+atlases/YBA/YBA690.nii.gz
+atlases/YBA/YBA_690_parcel_dict.csv
 nifti/rnifti_example.nii.gz
 nifti/rnifti_example_rgb.nii.gz
 nifti/rnifti_example_4d.nii.gz
