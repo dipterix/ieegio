@@ -35,9 +35,9 @@ The following formats have been (or will be) supported. Please feel free to make
 
 **Electrophysiology**
 
-| Name                                    | Common Extensions                       | Read            | Write |
-|:----------------------------------------|:---------------------------------------:|:---------------:|:-----:|
-| EDF(+)/BDF(+) (European Data Format)    | `*.edf`                                 | `read_edf`      |       |
+| Name                                    | Common Extensions                       | Read            | Write            |
+|:----------------------------------------|:---------------------------------------:|:---------------:|:----------------:|
+| EDF(+)/BDF(+) (European Data Format)    | `*.edf`                                 | `read_edf`      | `write_edf`      |
 | BrainVision                             | `*.vhdr`, `*.vmrk`, `*.eeg`, `*.dat`    | `read_brainvis` |       |
 | BCI2000                                 | `*.dat`                                 | `read_bci2000`  |       |
 | NEV/NSx (BlackRock neural-event/signal) | `*.nev`, `*.ns1`, `*.ns2`, ..., `*.ns6` | `read_nsx`      |       |

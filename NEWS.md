@@ -1,6 +1,8 @@
 # ieegio 0.0.6
 
 * Added `write_edf` to save signals as continuous `EDF` format
+* Added `YBA` atlas (690 segments) to example data
+* Improved `HDF5` checking error messages
 
 # ieegio 0.0.5
 
