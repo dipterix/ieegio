@@ -1,0 +1,86 @@
+# Download sample files
+
+Download sample files
+
+## Usage
+
+``` r
+ieegio_sample_data(file, test = FALSE, cache_ok = TRUE)
+```
+
+## Arguments
+
+- file:
+
+  file to download; set to `NULL` to view all possible files
+
+- test:
+
+  test whether the sample file exists instead of downloading them;
+  default is `FALSE`
+
+- cache_ok:
+
+  whether to use cache
+
+## Value
+
+When `test` is false, returns downloaded file path (character); when
+`test` is true, returns whether the expected sample exists (logical).
+
+## Examples
+
+``` r
+# list available files
+ieegio_sample_data()
+#> Available sample files:
+#> 
+#>   - bci2k.dat
+#>   - brain.demosubject.mgz
+#>   - brain.demosubject.nii.gz
+#>   - brainvis.dat
+#>   - brainvis.vhdr
+#>   - brainvis.vmrk
+#>   - edfPlusD.edf
+#>   - atlases/YBA/YBA690.nii.gz
+#>   - atlases/YBA/YBA_690_parcel_dict.csv
+#>   - nifti/rnifti_example.nii.gz
+#>   - nifti/rnifti_example_rgb.nii.gz
+#>   - nifti/rnifti_example_4d.nii.gz
+#>   - gifti/ASCII/fmri_sujet01_Lwhite_projection.time.gii
+#>   - gifti/ASCII/sujet01_Lwhite.inflated.surf.gii
+#>   - gifti/ASCII/sujet01_Lwhite.shape.gii
+#>   - gifti/ASCII/sujet01_Lwhite.surf.gii
+#>   - gifti/Base64/fmri_sujet01_Lwhite_projection.time.gii
+#>   - gifti/Base64/sujet01_Lwhite.inflated.surf.gii
+#>   - gifti/Base64/sujet01_Lwhite.shape.gii
+#>   - gifti/Base64/sujet01_Lwhite.surf.gii
+#>   - gifti/GzipBase64/fmri_sujet01_Lwhite_projection.time.gii
+#>   - gifti/GzipBase64/sujet01_Lwhite.inflated.surf.gii
+#>   - gifti/GzipBase64/sujet01_Lwhite.shape.gii
+#>   - gifti/GzipBase64/sujet01_Lwhite.surf.gii
+#>   - gifti/icosahedron3d/geometry.gii
+#>   - gifti/icosahedron3d/rand.curv
+#>   - gifti/icosahedron3d/rand.gii
+#>   - gifti/icosahedron3d/ts.gii
+#>   - streamlines/CNVII_R.tck
+#>   - streamlines/CNVII_R.trk.gz
+#>   - streamlines/CNVII_R.trk
+#>   - streamlines/CNVII_R.tt
+#>   - streamlines/CNVII_R.tt.gz
+#>   - mat_v73.mat
+#>   - nwb_sample.nwb
+#>   - placeholder
+#> 
+
+# check if file edfPlusD.edf exists
+ieegio_sample_data("edfPlusD.edf", test = TRUE)
+#> /home/runner/.cache/R/ieegio/sample_data/edfPlusD.edf 
+#>                                                  TRUE 
+
+if (FALSE) { # \dontrun{
+
+ieegio_sample_data("edfPlusD.edf")
+
+} # }
+```
