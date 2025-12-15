@@ -191,6 +191,22 @@ write_volume(vol, f, format = "mgh")
 unlink(f)
 unlink(f2)
 
+# ---- Special case in WebAsssembly --------------------------------
+# oro.nifti backend is always used
+
+# Emulate WebAssemply when RNifti is unavailable, using oro.nifti instead
+old_opt <- options("ieegio.debug.emscripten" = TRUE)
+on.exit({ options(old_opt) }, add = TRUE)
+
+
+# In WebAssemply, RNifti is not available, using oro.nifti instead
+vol <- read_volume(file)
+
+stopifnot(vol$type[[1]] == "oro")
+
+# Cleanup: make sure the options are reset
+options(old_opt)
+
 }
 
 }

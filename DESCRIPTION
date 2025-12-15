@@ -1,6 +1,6 @@
 Package: ieegio
 Title: File IO for Intracranial Electroencephalography
-Version: 0.0.6
+Version: 0.0.6.1
 Language: en-US
 Encoding: UTF-8
 Authors@R: 
@@ -16,7 +16,7 @@ URL: http://dipterix.org/ieegio/
 BugReports: https://github.com/dipterix/ieegio/issues
 License: MIT + file LICENSE
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports: 
     data.table (>= 1.16.0),
     digest,

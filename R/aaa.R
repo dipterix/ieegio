@@ -102,6 +102,9 @@ drop_nulls <- function (x) {
   x[!vapply(x, is.null, FUN.VALUE = logical(1))]
 }
 
+`%||%` <- function (x, y) {
+  if (is.null(x)) y else x
+}
 
 ieegio_debug <- function(..., .on = NA) {
   if(isFALSE(.on)) {

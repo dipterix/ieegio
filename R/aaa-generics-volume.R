@@ -292,6 +292,22 @@ names.ieegio_volume <- function(x) {
 #' unlink(f)
 #' unlink(f2)
 #'
+#' # ---- Special case in WebAsssembly --------------------------------
+#' # oro.nifti backend is always used
+#'
+#' # Emulate WebAssemply when RNifti is unavailable, using oro.nifti instead
+#' old_opt <- options("ieegio.debug.emscripten" = TRUE)
+#' on.exit({ options(old_opt) }, add = TRUE)
+#'
+#'
+#' # In WebAssemply, RNifti is not available, using oro.nifti instead
+#' vol <- read_volume(file)
+#'
+#' stopifnot(vol$type[[1]] == "oro")
+#'
+#' # Cleanup: make sure the options are reset
+#' options(old_opt)
+#'
 #' }
 #'
 #' @export
@@ -879,6 +895,35 @@ length.ieegio_volume <- function(x) {
 #'
 #'
 #'
+#' # ---- When RNifti package is not available ---------------------------
+#'
+#' # Emulate WebAssemply when RNifti is unavailable, using oro.nifti instead
+#' old_opt <- options("ieegio.debug.emscripten" = TRUE)
+#' on.exit({ options(old_opt) }, add = TRUE)
+#'
+#' shape <- c(50, 50, 50)
+#' vox2ras <- matrix(
+#'   c(-1, 0, 0, 25,
+#'     0, 0, 1, -25,
+#'     0, -1, 0, 25,
+#'     0, 0, 0, 1),
+#'   nrow = 4, byrow = TRUE
+#' )
+#'
+#' # continuous
+#' x <- array(rnorm(125000), shape)
+#'
+#' # In WebAssemply, RNifti is not available, using oro.nifti instead
+#' volume <- as_ieegio_volume(x, vox2ras = vox2ras)
+#'
+#' stopifnot(volume$type[[1]] == "oro")
+#'
+#' plot(volume, zoom = 3, pixel_width = 0.5)
+#'
+#' # Cleanup: make sure the options are reset
+#' options(old_opt)
+#'
+#'
 #' @export
 as_ieegio_volume <- function(x, ...) {
   UseMethod("as_ieegio_volume")
@@ -954,6 +999,7 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
     }
     type <- c("rnifti", "rgba", "nifti")
   } else {
+    # check if we should use oro.nifti (when RNifti is not available)
     x[is.na(x)] <- 0
     rg <- range(x)
 
@@ -981,8 +1027,7 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
     type <- c("rnifti", "nifti")
   }
 
-
-  header <- RNifti::asNifti(x, reference = list(
+  reference <- list(
     xyzt_units = 10L,
     datatype = datatype_code,
     bitpix = compute_nifti_bitpix(datatype_code),
@@ -1000,9 +1045,54 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
     srow_z = vox2ras[3, ],
     regular = "r",
     ...
-  ))
+  )
 
-  meta <- RNifti::niftiHeader(header)
+  use_oro <- FALSE
+  if(!as_color && (get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE))) {
+    # This is running for WASM (special as RNifti is not available in WASM)
+    use_oro <- TRUE
+    header <- oro.nifti::as.nifti(x)
+    header@xyzt_units <- reference$xyzt_units
+    header@datatype <- reference$datatype
+    header@bitpix <- reference$bitpix
+    header@qform_code <- reference$qform_code
+    header@sform_code <- reference$sform_code
+    header@pixdim <- reference$pixdim
+    header@quatern_b <- reference$quatern_b
+    header@quatern_c <- reference$quatern_c
+    header@quatern_d <- reference$quatern_d
+    header@qoffset_x <- reference$qoffset_x
+    header@qoffset_y <- reference$qoffset_y
+    header@qoffset_z <- reference$qoffset_z
+    header@srow_x <- reference$srow_x
+    header@srow_y <- reference$srow_y
+    header@srow_z <- reference$srow_z
+    header@regular <- reference$regular
+
+    header@slice_start <- reference$slice_start %||% header@slice_start
+    header@slice_end <- reference$slice_end %||% header@slice_end
+    header@slice_code <- reference$slice_code %||% header@slice_code
+    header@slice_duration <- reference$slice_duration %||% header@slice_duration
+
+    header@scl_slope <- reference$scl_slope %||% header@scl_slope
+    header@scl_inter <- reference$scl_inter %||% header@scl_inter
+
+    header@cal_max <- reference$cal_max %||% header@cal_max
+    header@cal_min <- reference$cal_min %||% header@cal_min
+
+    header@toffset <- reference$toffset %||% header@toffset
+    header@magic <- reference$magic %||% header@magic
+    header@intent_name <- reference$intent_name %||% header@intent_name
+    header@glmax <- reference$glmax %||% header@glmax
+    header@glmin <- reference$glmin %||% header@glmin
+    header@descrip <- reference$descrip %||% header@descrip
+    header@aux_file <- reference$aux_file %||% header@aux_file
+
+  } else {
+    header <- RNifti::asNifti(x, reference = reference)
+  }
+
+  meta <- as_nifti_header(header)
 
   # vox2ras_tkr
   # vox2ras_tkr <- vox2ras
@@ -1018,19 +1108,30 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
     vox2fsl = vox2fsl
   )
 
-  new_volume(
-    type = type,
-    header = header,
-    meta = meta,
-    transforms = transforms,
-    shape = shape,
-    data = quote({
-      v <- header[drop = FALSE]
-      class(v) <- "array"
-      attr(v, ".nifti_image_ptr") <- NULL
-      v
-    })
-  )
+  if( use_oro ) {
+    new_volume(
+      type = c("oro", "nifti"),
+      header = header,
+      meta = meta,
+      transforms = transforms,
+      shape = shape,
+      data = quote({ header@.Data })
+    )
+  } else {
+    new_volume(
+      type = type,
+      header = header,
+      meta = meta,
+      transforms = transforms,
+      shape = shape,
+      data = quote({
+        v <- header[drop = FALSE]
+        class(v) <- "array"
+        attr(v, ".nifti_image_ptr") <- NULL
+        v
+      })
+    )
+  }
 
 }
 
@@ -1318,7 +1419,7 @@ merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_
     re$header$slice_duration <- original_meta$slice_duration
   }
 
-  re$original_meta <- RNifti::niftiHeader(re$header)
+  re$original_meta <- as_nifti_header(re$header)
   re
 
 }

@@ -76,4 +76,33 @@ plot(rgb, zoom = 3, pixel_width = 0.5)
 
 
 
+# ---- When RNifti package is not available ---------------------------
+
+# Emulate WebAssemply when RNifti is unavailable, using oro.nifti instead
+old_opt <- options("ieegio.debug.emscripten" = TRUE)
+on.exit({ options(old_opt) }, add = TRUE)
+
+shape <- c(50, 50, 50)
+vox2ras <- matrix(
+  c(-1, 0, 0, 25,
+    0, 0, 1, -25,
+    0, -1, 0, 25,
+    0, 0, 0, 1),
+  nrow = 4, byrow = TRUE
+)
+
+# continuous
+x <- array(rnorm(125000), shape)
+
+# In WebAssemply, RNifti is not available, using oro.nifti instead
+volume <- as_ieegio_volume(x, vox2ras = vox2ras)
+
+stopifnot(volume$type[[1]] == "oro")
+
+plot(volume, zoom = 3, pixel_width = 0.5)
+
+# Cleanup: make sure the options are reset
+options(old_opt)
+
+
 }

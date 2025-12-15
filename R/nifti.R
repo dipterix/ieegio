@@ -436,13 +436,102 @@ as_nifti_intent <- function(x) {
   x
 }
 
+#' Internal method to extract header information from a 'NIfTI' file
+#' @param x file path or an R object
+#' @returns A list containing the file header information
+#'
+#' @export
+as_nifti_header <- function(x) {
+  UseMethod("as_nifti_header")
+}
+
+# From RNifti
+#' @export
+as_nifti_header.niftiHeader <- function(x) {
+  x
+}
+
+# from oro.nifti
+#' @export
+as_nifti_header.nifti <- function(x) {
+  if(get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE)) {
+    hdr <- x
+    structure(
+      list(
+        sizeof_hdr = as.integer(hdr@sizeof_hdr),
+        dim_info = 0L,
+        dim = as.integer(hdr@dim_),
+        intent_p1 = hdr@intent_p1,
+        intent_p2 = hdr@intent_p2,
+        intent_p3 = hdr@intent_p3,
+        intent_code = as.integer(hdr@intent_code),
+        datatype = as.integer(hdr@datatype),
+        bitpix = as.integer(hdr@bitpix),
+        slice_start = as.integer(hdr@slice_start),
+        pixdim = hdr@pixdim,
+        vox_offset = hdr@vox_offset,
+        scl_slope = hdr@scl_slope,
+        scl_inter = hdr@scl_inter,
+        slice_end = as.integer(hdr@slice_end),
+        slice_code = as.integer(hdr@slice_code),
+        xyzt_units = as.integer(hdr@xyzt_units),
+        cal_max = hdr@cal_max,
+        cal_min = hdr@cal_min,
+        slice_duration = hdr@slice_duration,
+        toffset = hdr@toffset,
+        descrip = hdr@descrip,
+        aux_file = hdr@aux_file,
+        qform_code = as.integer(hdr@qform_code),
+        sform_code = as.integer(hdr@sform_code),
+        quatern_b = hdr@quatern_b,
+        quatern_c = hdr@quatern_c,
+        quatern_d = hdr@quatern_d,
+        qoffset_x = hdr@qoffset_x,
+        qoffset_y = hdr@qoffset_y,
+        qoffset_z = hdr@qoffset_z,
+        srow_x = hdr@srow_x,
+        srow_y = hdr@srow_y,
+        srow_z = hdr@srow_z,
+        intent_name = hdr@intent_name,
+        magic = hdr@magic
+      ),
+      class = "niftiHeader"
+    )
+  } else {
+    RNifti::niftiHeader(x)
+  }
+}
+
+# from NIfTI file
+#' @export
+as_nifti_header.character <- function(x) {
+  # file
+  if(get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE)) {
+    hdr <- oro.nifti::nifti_header(x)
+    meta <- as_nifti_header.nifti(hdr)
+  } else {
+    meta <- RNifti::niftiHeader(x)
+  }
+  meta
+}
+
+# RNifti image itself
+#' @export
+as_nifti_header.niftiImage <- function(x) {
+  RNifti::niftiHeader(x)
+}
 
 #' @rdname imaging-volume
 #' @export
 io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only = FALSE, ...) {
   # DIPSAUS DEBUG START
-  # file <- "~/rave_data/raw_dir/AnonSEEG0/rave-imaging/coregistration/CT_RAW.nii"
-  method <- match.arg(method)
+  # file <- "~/rave_data/raw_dir/yael_demo_001/rave-imaging/coregistration/CT_RAW.nii.gz"
+  if(get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE)) {
+    # WASM: only oro is supported
+    method <- "oro"
+  } else {
+    method <- match.arg(method)
+  }
 
   if(header_only) {
     if(!identical(method, "oro")) {
@@ -451,7 +540,7 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
     method <- "oro"
   }
 
-  meta <- RNifti::niftiHeader(file)
+  meta <- as_nifti_header(file)
 
   switch(
     method,

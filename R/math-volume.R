@@ -93,7 +93,7 @@ resample_volume_naive <- function(x, new_dim, na_fill = NA) {
     re$header$slice_duration <- original_meta$slice_duration
   }
 
-  re$original_meta <- RNifti::niftiHeader(re$header)
+  re$original_meta <- as_nifti_header(re$header)
   re
 }
 
@@ -154,7 +154,7 @@ resample_volume_ravetools <- function(x, new_dim, na_fill = NA) {
     re$header$slice_duration <- original_meta$slice_duration
   }
 
-  re$original_meta <- RNifti::niftiHeader(re$header)
+  re$original_meta <- as_nifti_header(re$header)
   re
 }
 
