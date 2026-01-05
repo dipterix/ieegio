@@ -66,7 +66,7 @@ if( ieegio_sample_data("streamlines/CNVII_R.tck", test = TRUE) ) {
 }
 #> * Installing Miniconda -- please wait a moment ...
 #> * Downloading 'https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh' ...
-#> + /usr/bin/bash /tmp/Rtmp8QI123/Miniforge3-Linux-x86_64.sh -b -p '/home/runner/.local/share/r-rpymat/miniconda'
+#> + /usr/bin/bash /tmp/RtmpSR6pvA/Miniforge3-Linux-x86_64.sh -b -p '/home/runner/.local/share/r-rpymat/miniconda'
 #> + /home/runner/.local/share/r-rpymat/miniconda/bin/conda create --yes --name r-reticulate 'python=3.12' numpy --quiet -c conda-forge
 #> * Miniconda has been successfully installed at "~/.local/share/r-rpymat/miniconda".
 #> + /home/runner/.local/share/r-rpymat/miniconda/bin/conda create --yes --prefix /home/runner/.local/share/r-rpymat/miniconda/envs/rpymat-conda-env 'python=3.12' --quiet -c conda-forge

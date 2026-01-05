@@ -1,5 +1,11 @@
 # Changelog
 
+## ieegio 0.0.7
+
+- Added `as_nifti_header` as a workaround when `RNifti` is missing (not
+  installed or running in `WebAssembly`)
+- Added automatic checks when pushing commits the repository to `Github`
+
 ## ieegio 0.0.6
 
 CRAN release: 2025-10-24
