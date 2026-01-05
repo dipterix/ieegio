@@ -1,3 +1,8 @@
+# ieegio 0.0.7
+
+* Added `as_nifti_header` as a workaround when `RNifti` is missing (not installed or running in `WebAssembly`)
+* Added automatic checks when pushing commits the repository to `Github`
+
 # ieegio 0.0.6
 
 * Added `write_edf` to save signals as continuous `EDF` format
