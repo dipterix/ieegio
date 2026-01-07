@@ -20,6 +20,9 @@
 
   Convert other surface formats to `ieegio` surface
 
+- [`as_ieegio_transform()`](http://dipterix.org/ieegio/reference/as_ieegio_transform.md)
+  : Convert to ieegio transform
+
 - [`as_ieegio_volume()`](http://dipterix.org/ieegio/reference/as_ieegio_volume.md)
   :
 
@@ -79,6 +82,11 @@
   [`io_h5_names()`](http://dipterix.org/ieegio/reference/io_h5_valid.md)
   : Check whether a 'HDF5' file can be opened for read/write
 
+- [`io_read_ants_transform()`](http://dipterix.org/ieegio/reference/io_read_ants_transform.md)
+  :
+
+  Read `ANTs` transform file
+
 - [`io_read_fstarray_or_h5()`](http://dipterix.org/ieegio/reference/io_read_fstarray_or_h5.md)
   : Function try to load 'FST' arrays, if not found, read 'HDF5' arrays
 
@@ -111,6 +119,9 @@
 
   Merge `'ieegio'` volumes
 
+- [`new_space()`](http://dipterix.org/ieegio/reference/new_space.md) :
+  Define a coordinate space
+
 - [`plot(`*`<ieegio_surface>`*`)`](http://dipterix.org/ieegio/reference/plot.ieegio_surface.md)
   : Plot '3D' surface objects
 
@@ -140,6 +151,9 @@
 
 - [`resample_volume()`](http://dipterix.org/ieegio/reference/resample_volume.md)
   : Down-sample or super-sample volume
+
+- [`transform_orientation()`](http://dipterix.org/ieegio/reference/transform_orientation.md)
+  : Create transform between coordinate orientations
 
 - [`as_edf_channel()`](http://dipterix.org/ieegio/reference/write_edf.md)
   [`write_edf()`](http://dipterix.org/ieegio/reference/write_edf.md) :

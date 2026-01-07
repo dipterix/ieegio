@@ -13,6 +13,7 @@
 <url><loc>http://dipterix.org/ieegio/reference/NWBHDF5IO.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/SignalDataCache.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/as_ieegio_surface.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/as_ieegio_transform.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/as_ieegio_volume.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/as_nifti_header.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/burn_volume.html</loc></url>
@@ -26,12 +27,14 @@
 <url><loc>http://dipterix.org/ieegio/reference/io-tt.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io-vtk-streamlines.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_h5_valid.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/io_read_ants_transform.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_read_fstarray_or_h5.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_read_h5.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_write_h5.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/low-level-read-write.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/merge.ieegio_surface.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/merge.ieegio_volume.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/new_space.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/plot.ieegio_surface.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/plot.ieegio_volume.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/pynwb_module.html</loc></url>
@@ -41,6 +44,7 @@
 <url><loc>http://dipterix.org/ieegio/reference/read_nsx.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/read_nwb.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/resample_volume.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/transform_orientation.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/write_edf.html</loc></url>
 </urlset>
 
