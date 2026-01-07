@@ -4,11 +4,12 @@
 \alias{new_space}
 \title{Define a coordinate space}
 \usage{
-new_space(name, orientation = ORIENTATION_CODES, dimension = 3, ...)
+new_space(name = "", orientation = ORIENTATION_CODES, dimension = 3, ...)
 }
 \arguments{
 \item{name}{character string identifying the coordinate space (e.g.,
-\code{"T1w"}, \code{"MNI152NLin2009cAsym"}, \code{"scanner"})}
+\code{"T1w"}, \code{"MNI152NLin2009cAsym"}, \code{"scanner"});
+default is \code{""}, a wildcard that indicates arbitrary space}
 
 \item{orientation}{character string specifying the axis orientation
 convention. Common orientations in brain imaging:

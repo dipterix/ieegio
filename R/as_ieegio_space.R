@@ -5,7 +5,8 @@
 #' coordinate axes.
 #'
 #' @param name character string identifying the coordinate space (e.g.,
-#'   \code{"T1w"}, \code{"MNI152NLin2009cAsym"}, \code{"scanner"})
+#'   \code{"T1w"}, \code{"MNI152NLin2009cAsym"}, \code{"scanner"});
+#'   default is \code{""}, a wildcard that indicates arbitrary space
 #' @param orientation character string specifying the axis orientation
 #'   convention. Common orientations in brain imaging:
 #'   \itemize{
@@ -46,7 +47,7 @@
 #' format(mni_space)
 #'
 #' @export
-new_space <- function(name, orientation = ORIENTATION_CODES,
+new_space <- function(name = "", orientation = ORIENTATION_CODES,
                       dimension = 3, ...) {
   name <- as.character(unclass(name))
   if(length(name) != 1 || is.na(name)) {
@@ -69,13 +70,13 @@ print.ieegio_space <- function(x, ...) {
 }
 
 new_space_internal <- function(space, orientation, dimension) {
-  if(missing(orientation)) {
+  if(missing(orientation) || is.null(orientation)) {
     orientation <- attr(space, "orientation")
     if(length(orientation) != 1) {
       orientation <- "RAS"
     }
   }
-  if(missing(dimension)) {
+  if(missing(dimension) || is.null(dimension)) {
     dimension <- attr(space, "dimension")
     if(length(dimension) != 1) {
       dimension <- 3
@@ -88,28 +89,28 @@ new_space_internal <- function(space, orientation, dimension) {
 orientation_transform <- function(from, to) {
   from <- match.arg(from, ORIENTATION_CODES)
   to <- match.arg(to, ORIENTATION_CODES)
-  
+
   # Parse orientation codes
   from_axes <- strsplit(from, "")[[1]]
   to_axes <- strsplit(to, "")[[1]]
-  
+
   # Map each axis letter to its opposite
   axis_opposites <- c(
     "R" = "L", "L" = "R",
     "A" = "P", "P" = "A",
     "S" = "I", "I" = "S"
   )
-  
+
   # Initialize 4x4 matrix (active transform for points)
   mat <- matrix(0, nrow = 4, ncol = 4)
   mat[4, 4] <- 1  # Homogeneous coordinate
-  
+
   # For each axis in the target orientation, find where it comes from
   # This is an ACTIVE transform: it transforms point coordinates
   for(i in 1:3) {
     to_axis <- to_axes[i]
     opposite_axis <- axis_opposites[to_axis]
-    
+
     # Find which source axis matches (same direction or opposite)
     if(to_axis %in% from_axes) {
       from_pos <- which(from_axes == to_axis)
@@ -121,6 +122,6 @@ orientation_transform <- function(from, to) {
       stop(sprintf("Unable to map axis '%s' in orientation '%s'", to_axis, to))
     }
   }
-  
+
   mat
 }

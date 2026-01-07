@@ -2,6 +2,7 @@
 % Please edit documentation in R/as_ieegio_transform.R
 \name{as_ieegio_transform}
 \alias{as_ieegio_transform}
+\alias{as_ieegio_transform.NULL}
 \alias{as_ieegio_transform.character}
 \alias{as_ieegio_transform.matrix}
 \alias{as_ieegio_transform.array}
@@ -10,6 +11,8 @@
 \title{Convert to ieegio transform}
 \usage{
 as_ieegio_transform(x, ...)
+
+\method{as_ieegio_transform}{`NULL`}(x, space_from = "", space_to = "", ...)
 
 \method{as_ieegio_transform}{character}(x, format = c("ants"), ...)
 
@@ -26,14 +29,14 @@ as_ieegio_transform(x, ...)
 
 \item{...}{additional arguments passed to methods}
 
-\item{format}{character string specifying the file format for character paths.
-Currently supports \code{"ants"}. Only used for character method.}
-
 \item{space_from}{source space for matrix/array methods. Default \code{""} is
 a wildcard for arbitrary space name.}
 
 \item{space_to}{target space for matrix/array methods. Default \code{""} is
 a wildcard for arbitrary space name.}
+
+\item{format}{character string specifying the file format for character paths.
+Currently supports \code{"ants"}. Only used for character method.}
 }
 \value{
 An \code{ieegio_transforms} object

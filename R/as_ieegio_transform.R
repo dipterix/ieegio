@@ -308,6 +308,18 @@ as_ieegio_transform <- function(x, ...) {
 
 #' @rdname as_ieegio_transform
 #' @export
+as_ieegio_transform.NULL <- function(x, space_from = "", space_to = "", ...) {
+  return(new_transform(
+    data = diag(4),
+    type = "affine",
+    space_from = space_from,
+    space_to = space_to,
+    ...
+  ))
+}
+
+#' @rdname as_ieegio_transform
+#' @export
 as_ieegio_transform.character <- function(x, format = c("ants"), ...) {
   format <- match.arg(format)
 
@@ -321,6 +333,21 @@ as_ieegio_transform.character <- function(x, format = c("ants"), ...) {
 #' @rdname as_ieegio_transform
 #' @export
 as_ieegio_transform.matrix <- function(x, space_from = "", space_to = "", ...) {
+
+  if(identical(space_from, "")) {
+    space_from <- attr(x, "source_space")
+    if(length(space_from) != 1) {
+      space_from <- ""
+    }
+  }
+
+  if(identical(space_to, "")) {
+    space_to <- attr(x, "source_space")
+    if(length(space_to) != 1) {
+      space_to <- ""
+    }
+  }
+
   new_transform(data = x, space_from = space_from, space_to = space_to, ...)
 }
 
@@ -653,3 +680,45 @@ new_transform_chain <- function(..., .list = NULL, expected_interpretation = c("
   result
 }
 
+
+
+
+apply_transform_to_points <- function(points, transform) {
+
+  transform <- as_ieegio_transform(transform)
+  if(transform$interpretation == "passive") {
+    # we need active transform, not passive
+    tmp <- transform$space_from
+    transform$space_to <- tmp
+    transform$space_from <- transform$space_to
+    transform$interpretation <- "active"
+  }
+
+  dimension <- transform$dimension
+
+  if(length(points) %in% c(dimension, dimension + 1)) {
+    points <- matrix(points, nrow = 1)
+  } else {
+    points <- as.matrix(points)
+  }
+  nc <- ncol(points)
+  stopifnot(is.numeric(points) && nc %in% c(dimension, dimension + 1))
+  dimnames(points) <- NULL
+
+  if(ncol(points) == dimension) {
+    points <- cbind(points, 1)
+  } else {
+    points[, dimension + 1] <- 1
+  }
+
+  for(item in transform$data) {
+    if(is.matrix(item)) {
+      points <- points %*% t(item)
+    } else {
+      .NotYetImplemented()
+    }
+  }
+
+  return(points)
+
+}
