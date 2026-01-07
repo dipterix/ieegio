@@ -226,8 +226,14 @@ Please see examples with
 - [`resample_volume()`](http://dipterix.org/ieegio/reference/resample_volume.md)
   : Down-sample or super-sample volume
 
+- [`surface_to_surface()`](http://dipterix.org/ieegio/reference/surface_to_surface.md)
+  : Transform surface between coordinate spaces
+
 - [`transform_orientation()`](http://dipterix.org/ieegio/reference/transform_orientation.md)
   : Create transform between coordinate orientations
+
+- [`volume_to_surface()`](http://dipterix.org/ieegio/reference/volume_to_surface.md)
+  : Create smooth surface from volume mask or data
 
 - [`as_edf_channel()`](http://dipterix.org/ieegio/reference/write_edf.md)
   [`write_edf()`](http://dipterix.org/ieegio/reference/write_edf.md) :

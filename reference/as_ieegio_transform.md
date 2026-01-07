@@ -7,6 +7,9 @@ Generic function to convert various objects into `ieegio_transforms`.
 ``` r
 as_ieegio_transform(x, ...)
 
+# S3 method for class '`NULL`'
+as_ieegio_transform(x, space_from = "", space_to = "", ...)
+
 # S3 method for class 'character'
 as_ieegio_transform(x, format = c("ants"), ...)
 
@@ -34,11 +37,6 @@ as_ieegio_transform(x, ...)
 
   additional arguments passed to methods
 
-- format:
-
-  character string specifying the file format for character paths.
-  Currently supports `"ants"`. Only used for character method.
-
 - space_from:
 
   source space for matrix/array methods. Default `""` is a wildcard for
@@ -48,6 +46,11 @@ as_ieegio_transform(x, ...)
 
   target space for matrix/array methods. Default `""` is a wildcard for
   arbitrary space name.
+
+- format:
+
+  character string specifying the file format for character paths.
+  Currently supports `"ants"`. Only used for character method.
 
 ## Value
 

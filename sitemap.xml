@@ -44,7 +44,9 @@
 <url><loc>http://dipterix.org/ieegio/reference/read_nsx.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/read_nwb.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/resample_volume.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/surface_to_surface.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/transform_orientation.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/volume_to_surface.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/write_edf.html</loc></url>
 </urlset>
 

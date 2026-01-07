@@ -180,6 +180,6 @@ system.time(dat[,1])
 
 system.time(dat[1:100,])
 #>    user  system elapsed 
-#>   0.013   0.000   0.005 
+#>   0.013   0.003   0.005 
 
 ```

@@ -79,11 +79,11 @@ x <- array(1:120, dim = 2:5)
 
 # save x to file with name /group/dataset/1
 io_write_h5(x, file, '/group/dataset/1', chunk = dim(x))
-#> /tmp/Rtmp7973FN/file212567f3a62 => /group (Group Created)
-#> /tmp/Rtmp7973FN/file212567f3a62 => /group/dataset (Group Created)
-#> /tmp/Rtmp7973FN/file212567f3a62 => 1 (Dataset Created)
-#> /tmp/Rtmp7973FN/file212567f3a62 => 1 (Dataset Removed)
-#> /tmp/Rtmp7973FN/file212567f3a62 => 1 (Dataset Created)
+#> /tmp/RtmpVLbsu1/file212b75145b36 => /group (Group Created)
+#> /tmp/RtmpVLbsu1/file212b75145b36 => /group/dataset (Group Created)
+#> /tmp/RtmpVLbsu1/file212b75145b36 => 1 (Dataset Created)
+#> /tmp/RtmpVLbsu1/file212b75145b36 => 1 (Dataset Removed)
+#> /tmp/RtmpVLbsu1/file212b75145b36 => 1 (Dataset Created)
 
 # load data
 y <- io_read_h5(file, '/group/dataset/1')

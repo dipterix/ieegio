@@ -7,7 +7,7 @@ the coordinate axes.
 ## Usage
 
 ``` r
-new_space(name, orientation = ORIENTATION_CODES, dimension = 3, ...)
+new_space(name = "", orientation = ORIENTATION_CODES, dimension = 3, ...)
 ```
 
 ## Arguments
@@ -15,7 +15,8 @@ new_space(name, orientation = ORIENTATION_CODES, dimension = 3, ...)
 - name:
 
   character string identifying the coordinate space (e.g., `"T1w"`,
-  `"MNI152NLin2009cAsym"`, `"scanner"`)
+  `"MNI152NLin2009cAsym"`, `"scanner"`); default is `""`, a wildcard
+  that indicates arbitrary space
 
 - orientation:
 
