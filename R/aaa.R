@@ -1,6 +1,24 @@
 #' @importFrom R6 R6Class
 NULL
 
+# All 48 possible 3D orientation codes
+# First 8 are the most common (no axis permutation, only direction flips)
+# Remaining 40 include axis permutations
+ORIENTATION_CODES <- c(
+  # Standard axis order (x=LR, y=AP, z=SI) - 8 combinations
+  "RAS", "LAS", "LPS", "RPS", "LPI", "RPI", "LAI", "RAI",
+  # Axis permutation: x=LR, y=SI, z=AP - 8 combinations
+  "RSA", "LSA", "LSP", "RSP", "RIA", "LIA", "LIP", "RIP",
+  # Axis permutation: x=AP, y=LR, z=SI - 8 combinations
+  "ARS", "ALS", "PLS", "PRS", "PLI", "PRI", "ALI", "ARI",
+  # Axis permutation: x=AP, y=SI, z=LR - 8 combinations
+  "ASR", "ASL", "PSL", "PSR", "PIL", "PIR", "AIL", "AIR",
+  # Axis permutation: x=SI, y=LR, z=AP - 8 combinations
+  "SRA", "SLA", "SLP", "SRP", "IRA", "ILA", "ILP", "IRP",
+  # Axis permutation: x=SI, y=AP, z=LR - 8 combinations
+  "SAR", "SAL", "SPL", "SPR", "IAR", "IAL", "IPL", "IPR"
+)
+
 NIFTI_XFORM_CODE <- list(
   "NIFTI_XFORM_UNKNOWN" = "Unknown",
   "NIFTI_XFORM_SCANNER_ANAT" = "ScannerAnat",
