@@ -1,3 +1,88 @@
+# Compute display range for volume data using percentile-based windowing
+# Following conventions from FSLeyes, AFNI, MRIcroGL, and SPM
+# @param data volume data array
+# @param percentiles numeric vector of length 2, default c(2, 98)
+# @param exclude_zeros NA (auto-detect), TRUE, or FALSE; when NA, excludes
+#        zeros by default but includes them if lower percentile < -500
+#        (indicating CT with -1024 background)
+# @param original_meta optional list with cal_min/cal_max from NIfTI header
+# @returns numeric vector of length 2 (min, max display range)
+compute_display_range <- function(data, percentiles = c(2, 98),
+                                   exclude_zeros = NA,
+                                   original_meta = NULL) {
+
+  # For 4D+ data, use only the first 3D volume for efficiency
+  data_shape <- dim(data)
+  if (length(data_shape) >= 4 && data_shape[[4]] > 1) {
+    data <- data[, , , 1, drop = TRUE]
+  }
+
+  # Flatten data and remove NA/NaN/Inf
+  values <- as.vector(data)
+  values <- values[is.finite(values)]
+
+  if (length(values) == 0) {
+    return(c(0, 1))
+  }
+
+  # Handle exclude_zeros = NA (auto-detect)
+  if (is.na(exclude_zeros)) {
+    # First pass: exclude zeros
+    nonzero_values <- values[values != 0]
+    if (length(nonzero_values) > 0) {
+      vlim <- stats::quantile(nonzero_values,
+                              probs = percentiles / 100,
+                              na.rm = TRUE, names = FALSE)
+      # If lower bound < -500, likely CT data - include zeros and recompute
+      if (vlim[[1]] < -500) {
+        vlim <- stats::quantile(values,
+                                probs = percentiles / 100,
+                                na.rm = TRUE, names = FALSE)
+      }
+    } else {
+      # All zeros - use full range
+      vlim <- c(0, 0)
+    }
+  } else if (isTRUE(exclude_zeros)) {
+    values <- values[values != 0]
+    if (length(values) == 0) {
+      return(c(0, 1))
+    }
+    vlim <- stats::quantile(values,
+                            probs = percentiles / 100,
+                            na.rm = TRUE, names = FALSE)
+  } else {
+    vlim <- stats::quantile(values,
+                            probs = percentiles / 100,
+                            na.rm = TRUE, names = FALSE)
+  }
+
+  # Detect statistical overlay: symmetric around zero, typical z-score range
+  # (min > -30, min < 0, max > 0, max < 30)
+  if (vlim[[1]] > -30 && vlim[[1]] < 0 && vlim[[2]] > 0 && vlim[[2]] < 30) {
+    # Use symmetric range for statistical maps
+    vlim <- max(abs(vlim)) * c(-1, 1)
+  }
+
+  # Check if meta has valid cal_min and cal_max (NIfTI header hints)
+  if (is.list(original_meta) &&
+      all(c("cal_max", "cal_min") %in% names(original_meta))) {
+    cal_min <- original_meta$cal_min
+    cal_max <- original_meta$cal_max
+    # Use header values if they are set and different
+    if (any(c(cal_min, cal_max) != 0) && cal_max != cal_min) {
+      vlim <- c(cal_min, cal_max)
+    }
+  }
+
+  # Ensure valid range
+  if (vlim[[1]] >= vlim[[2]]) {
+    vlim[[2]] <- vlim[[1]] + 1
+  }
+
+  as.numeric(vlim)
+}
+
 get_vox2fsl <- function(shape, pixdim, vox2ras) {
   voxToScaledVoxMat <- diag(c(pixdim[1:3], 1))
   isneuro <- det(vox2ras) > 0
@@ -505,47 +590,13 @@ plot.ieegio_volume <- function(
       } else if (length(vlim) >= 2) {
         vlim <- range(vlim, na.rm = TRUE)
       } else {
-        vlim <- range(x_data, na.rm = TRUE)
-        mode <- storage.mode(x_data)
-        if( vlim[[1]] > 0 ) { vlim[[1]] <- 0 }
-        if( mode == "integer" ) {
-          if( vlim[[2]] >= 2 ) {
-            if(vlim[[2]] < 255) {
-              vlim[[2]] <- 255
-              vlim[[1]] <- 0
-            } else if (vlim[[2]] <- 32768) {
-              vlim[[2]] <- 32768
-              vlim[[1]] <- -32767
-            } else if (vlim[[2]] <- 65535) {
-              vlim[[2]] <- 65535
-              vlim[[1]] <- 0
-            }
-          }
-        } else {
-          if( vlim[[1]] == 0 ) {
-            if(vlim[[2]] < 1) {
-              vlim[[2]] <- 1
-            }
-          } else if (vlim[[1]] < 0) {
-            # sym map
-            vlim <- max(abs(vlim)) * c(-1, 1)
-          }
-        }
-
-        # check if meta has valid cal_min and cal_max
-        original_meta <- .subset2(x, "original_meta")
-        if(is.list(original_meta) && all(c("cal_max", "cal_min") %in% names(original_meta))) {
-          cal_min <- original_meta$cal_min
-          cal_max <- original_meta$cal_max
-          if(any(c(cal_min, cal_max) != 0) && cal_max != cal_min) {
-            # need to rescale to 0 - 1
-            vlim <- c(0, 1)
-            x_data <- (x_data - cal_min) / (cal_max - cal_min)
-            x_data[x_data < 0] <- 0
-            x_data[x_data > 1] <- 1
-          }
-        }
-
+        # Use percentile-based windowing (similar to FSLeyes, AFNI, MRIcroGL)
+        vlim <- compute_display_range(
+          data = x_data,
+          percentiles = c(2, 98),
+          exclude_zeros = NA,
+          original_meta = .subset2(x, "original_meta")
+        )
       }
       if(length(col) < 256) {
         col <- grDevices::colorRampPalette(col)(256)
@@ -651,6 +702,10 @@ plot.ieegio_volume <- function(
     x_shape_cumprod[[3]] * (slice_index - 1)
 
   vox_data <- array(x_data[vox_idx], dim = c(length(x_axis), length(y_axis)))
+  # Clamp vox_data to vlim so values outside range are rendered
+  # as boundary colors instead of transparent/NA
+  vox_data[vox_data < vlim[1]] <- vlim[1]
+  vox_data[vox_data > vlim[2]] <- vlim[2]
 
   if(!add) {
     oldpar <- graphics::par(
