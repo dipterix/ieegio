@@ -320,14 +320,8 @@ as_ieegio_transform.NULL <- function(x, space_from = "", space_to = "", ...) {
 
 #' @rdname as_ieegio_transform
 #' @export
-as_ieegio_transform.character <- function(x, format = c("ants"), ...) {
-  format <- match.arg(format)
-
-  switch(
-    format,
-    "ants" = io_read_ants_transform(x, ...),
-    stop("Unknown transform format: ", format)
-  )
+as_ieegio_transform.character <- function(x, ...) {
+  io_read_ants_transform(x, ...)
 }
 
 #' @rdname as_ieegio_transform
@@ -540,7 +534,6 @@ io_read_ants_transform <- function(file, space_from, space_to, interpretation = 
     interpretation = interpretation
   )
 }
-
 
 
 # Create a chain of transforms
