@@ -249,11 +249,20 @@ test_that("deformation forces its interpretation", {
                     orientation_to = "LPS")
   t2 <- make_deform("B", "C", interpretation = "passive")
 
+  expect_error(new_transform_chain(t1, t2, interpretation = "active"))
+  expect_error(new_transform_chain(t1, t2, interpretation = "passive"))
+
   # t1 active B->A becomes passive A->B to chain with passive B->C
-  result <- new_transform_chain(t1, t2)
+  t1_swapped <- invert_transform(invert_transform(t1, method = "direction"), method = "interpretation")
+  result <- new_transform_chain(t1_swapped, t2)
   expect_equal(result$interpretation, "passive")
   expect_equal(as.character(result$space_from), "A")
   expect_equal(as.character(result$space_to), "C")
+
+  result <- new_transform_chain(t2, t1_swapped, interpretation = "active")
+  expect_equal(result$interpretation, "active")
+  expect_equal(as.character(result$space_from), "C")
+  expect_equal(as.character(result$space_to), "A")
 })
 
 test_that("deformation with wrong interpretation errors", {
@@ -261,10 +270,7 @@ test_that("deformation with wrong interpretation errors", {
   t2 <- make_affine(diag(4), "X", "Y", interpretation = "active",
                     orientation_from = "LPS")
 
-  expect_error(
-    new_transform_chain(t1, t2, expected_interpretation = "active"),
-    "non-invertible deformation"
-  )
+  expect_error(new_transform_chain(t1, t2, interpretation = "active"))
 })
 
 test_that("deformation + affine creates deformation type", {

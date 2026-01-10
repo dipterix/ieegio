@@ -1,9 +1,10 @@
 #' @importFrom R6 R6Class
 NULL
 
-# All 48 possible 3D orientation codes
+# All 48 possible 3D orientation codes + FSL scaled-voxel coordinate
 # First 8 are the most common (no axis permutation, only direction flips)
 # Remaining 40 include axis permutations
+# "FSL" is a special orientation for FSL scaled-voxel coordinates (image-dependent)
 ORIENTATION_CODES <- c(
   # Standard axis order (x=LR, y=AP, z=SI) - 8 combinations
   "RAS", "LAS", "LPS", "RPS", "LPI", "RPI", "LAI", "RAI",
@@ -16,7 +17,9 @@ ORIENTATION_CODES <- c(
   # Axis permutation: x=SI, y=LR, z=AP - 8 combinations
   "SRA", "SLA", "SLP", "SRP", "IRA", "ILA", "ILP", "IRP",
   # Axis permutation: x=SI, y=AP, z=LR - 8 combinations
-  "SAR", "SAL", "SPL", "SPR", "IAR", "IAL", "IPL", "IPR"
+  "SAR", "SAL", "SPL", "SPR", "IAR", "IAL", "IPL", "IPR",
+  # FSL scaled-voxel coordinates (image-dependent, requires conversion)
+  "FSL"
 )
 
 NIFTI_XFORM_CODE <- list(
