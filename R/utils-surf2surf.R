@@ -1,4 +1,3 @@
-
 #' Transform surface between coordinate spaces
 #'
 #' Transforms surface vertex positions from one coordinate space or orientation
@@ -82,10 +81,26 @@
 surface_to_surface <- function(surface, space_from = "", space_to = "", transform = NULL) {
 
   # DIPSAUS DEBUG START
-  # space_from = new_space("", orientation = "RAS")
-  # space_to = new_space("", orientation = "LPS")
   # surface <- ieegio_sample_data('gifti/GzipBase64/sujet01_Lwhite.surf.gii')
-  # transform <- NULL
+  # space_from = ieegio::new_space("T1wACPC", orientation = "RAS")
+  # space_to = ieegio::new_space("T1wNative", orientation = "LPS")
+  # transform = structure(list(data = list(structure(c(
+  #   0.999772369861603, 0.0145429726690054, 0.0156085658818483, 0,
+  #   -0.0109670050442219, 0.977920234203339, -0.208690464496613, 0,
+  #   -0.0182989109307528, 0.208471775054932, 0.977857172489166, 0,
+  #   0.912206709384918, -25.4448070526123, -13.4114465713501, 1),
+  #   dim = c(4L, 4L))), type = "affine", interpretation = "passive",
+  #   space_from = structure(
+  #     "T1wNative",
+  #     orientation = "LPS",
+  #     dimension = 3L,
+  #     class = "ieegio_space"
+  #   ), space_to = structure(
+  #     "T1wACPC",
+  #     orientation = "LPS",
+  #     dimension = 3L,
+  #     class = "ieegio_space"
+  #   ), dimension = 3L), class = c("ieegio_transform_affine", "ieegio_transforms"))
 
   surface <- as_ieegio_surface(surface)
 
@@ -108,34 +123,30 @@ surface_to_surface <- function(surface, space_from = "", space_to = "", transfor
 
   transform <- ieegio::as_ieegio_transform(transform)
 
-  if(transform$interpretation == "passive") {
-    # we need active transform, not passive
-    tmp <- transform$space_from
-    transform$space_to <- tmp
-    transform$space_from <- transform$space_to
-    transform$interpretation <- "active"
-  }
-
-  pre_affine <- transform_orientation(
+  pre_affine <- new_transform(
+    diag(4),
+    type = "affine",
     space_from = space_from,
-    orientation_to = attr(transform$space_from, "orientation"),
+    space_to = space_from,  # Same space - identity transform
     interpretation = "active"
   )
 
-  post_affine <- transform_orientation(
-    space_from = transform$space_to,
-    orientation_to = attr(space_to, "orientation"),
+  post_affine <- new_transform(
+    diag(4),
+    type = "affine",
+    space_from = space_to,
+    space_to = space_to,  # Same space - identity transform
     interpretation = "active"
   )
 
-  chained_transform <- new_transform_chain(pre_affine, transform, post_affine)
+  chained_transform <- new_transform_chain(pre_affine, transform, post_affine, interpretation = "active")
 
   vertices_t <- apply_transform_to_points(t(vertices), transform = chained_transform)
 
   surface$geometry$vertices[1:3, ] <- t(vertices_t[, 1:3, drop = FALSE])
 
   # The transform is now undefined
-  space_to <- as.character(transform$space_to)
+  space_to <- as.character(chained_transform$space_to)
   if(!nzchar(space_to)) {
     space_to <- "Unknown"
   }

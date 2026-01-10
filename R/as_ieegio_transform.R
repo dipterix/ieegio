@@ -254,7 +254,7 @@ new_transform <- function(data,
 #               "interpretation" toggles interpretation (active <-> passive) only
 invert_transform <- function(transform, method = c("matrix", "direction", "interpretation")) {
   method <- match.arg(method)
-  
+
   switch(
     method,
     "matrix" = {
@@ -714,7 +714,7 @@ io_read_flirt_transform <- function(file, space_from, space_to) {
   }
 
   # Read the 4x4 matrix from plain text file
-  flirt_matrix <- as.matrix(read.table(file, header = FALSE))
+  flirt_matrix <- as.matrix(utils::read.table(file, header = FALSE))
   dimnames(flirt_matrix) <- NULL
 
   # Validate matrix dimensions
@@ -924,7 +924,7 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
   # If single transform, adjust interpretation if needed
   if(length(transform_list) == 1) {
     transform <- transform_list[[1]]
-    
+
     # If interpretation was explicitly specified and differs, invert the transform
     if(!is.na(interpretation) && transform$interpretation != interpretation) {
       if(transform$type == "deformation") {
@@ -941,7 +941,7 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
         )
       }
     }
-    
+
     return(transform)
   }
 
@@ -956,7 +956,7 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
     if(space1 == "" || space2 == "") return(allow_wildcard)
     return(space1 == space2)
   }
-  
+
   # Helper: determine primary inversion method for interpretation change
   inversion_method <- function(trans) {
     # Returns the primary method (matrix or direction)
@@ -965,13 +965,13 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
     }
     return("matrix")
   }
-  
+
   # Validate and process transforms using Reduce
   result <- Reduce(function(accumulated, next_transform) {
 
     # First iteration
     if(is.null(accumulated)) {
-      
+
       # Align next_transform to target interpretation
       # This makes sure accumulated always has consistent `interpretation`
       if(next_transform$interpretation != interpretation) {
@@ -981,7 +981,7 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
           method = "interpretation"
         )
       }
-      
+
       return(next_transform)
     }
 
@@ -1005,9 +1005,9 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
     # Verify spaces are compatible for chaining
     accum_space_to <- unclass(accumulated$space_to)
     next_space_from <- unclass(next_transform$space_from)
-    
+
     if(!spaces_match(accum_space_to, next_space_from)) {
-      if(next_transform_inverse_method == "matrix" && 
+      if(next_transform_inverse_method == "matrix" &&
          spaces_match(accum_space_to, unclass(next_transform$space_to), allow_wildcard = FALSE)) {
         # Backwards transform recovery: accumulated ends where next_transform ends
         # Double-invert to create forward transform (matrix inversion + direction swap)

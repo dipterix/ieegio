@@ -14,7 +14,7 @@ as_ieegio_transform(x, ...)
 
 \method{as_ieegio_transform}{`NULL`}(x, space_from = "", space_to = "", ...)
 
-\method{as_ieegio_transform}{character}(x, format = c("ants"), ...)
+\method{as_ieegio_transform}{character}(x, format = c("ants", "flirt"), ...)
 
 \method{as_ieegio_transform}{matrix}(x, space_from = "", space_to = "", ...)
 
@@ -36,7 +36,8 @@ a wildcard for arbitrary space name.}
 a wildcard for arbitrary space name.}
 
 \item{format}{character string specifying the file format for character paths.
-Currently supports \code{"ants"}. Only used for character method.}
+Supports \code{"ants"} (default) for ANTs format and \code{"flirt"} for
+FSL FLIRT format. Only used for character method.}
 }
 \value{
 An \code{ieegio_transforms} object
@@ -47,7 +48,8 @@ Generic function to convert various objects into \code{ieegio_transforms}.
 \details{
 Methods available:
 \itemize{
-\item \code{character}: Reads transform from file (uses \code{io_read_ants_transform})
+\item \code{character}: Reads transform from file (uses \code{io_read_ants_transform}
+or \code{io_read_flirt_transform} depending on \code{format})
 \item \code{matrix}: Creates transform from matrix
 \item \code{array}: Creates transform from 2D array
 \item \code{list}: Creates transform chain from list of transforms

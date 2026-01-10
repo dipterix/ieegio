@@ -8,7 +8,8 @@ transform_orientation(
   space_from,
   orientation_from,
   orientation_to,
-  interpretation = c("active", "passive")
+  interpretation = c("active", "passive"),
+  image = NULL
 )
 }
 \arguments{
@@ -17,11 +18,11 @@ identifying the source space. If provided, \code{orientation_from} must
 be omitted (orientation is extracted from the space object).}
 
 \item{orientation_from}{character string specifying the source orientation
-(e.g., \code{"RAS"}, \code{"LPS"}). Only used if \code{space_from} is
-missing. Must be one of the 48 valid orientation codes.}
+(e.g., \code{"RAS"}, \code{"LPS"}, \code{"FSL"}). Only used if \code{space_from} is
+missing. Must be one of the 48 valid orientation codes plus \code{"FSL"}.}
 
 \item{orientation_to}{character string specifying the target orientation.
-Must be one of the 48 valid orientation codes.}
+Must be one of the 48 valid orientation codes plus \code{"FSL"}.}
 
 \item{interpretation}{character string specifying transform interpretation:
 \itemize{
@@ -32,6 +33,10 @@ coordinates in the source orientation and want to convert them.
 frame/basis vectors. This is the transpose of the active transform.
 Use this when transforming reference frames or basis vectors.
 }}
+
+\item{image}{optional image for FSL coordinate conversion. Required when
+either \code{orientation_from} or \code{orientation_to} is \code{"FSL"}
+(but not both). Can be a file path or an \code{ieegio_volume} object.}
 }
 \value{
 An \code{ieegio_transforms} object containing a 4x4 affine
@@ -40,7 +45,8 @@ transformation matrix
 \description{
 Generates an affine transformation to convert coordinates or coordinate
 frames between different anatomical orientation conventions (e.g., \code{RAS} to \code{LPS}).
-Supports all 48 possible 3D orientations including axis permutations.
+Supports all 48 possible 3D orientations including axis permutations, plus
+FSL scaled-voxel coordinates (which require an image for conversion).
 }
 \details{
 The function creates orthogonal transformations (rotations and reflections)
@@ -56,6 +62,16 @@ Common orientation codes (first 8):
 Extended orientations (40 more) include axis permutations like:
 \itemize{
 \item \code{PIR}, \code{AIL}, \code{SAR}, etc. (permuted axes)
+}
+
+\strong{FSL Coordinates:}
+When \code{"FSL"} orientation is involved, an image is required for conversion
+because FSL coordinates are image-dependent (scaled voxels with possible X-flip).
+Three scenarios are supported:
+\itemize{
+\item \code{FSL -> FSL}: Identity transform (no image needed)
+\item \code{FSL -> RAS/other}: Uses \code{vox2ras \%*\% fsl2vox} from image
+\item \code{RAS/other -> FSL}: Uses \code{vox2fsl \%*\% ras2vox} from image
 }
 
 The relationship between active and passive interpretations:
@@ -85,5 +101,12 @@ trans_passive <- transform_orientation(orientation_from = "RAS",
 # With axis permutation
 trans <- transform_orientation(orientation_from = "RAS",
                                orientation_to = "PIR")
+
+\dontrun{
+# FSL to RAS conversion (requires image)
+trans_fsl2ras <- transform_orientation(orientation_from = "FSL",
+                                       orientation_to = "RAS",
+                                       image = "brain.nii.gz")
+}
 
 }
