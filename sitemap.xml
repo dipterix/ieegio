@@ -28,6 +28,7 @@
 <url><loc>http://dipterix.org/ieegio/reference/io-vtk-streamlines.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_h5_valid.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_read_ants_transform.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/io_read_flirt_transform.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_read_fstarray_or_h5.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_read_h5.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_write_h5.html</loc></url>
@@ -45,6 +46,7 @@
 <url><loc>http://dipterix.org/ieegio/reference/read_nwb.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/resample_volume.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/surface_to_surface.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/transform_flirt2ras.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/transform_orientation.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/volume_to_surface.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/write_edf.html</loc></url>

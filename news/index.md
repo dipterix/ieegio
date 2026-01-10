@@ -1,5 +1,24 @@
 # Changelog
 
+## ieegio 0.0.8
+
+- Added `new_space` and `as_ieegio_transform` to define coordinate
+  spaces and chain transforms
+- Added `io_read_ants_transform` to read `ANTs` affine and displacement
+  field transforms
+- Added `volume_to_surface` and `surface_to_surface` for mapping data
+  between volumes and surfaces
+- Improved `plot.ieegio_volume` intensity windowing using
+  percentile-based display range (2nd-98th percentiles), following
+  conventions from `FSLeyes`, `AFNI`, `MRIcroGL`, and `SPM`
+- Auto-detection for `CT` vs `MRI` data: excludes zeros by default but
+  includes them when lower percentile is below -500 (indicating `CT`
+  with -1024 background)
+- Statistical overlay detection: applies symmetric range for
+  z-score-like data
+- Values outside display range are now clamped to boundary colors
+  instead of rendering as transparent
+
 ## ieegio 0.0.7
 
 - Added `as_nifti_header` as a workaround when `RNifti` is missing (not

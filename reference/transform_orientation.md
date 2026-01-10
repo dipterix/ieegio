@@ -3,7 +3,8 @@
 Generates an affine transformation to convert coordinates or coordinate
 frames between different anatomical orientation conventions (e.g., `RAS`
 to `LPS`). Supports all 48 possible 3D orientations including axis
-permutations.
+permutations, plus FSL scaled-voxel coordinates (which require an image
+for conversion).
 
 ## Usage
 
@@ -12,7 +13,8 @@ transform_orientation(
   space_from,
   orientation_from,
   orientation_to,
-  interpretation = c("active", "passive")
+  interpretation = c("active", "passive"),
+  image = NULL
 )
 ```
 
@@ -27,13 +29,13 @@ transform_orientation(
 - orientation_from:
 
   character string specifying the source orientation (e.g., `"RAS"`,
-  `"LPS"`). Only used if `space_from` is missing. Must be one of the 48
-  valid orientation codes.
+  `"LPS"`, `"FSL"`). Only used if `space_from` is missing. Must be one
+  of the 48 valid orientation codes plus `"FSL"`.
 
 - orientation_to:
 
   character string specifying the target orientation. Must be one of the
-  48 valid orientation codes.
+  48 valid orientation codes plus `"FSL"`.
 
 - interpretation:
 
@@ -46,6 +48,12 @@ transform_orientation(
   - `"passive"`: Axis transform - transforms the coordinate frame/basis
     vectors. This is the transpose of the active transform. Use this
     when transforming reference frames or basis vectors.
+
+- image:
+
+  optional image for FSL coordinate conversion. Required when either
+  `orientation_from` or `orientation_to` is `"FSL"` (but not both). Can
+  be a file path or an `ieegio_volume` object.
 
 ## Value
 
@@ -68,6 +76,16 @@ Common orientation codes (first 8):
 Extended orientations (40 more) include axis permutations like:
 
 - `PIR`, `AIL`, `SAR`, etc. (permuted axes)
+
+**FSL Coordinates:** When `"FSL"` orientation is involved, an image is
+required for conversion because FSL coordinates are image-dependent
+(scaled voxels with possible X-flip). Three scenarios are supported:
+
+- `FSL -> FSL`: Identity transform (no image needed)
+
+- `FSL -> RAS/other`: Uses `vox2ras %*% fsl2vox` from image
+
+- `RAS/other -> FSL`: Uses `vox2fsl %*% ras2vox` from image
 
 The relationship between active and passive interpretations:
 `passive_matrix = t(active_matrix)` for orthogonal transforms.
@@ -103,4 +121,11 @@ trans_passive <- transform_orientation(orientation_from = "RAS",
 # With axis permutation
 trans <- transform_orientation(orientation_from = "RAS",
                                orientation_to = "PIR")
+
+if (FALSE) { # \dontrun{
+# FSL to RAS conversion (requires image)
+trans_fsl2ras <- transform_orientation(orientation_from = "FSL",
+                                       orientation_to = "RAS",
+                                       image = "brain.nii.gz")
+} # }
 ```

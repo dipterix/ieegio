@@ -11,7 +11,7 @@ as_ieegio_transform(x, ...)
 as_ieegio_transform(x, space_from = "", space_to = "", ...)
 
 # S3 method for class 'character'
-as_ieegio_transform(x, format = c("ants"), ...)
+as_ieegio_transform(x, format = c("ants", "flirt"), ...)
 
 # S3 method for class 'matrix'
 as_ieegio_transform(x, space_from = "", space_to = "", ...)
@@ -50,7 +50,8 @@ as_ieegio_transform(x, ...)
 - format:
 
   character string specifying the file format for character paths.
-  Currently supports `"ants"`. Only used for character method.
+  Supports `"ants"` (default) for ANTs format and `"flirt"` for FSL
+  FLIRT format. Only used for character method.
 
 ## Value
 
@@ -60,7 +61,8 @@ An `ieegio_transforms` object
 
 Methods available:
 
-- `character`: Reads transform from file (uses `io_read_ants_transform`)
+- `character`: Reads transform from file (uses `io_read_ants_transform`
+  or `io_read_flirt_transform` depending on `format`)
 
 - `matrix`: Creates transform from matrix
 

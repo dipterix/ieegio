@@ -87,6 +87,9 @@
 
   Read `ANTs` transform file
 
+- [`io_read_flirt_transform()`](http://dipterix.org/ieegio/reference/io_read_flirt_transform.md)
+  : Read FSL FLIRT transformation matrix
+
 - [`io_read_fstarray_or_h5()`](http://dipterix.org/ieegio/reference/io_read_fstarray_or_h5.md)
   : Function try to load 'FST' arrays, if not found, read 'HDF5' arrays
 
@@ -154,6 +157,9 @@
 
 - [`surface_to_surface()`](http://dipterix.org/ieegio/reference/surface_to_surface.md)
   : Transform surface between coordinate spaces
+
+- [`transform_flirt2ras()`](http://dipterix.org/ieegio/reference/transform_flirt2ras.md)
+  : Convert FLIRT transform to world (RAS) coordinates
 
 - [`transform_orientation()`](http://dipterix.org/ieegio/reference/transform_orientation.md)
   : Create transform between coordinate orientations
