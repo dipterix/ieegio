@@ -31,14 +31,14 @@ An \code{ieegio_transforms} object with:
 }
 \description{
 Reads a 4x4 affine transformation matrix from an FSL FLIRT output file.
-FLIRT matrices operate in FSL's scaled-voxel coordinate system and require
+FLIRT matrices operate in FSL scaled-voxel coordinate system and require
 source and reference images to convert to world (RAS) coordinates.
 }
 \details{
-FLIRT matrices operate in FSL's scaled-voxel coordinate system, which is:
+FLIRT matrices operate in FSL scaled-voxel coordinate system, which is:
 \itemize{
-\item Voxel indices multiplied by voxel sizes (pixdim)
-\item X-axis inverted if the image has positive sform determinant
+\item Voxel indices multiplied by voxel sizes (\code{pixdim})
+\item X-axis inverted if the image has positive \code{sform} determinant
 (neurological convention)
 }
 

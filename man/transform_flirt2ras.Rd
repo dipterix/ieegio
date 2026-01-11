@@ -54,7 +54,7 @@ Where:
 }
 
 The FSL coordinate system uses scaled voxels with possible X-axis flip
-depending on the image's sform determinant sign.
+depending on the image's \code{sform} determinant sign.
 }
 \examples{
 \dontrun{

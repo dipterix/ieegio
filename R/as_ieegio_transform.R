@@ -632,7 +632,7 @@ io_read_ants_transform <- function(file, space_from, space_to, interpretation = 
 #' Read FSL FLIRT transformation matrix
 #'
 #' Reads a 4x4 affine transformation matrix from an FSL FLIRT output file.
-#' FLIRT matrices operate in FSL's scaled-voxel coordinate system and require
+#' FLIRT matrices operate in FSL scaled-voxel coordinate system and require
 #' source and reference images to convert to world (RAS) coordinates.
 #'
 #' @param file character string specifying the path to the FLIRT matrix file.
@@ -655,10 +655,10 @@ io_read_ants_transform <- function(file, space_from, space_to, interpretation = 
 #'   }
 #'
 #' @details
-#' FLIRT matrices operate in FSL's scaled-voxel coordinate system, which is:
+#' FLIRT matrices operate in FSL scaled-voxel coordinate system, which is:
 #' \itemize{
-#'   \item Voxel indices multiplied by voxel sizes (pixdim)
-#'   \item X-axis inverted if the image has positive sform determinant
+#'   \item Voxel indices multiplied by voxel sizes (\code{pixdim})
+#'   \item X-axis inverted if the image has positive \code{sform} determinant
 #'     (neurological convention)
 #' }
 #'
@@ -790,7 +790,7 @@ io_read_flirt_transform <- function(file, space_from, space_to) {
 #' }
 #'
 #' The FSL coordinate system uses scaled voxels with possible X-axis flip
-#' depending on the image's sform determinant sign.
+#' depending on the image's \code{sform} determinant sign.
 #'
 #' @examples
 #' \dontrun{
