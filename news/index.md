@@ -6,10 +6,13 @@
   spaces and chain transforms
 - Added `io_read_ants_transform` to read `ANTs` affine and displacement
   field transforms
+- Added `io_read_flirt_transform` to read `FSL FLIRT` affine transforms
 - Added `volume_to_surface` and `surface_to_surface` for mapping data
   between volumes and surfaces
+- Fixed point transform ambiguity when chaining transforms with
+  different interpretations
 - Improved `plot.ieegio_volume` intensity windowing using
-  percentile-based display range (2nd-98th percentiles), following
+  percentile-based display range (2-98 percentiles), following
   conventions from `FSLeyes`, `AFNI`, `MRIcroGL`, and `SPM`
 - Auto-detection for `CT` vs `MRI` data: excludes zeros by default but
   includes them when lower percentile is below -500 (indicating `CT`

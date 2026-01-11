@@ -70,7 +70,7 @@ Where:
 - `ref_vox2ras`: Reference image's voxel-to-RAS matrix
 
 The FSL coordinate system uses scaled voxels with possible X-axis flip
-depending on the image's sform determinant sign.
+depending on the image's `sform` determinant sign.
 
 ## See also
 

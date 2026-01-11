@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,8 +41,10 @@
 <h2 class="pkg-version" data-toc-text="0.0.8" id="ieegio-008">ieegio 0.0.8<a class="anchor" aria-label="anchor" href="#ieegio-008"></a></h2>
 <ul><li>Added <code>new_space</code> and <code>as_ieegio_transform</code> to define coordinate spaces and chain transforms</li>
 <li>Added <code>io_read_ants_transform</code> to read <code>ANTs</code> affine and displacement field transforms</li>
+<li>Added <code>io_read_flirt_transform</code> to read <code>FSL FLIRT</code> affine transforms</li>
 <li>Added <code>volume_to_surface</code> and <code>surface_to_surface</code> for mapping data between volumes and surfaces</li>
-<li>Improved <code>plot.ieegio_volume</code> intensity windowing using percentile-based display range (2nd-98th percentiles), following conventions from <code>FSLeyes</code>, <code>AFNI</code>, <code>MRIcroGL</code>, and <code>SPM</code>
+<li>Fixed point transform ambiguity when chaining transforms with different interpretations</li>
+<li>Improved <code>plot.ieegio_volume</code> intensity windowing using percentile-based display range (2-98 percentiles), following conventions from <code>FSLeyes</code>, <code>AFNI</code>, <code>MRIcroGL</code>, and <code>SPM</code>
 </li>
 <li>Auto-detection for <code>CT</code> vs <code>MRI</code> data: excludes zeros by default but includes them when lower percentile is below -500 (indicating <code>CT</code> with -1024 background)</li>
 <li>Statistical overlay detection: applies symmetric range for z-score-like data</li>

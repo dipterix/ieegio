@@ -1,9 +1,8 @@
 # Read FSL FLIRT transformation matrix
 
 Reads a 4x4 affine transformation matrix from an FSL FLIRT output file.
-FLIRT matrices operate in FSL's scaled-voxel coordinate system and
-require source and reference images to convert to world (RAS)
-coordinates.
+FLIRT matrices operate in FSL scaled-voxel coordinate system and require
+source and reference images to convert to world (RAS) coordinates.
 
 ## Usage
 
@@ -60,12 +59,11 @@ An `ieegio_transforms` object with:
 
 ## Details
 
-FLIRT matrices operate in FSL's scaled-voxel coordinate system, which
-is:
+FLIRT matrices operate in FSL scaled-voxel coordinate system, which is:
 
-- Voxel indices multiplied by voxel sizes (pixdim)
+- Voxel indices multiplied by voxel sizes (`pixdim`)
 
-- X-axis inverted if the image has positive sform determinant
+- X-axis inverted if the image has positive `sform` determinant
   (neurological convention)
 
 The returned transform has `"FSL"` orientation for both source and
