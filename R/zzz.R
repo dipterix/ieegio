@@ -85,5 +85,14 @@ get_os <- function(){
   .pynwb$clean()
 }
 
-
+# Used for debugging functions
+enable_debugging <- local({
+  enabled <- FALSE
+  function(x = TRUE) {
+    if(!is.na(x)) {
+      enabled <<- isTRUE(x)
+    }
+    invisible(enabled)
+  }
+})
 

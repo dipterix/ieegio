@@ -28,6 +28,7 @@ Check whether a 'HDF5' file can be opened for read/write
 }
 \examples{
 
+
 x <- array(1:27, c(3,3,3))
 f <- tempfile()
 
@@ -53,5 +54,6 @@ ptr
 
 # clean up
 unlink(f)
+
 
 }

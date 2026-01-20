@@ -30,6 +30,8 @@
 #'
 #' @export
 ieegio_sample_data <- function(file, test = FALSE, cache_ok = TRUE) {
+  dry_run <- enable_debugging(NA)
+
   # DIPSAUS DEBUG START
   # file <- "edfPlusD.edf"
   # cache_ok <- TRUE
@@ -51,8 +53,13 @@ ieegio_sample_data <- function(file, test = FALSE, cache_ok = TRUE) {
   sample_dir <- file.path(tools::R_user_dir(package = "ieegio", which = "cache"), "sample_data")
   sample_file <- file.path(sample_dir, file)
 
+  sample_exists <- file_exists(sample_file)
   if(test) {
-    return(file_exists(sample_file))
+    return(sample_exists)
+  }
+
+  if(dry_run && !sample_exists) {
+    stop(sprintf("You are under debugging mode. The sample file will not be downloaded. If you see this error, that means you are running `ieegio_sample_data` in tests or examples that does not allow extra downloading files. Please wrap your code with condition `if(ieegio_sample_data('%s', test=TRUE)) ...` in package documentations and tests. If the error is in production mode, please file an issue/debug report.", file))
   }
 
   backup_file <- paste0(sample_file, ".backup")

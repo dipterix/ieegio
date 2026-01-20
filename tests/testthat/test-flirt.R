@@ -101,6 +101,7 @@ test_that("transform_orientation FSL to/from RAS requires image", {
 
 test_that("transform_orientation FSL to RAS with image", {
   skip_if_not_installed("RNifti")
+  skip_if_not(ieegio_sample_data("brain.demosubject.nii.gz", test = TRUE))
 
   # Use sample NIfTI file
   nii_file <- ieegio_sample_data("brain.demosubject.nii.gz")
@@ -121,6 +122,7 @@ test_that("transform_orientation FSL to RAS with image", {
 
 test_that("transform_orientation RAS to FSL with image", {
   skip_if_not_installed("RNifti")
+  skip_if_not(ieegio_sample_data("brain.demosubject.nii.gz", test = TRUE))
 
   nii_file <- ieegio_sample_data("brain.demosubject.nii.gz")
   skip_if(!file.exists(nii_file), "Sample NIfTI file not available")
@@ -135,6 +137,7 @@ test_that("transform_orientation RAS to FSL with image", {
 
 test_that("transform_orientation FSL to LPS chains correctly", {
   skip_if_not_installed("RNifti")
+  skip_if_not(ieegio_sample_data("brain.demosubject.nii.gz", test = TRUE))
 
   nii_file <- ieegio_sample_data("brain.demosubject.nii.gz")
   skip_if(!file.exists(nii_file), "Sample NIfTI file not available")
@@ -166,6 +169,7 @@ test_that("transform_flirt2ras with no images returns unchanged",
 
 test_that("transform_flirt2ras with source only", {
   skip_if_not_installed("RNifti")
+  skip_if_not(ieegio_sample_data("brain.demosubject.nii.gz", test = TRUE))
 
   nii_file <- ieegio_sample_data("brain.demosubject.nii.gz")
   skip_if(!file.exists(nii_file), "Sample NIfTI file not available")
@@ -183,6 +187,7 @@ test_that("transform_flirt2ras with source only", {
 
 test_that("transform_flirt2ras with reference only", {
   skip_if_not_installed("RNifti")
+  skip_if_not(ieegio_sample_data("brain.demosubject.nii.gz", test = TRUE))
 
   nii_file <- ieegio_sample_data("brain.demosubject.nii.gz")
   skip_if(!file.exists(nii_file), "Sample NIfTI file not available")
@@ -200,6 +205,7 @@ test_that("transform_flirt2ras with reference only", {
 
 test_that("transform_flirt2ras with both images", {
   skip_if_not_installed("RNifti")
+  skip_if_not(ieegio_sample_data("brain.demosubject.nii.gz", test = TRUE))
 
   nii_file <- ieegio_sample_data("brain.demosubject.nii.gz")
   skip_if(!file.exists(nii_file), "Sample NIfTI file not available")
@@ -217,6 +223,7 @@ test_that("transform_flirt2ras with both images", {
 
 test_that("transform_flirt2ras accepts matrix input", {
   skip_if_not_installed("RNifti")
+  skip_if_not(ieegio_sample_data("brain.demosubject.nii.gz", test = TRUE))
 
   nii_file <- ieegio_sample_data("brain.demosubject.nii.gz")
   skip_if(!file.exists(nii_file), "Sample NIfTI file not available")
@@ -231,6 +238,7 @@ test_that("transform_flirt2ras accepts matrix input", {
 
 test_that("transform_flirt2ras accepts ieegio_volume objects", {
   skip_if_not_installed("RNifti")
+  skip_if_not(ieegio_sample_data("brain.demosubject.nii.gz", test = TRUE))
 
   nii_file <- ieegio_sample_data("brain.demosubject.nii.gz")
   skip_if(!file.exists(nii_file), "Sample NIfTI file not available")
@@ -251,6 +259,7 @@ test_that("transform_flirt2ras accepts ieegio_volume objects", {
 
 test_that("FLIRT identity transform preserves coordinates (RAS round-trip)", {
   skip_if_not_installed("RNifti")
+  skip_if_not(ieegio_sample_data("brain.demosubject.nii.gz", test = TRUE))
 
   nii_file <- ieegio_sample_data("brain.demosubject.nii.gz")
   skip_if(!file.exists(nii_file), "Sample NIfTI file not available")
@@ -278,3 +287,4 @@ test_that("as_ieegio_transform.character with format='flirt'", {
   expect_equal(attr(xfm$space_from, "orientation"), "FSL")
   expect_equal(attr(xfm$space_to, "orientation"), "FSL")
 })
+

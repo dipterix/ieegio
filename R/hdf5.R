@@ -169,6 +169,7 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4, replace = TRUE
 #'
 #' @examples
 #'
+#'
 #' x <- array(1:27, c(3,3,3))
 #' f <- tempfile()
 #'
@@ -194,6 +195,7 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4, replace = TRUE
 #'
 #' # clean up
 #' unlink(f)
+#'
 #'
 #' @export
 io_h5_valid <- function(file, mode = c('r', 'w'), close_all = FALSE){
