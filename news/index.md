@@ -2,6 +2,8 @@
 
 ## ieegio 0.0.8
 
+CRAN release: 2026-01-11
+
 - Added `new_space` and `as_ieegio_transform` to define coordinate
   spaces and chain transforms
 - Added `io_read_ants_transform` to read `ANTs` affine and displacement
