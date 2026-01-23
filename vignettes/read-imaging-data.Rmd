@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE, echo = FALSE, results='hide'}
+```{r setup, include=FALSE, echo = FALSE, results='hide'}
 if(identical(Sys.getenv("IEEGIO_PKGDOWN", unset = ""), "")) {
   knitr::opts_chunk$set(
     collapse = TRUE,
@@ -197,5 +197,12 @@ write_streamlines(x = tck, con = tfile)
 ```{r streamline_cleanup, echo = FALSE, results='hide'}
 if(file.exists(tfile)) {
   unlink(tfile)
+}
+```
+
+```{r teardown, echo=FALSE, results='hide'}
+cache_dir <- tools::R_user_dir("ieegio", "cache")
+if(file.exists(cache_dir)) {
+  unlink(cache_dir, recursive = TRUE, force = TRUE)
 }
 ```
