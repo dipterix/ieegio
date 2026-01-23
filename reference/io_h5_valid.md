@@ -43,9 +43,9 @@ io_h5_valid(f, 'r')
 #> [1] FALSE
 
 io_write_h5(x, f, 'dset')
-#> /tmp/Rtmpn6PZZr/file21722b12601f => dset (Dataset Created)
-#> /tmp/Rtmpn6PZZr/file21722b12601f => dset (Dataset Removed)
-#> /tmp/Rtmpn6PZZr/file21722b12601f => dset (Dataset Created)
+#> /tmp/RtmpW6rcLH/file218c13ec1db1 => dset (Dataset Created)
+#> /tmp/RtmpW6rcLH/file218c13ec1db1 => dset (Dataset Removed)
+#> /tmp/RtmpW6rcLH/file218c13ec1db1 => dset (Dataset Created)
 io_h5_valid(f, 'w')
 #> [1] TRUE
 
