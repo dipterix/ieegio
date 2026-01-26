@@ -1,3 +1,8 @@
+# ieegio 0.0.9
+
+* Fixed `CRAN` check issues
+* Added volume and surface related functions as `MCP` tools (can be loaded via package `ravepipeline` and `ellmer`)
+
 # ieegio 0.0.8
 
 * Added `new_space` and `as_ieegio_transform` to define coordinate spaces and chain transforms
