@@ -59,7 +59,7 @@ io_write_yaml(x, con, ..., sorted = FALSE)
   `'data_table'`
 
   :   read as
-      [`data.table`](https://rdatatable.gitlab.io/data.table/reference/data.table.html);
+      [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html);
 
   `'data_frame'`
 
@@ -157,7 +157,7 @@ io_write_fst(x, con = f)
 # default reads in proxy
 io_read_fst(f)
 #> <fst file>
-#> 10 rows, 3 columns (file218cbcd53a3.fst)
+#> 10 rows, 3 columns (file219b677f6ff.fst)
 #> 
 #>            a           b           c
 #>    <integer>    <double> <character>
@@ -204,7 +204,7 @@ io_read_fst(f, "data_frame")
 # get header
 io_read_fst(f, "header_only")
 #> <fst file>
-#> 10 rows, 3 columns (file218cbcd53a3.fst)
+#> 10 rows, 3 columns (file219b677f6ff.fst)
 #> 
 #> * 'a': integer
 #> * 'b': double
