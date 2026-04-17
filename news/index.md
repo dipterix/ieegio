@@ -2,6 +2,8 @@
 
 ## ieegio 0.0.9
 
+CRAN release: 2026-01-27
+
 - Fixed `CRAN` check issues
 - Added volume and surface related functions as `MCP` tools (can be
   loaded via package `ravepipeline` and `ellmer`)
