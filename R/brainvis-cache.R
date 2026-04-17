@@ -84,13 +84,13 @@ BrainVisionCache <- R6::R6Class(
       signals <- subset(arr,
                    Time ~ Time >= begin &
                      Time < end,
-                   ChannelOrder ~ ChannelOrder == x,
+                   ChannelOrder ~ ChannelOrder == chan,
                    drop = FALSE)
       time <- as.numeric(rownames(signals))
       dimnames(signals) <- NULL
       signals <- drop(signals)
 
-      info <- self$channel_table[x, ]
+      info <- self$channel_table[chan, ]
       info <- list(
         Channel = info$Number,
         Label = info$Label,
