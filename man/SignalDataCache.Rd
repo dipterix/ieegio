@@ -8,103 +8,112 @@ This class is an internal abstract class
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-FileCache-get_header}{\code{SignalDataCache$get_header()}}
-\item \href{#method-FileCache-get_annotations}{\code{SignalDataCache$get_annotations()}}
-\item \href{#method-FileCache-get_channel_table}{\code{SignalDataCache$get_channel_table()}}
-\item \href{#method-FileCache-get_channel}{\code{SignalDataCache$get_channel()}}
-\item \href{#method-FileCache-delete}{\code{SignalDataCache$delete()}}
-}
+  \itemize{
+    \item \href{#method-FileCache-get_header}{\code{FileCache$get_header()}}
+    \item \href{#method-FileCache-get_annotations}{\code{FileCache$get_annotations()}}
+    \item \href{#method-FileCache-get_channel_table}{\code{FileCache$get_channel_table()}}
+    \item \href{#method-FileCache-get_channel}{\code{FileCache$get_channel()}}
+    \item \href{#method-FileCache-delete}{\code{FileCache$delete()}}
+  }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FileCache-get_header"></a>}}
 \if{latex}{\out{\hypertarget{method-FileCache-get_header}{}}}
-\subsection{Method \code{get_header()}}{
-Get header information, often small list object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SignalDataCache$get_header(...)}\if{html}{\out{</div>}}
+\subsection{\code{FileCache$get_header()}}{
+  Get header information, often small list object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FileCache$get_header(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{passed to child methods}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{passed to child methods}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FileCache-get_annotations"></a>}}
 \if{latex}{\out{\hypertarget{method-FileCache-get_annotations}{}}}
-\subsection{Method \code{get_annotations()}}{
-Get annotation information, often a large table
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SignalDataCache$get_annotations(...)}\if{html}{\out{</div>}}
+\subsection{\code{FileCache$get_annotations()}}{
+  Get annotation information, often a large table
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FileCache$get_annotations(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{passed to child methods}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{passed to child methods}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FileCache-get_channel_table"></a>}}
 \if{latex}{\out{\hypertarget{method-FileCache-get_channel_table}{}}}
-\subsection{Method \code{get_channel_table()}}{
-Get channel table
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SignalDataCache$get_channel_table(...)}\if{html}{\out{</div>}}
+\subsection{\code{FileCache$get_channel_table()}}{
+  Get channel table
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FileCache$get_channel_table(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{passed to child methods}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{passed to child methods}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FileCache-get_channel"></a>}}
 \if{latex}{\out{\hypertarget{method-FileCache-get_channel}{}}}
-\subsection{Method \code{get_channel()}}{
-Get channel data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SignalDataCache$get_channel(x, ...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{x}}{channel order or label}
-
-\item{\code{...}}{passed to child methods}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Channel signal with time-stamps inheriting class
+\subsection{\code{FileCache$get_channel()}}{
+  Get channel data
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FileCache$get_channel(x, ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{x}}{channel order or label}
+      \item{\code{...}}{passed to child methods}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Channel signal with time-stamps inheriting class
 \code{'ieegio_get_channel'}
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FileCache-delete"></a>}}
 \if{latex}{\out{\hypertarget{method-FileCache-delete}{}}}
-\subsection{Method \code{delete()}}{
-Delete file cache
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SignalDataCache$delete(...)}\if{html}{\out{</div>}}
+\subsection{\code{FileCache$delete()}}{
+  Delete file cache
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FileCache$delete(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{passed to child methods}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{passed to child methods}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

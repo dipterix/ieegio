@@ -26,7 +26,7 @@ io_read_gii <- function(file) {
 
   parse_transforms <- function(transforms, meta = list()) {
     source_space <- unlist(NIFTI_XFORM_CODE[transforms$DataSpace])
-    if(!length(source_space)) {
+    if (!length(source_space)) {
       source_space <- "Unknown"
     }
     nms <- names(transforms)
@@ -40,12 +40,12 @@ io_read_gii <- function(file) {
       lapply(seq_len(n), function(jj) {
         idx <- tmat[jj]
         mat <- transforms[[idx]]
-        if(!is.matrix(mat) || nrow(mat) != 4) {
+        if (!is.matrix(mat) || nrow(mat) != 4) {
           # The values are listed as a one- dimensional array in row-major order
           mat <- matrix(as.vector(mat), nrow = 4L, byrow = TRUE)
-          if(
-            any(mat[4, c(1,2,3)] != 0) &&
-            all(mat[c(1,2,3), 4] == 0)
+          if (
+            any(mat[4, c(1, 2, 3)] != 0) &&
+            all(mat[c(1, 2, 3), 4] == 0)
           ) {
             warning("Detected column-major transform matrix. This is against GIfTI specification.")
           }
@@ -88,7 +88,7 @@ io_read_gii <- function(file) {
       )
     )
 
-    if(!length(re)) {
+    if (!length(re)) {
       re <- null_transform
     }
 
@@ -98,11 +98,11 @@ io_read_gii <- function(file) {
 
 
   parse_label_table <- function(lut) {
-    if(!length(lut)) { return() }
-    if(!is.data.frame(lut) && !is.matrix(lut)) { return() }
+    if (!length(lut)) { return() }
+    if (!is.data.frame(lut) && !is.matrix(lut)) { return() }
     label_names <- rownames(lut)
     lut <- data.table::data.table(lut)
-    if(length(label_names) && !all(grepl("^[0-9]{0,}$", label_names))) {
+    if (length(label_names) && !all(grepl("^[0-9]{0,}$", label_names))) {
       lut$Label <- label_names
     } else {
       lut$Label <- lut$Key
@@ -111,22 +111,22 @@ io_read_gii <- function(file) {
     lut$Key <- as.integer(lut$Key)
     # Red, Green, Blue: This optional, but recommended, attribute contains
     # a floating-point value ranging from zero to one.
-    if(length(lut$Red)) {
+    if (length(lut$Red)) {
       lut$Red <- as.numeric(lut$Red)
     } else {
       lut$Red <- 0
     }
-    if(length(lut$Green)) {
+    if (length(lut$Green)) {
       lut$Green <- as.numeric(lut$Green)
     } else {
       lut$Green <- 0
     }
-    if(length(lut$Blue)) {
+    if (length(lut$Blue)) {
       lut$Blue <- as.numeric(lut$Blue)
     } else {
       lut$Blue <- 0
     }
-    if(length(lut$Alpha)) {
+    if (length(lut$Alpha)) {
       lut$Alpha <- as.numeric(lut$Alpha)
     } else {
       lut$Alpha <- 1
@@ -143,7 +143,7 @@ io_read_gii <- function(file) {
     meta <- gii$data_meta[[ii]]
     data <- gii$data[[ii]]
 
-    if(is.matrix(meta) && nrow(meta)) {
+    if (is.matrix(meta) && nrow(meta)) {
       meta <- structure(
         names = meta[, 1],
         as.list(meta[, 2])
@@ -153,7 +153,7 @@ io_read_gii <- function(file) {
     }
 
     get_meta <- function(name, default = "Unknown") {
-      if(!length(meta) || !name %in% names(meta)) { return(default) }
+      if (!length(meta) || !name %in% names(meta)) { return(default) }
       meta[[name]]
     }
 
@@ -217,7 +217,7 @@ io_read_gii <- function(file) {
           meta = list()
         ))
         name <- get_meta("Name", default = sprintf("Unnamed%03d", ii))
-        if(is.data.frame(annotations$data_table)) {
+        if (is.data.frame(annotations$data_table)) {
           annotations$data_table[[name]] <- as.vector(data)
         } else {
           annotations$data_table <- data.table::as.data.table(
@@ -238,7 +238,7 @@ io_read_gii <- function(file) {
           meta = list()
         ))
         name <- get_meta("Name", default = sprintf("Shape%03d", ii))
-        if(is.data.frame(measurements$data_table)) {
+        if (is.data.frame(measurements$data_table)) {
           measurements$data_table[[name]] <- as.vector(data)
         } else {
           measurements$data_table <- data.table::as.data.table(
@@ -309,7 +309,7 @@ io_read_gii <- function(file) {
   # map <- map$as_list()
   gii$data <- NULL
   time_series <- map$get("time_series")
-  if(!is.null(time_series)) {
+  if (!is.null(time_series)) {
     time_series$value <- do.call("cbind", time_series$value$as_list())
   }
   new_surface(
@@ -340,11 +340,11 @@ io_write_gii.ieegio_surface <- function(
   intents <- c()
   transform_matrix <- list()
 
-  if( x$sparse ) {
+  if ( x$sparse ) {
     node_index <- x$sparse_node_index
     node_index_start <- attr(node_index, "start_index")
-    if(length(node_index)) {
-      if(length(node_index_start) == 1 && !is.na(node_index_start) && is.numeric(node_index_start)) {
+    if (length(node_index)) {
+      if (length(node_index_start) == 1 && !is.na(node_index_start) && is.numeric(node_index_start)) {
         node_index <- node_index - node_index_start
       } else {
         node_index <- node_index - 1L
@@ -358,12 +358,12 @@ io_write_gii.ieegio_surface <- function(
     }
   }
 
-  if(length(x$geometry)) {
+  if (length(x$geometry)) {
     # NIFTI_INTENT_SHAPE
     vertex_coords <- t(x$geometry$vertices[1:3, , drop = FALSE])
     faces <- t(x$geometry$faces)
     face_start <- x$geometry$face_start
-    if(length(face_start) == 1 && is.numeric(face_start) && !is.na(face_start)) {
+    if (length(face_start) == 1 && is.numeric(face_start) && !is.na(face_start)) {
       faces <- faces - face_start
     } else {
       faces <- faces - 1L
@@ -372,13 +372,13 @@ io_write_gii.ieegio_surface <- function(
 
     transform <- x$geometry$transforms[[1]]
     source_space <- attr(transform, "source_space")
-    if(!isTRUE(source_space %in% names(NIFTI_XFORM_CODE))) {
+    if (!isTRUE(source_space %in% names(NIFTI_XFORM_CODE))) {
       source_space <- "NIFTI_XFORM_UNKNOWN"
     }
     target_space <- attr(transform, "target_space")
-    if(!isTRUE(target_space %in% names(NIFTI_XFORM_CODE))) {
+    if (!isTRUE(target_space %in% names(NIFTI_XFORM_CODE))) {
       sel <- NIFTI_XFORM_CODE %in% names(x$geometry$transforms)[[1]]
-      if(any(sel)) {
+      if (any(sel)) {
         target_space <- names(NIFTI_XFORM_CODE)[sel][[1]]
       } else {
         target_space <- "NIFTI_XFORM_UNKNOWN"
@@ -391,25 +391,25 @@ io_write_gii.ieegio_surface <- function(
     intents <- c(intents, "NIFTI_INTENT_POINTSET", "NIFTI_INTENT_TRIANGLE")
     transform_matrix <- c(transform_matrix, list(
       list(
-        'transform_matrix' = transform,
-        'data_space' = source_space,
-        'transformed_space' = target_space
+        "transform_matrix" = transform,
+        "data_space" = source_space,
+        "transformed_space" = target_space
       ),
       NA
     ))
   }
 
   label_table <- NULL
-  if(length(x$annotations)) {
+  if (length(x$annotations)) {
     nms <- names(x$annotations$data_table)
     intent <- "NIFTI_INTENT_LABEL"
-    for(nm in nms) {
+    for (nm in nms) {
       v <- matrix(x$annotations$data_table[[nm]], ncol = 1L)
       storage.mode(v) <- "integer"
 
       data_sets <- c(data_sets, list(v))
       datatypes <- c(datatypes, "NIFTI_TYPE_INT32")
-      intents <- c(intents, 'NIFTI_INTENT_LABEL')
+      intents <- c(intents, "NIFTI_INTENT_LABEL")
       transform_matrix <- c(transform_matrix, list(NA))
 
       # <Label Key="0" Red="0" Green="0" Blue="0" Alpha="1"><![CDATA[Unknown]]></Label>
@@ -418,12 +418,12 @@ io_write_gii.ieegio_surface <- function(
     }
   }
 
-  if(length(x$measurements)) {
+  if (length(x$measurements)) {
     nms <- names(x$measurements$data_table)
-    for(nm in nms) {
+    for (nm in nms) {
       meta <- as.list(x$measurements$meta[[nm]])
       intent <- paste(as.character(meta$intent), collapse = "")
-      if(gifti::convert_intent(intent) == "unknown") {
+      if (gifti::convert_intent(intent) == "unknown") {
         intent <- "NIFTI_INTENT_SHAPE"
       }
       v <- matrix(x$measurements$data_table[[nm]], ncol = 1L)
@@ -434,16 +434,16 @@ io_write_gii.ieegio_surface <- function(
     }
   }
 
-  if(length(x$color) && is.matrix(x$color) && ncol(x$color) >= 3) {
+  if (length(x$color) && is.matrix(x$color) && ncol(x$color) >= 3) {
     cmat <- x$color
     nc <- ncol(x$color)
-    if(nc >= 4) {
+    if (nc >= 4) {
       nc <- nc[, 1:4, drop = FALSE]
       intent <- "NIFTI_INTENT_RGBA_VECTOR"
     } else {
       intent <- "NIFTI_INTENT_RGB_VECTOR"
     }
-    if(max(cmat, na.rm = TRUE) >= 2) {
+    if (max(cmat, na.rm = TRUE) >= 2) {
       cmat <- cmat / 255
     }
 
@@ -454,7 +454,7 @@ io_write_gii.ieegio_surface <- function(
   }
 
   # time series
-  if(length(x$time_series)) {
+  if (length(x$time_series)) {
 
     v <- x$time_series$value
     slice_duration <- x$time_series$slice_duration
@@ -463,7 +463,7 @@ io_write_gii.ieegio_surface <- function(
       data_sets,
       lapply(seq_along(slice_duration), function(ii) {
         duration <- slice_duration[[ii]]
-        if(is.na(duration)) { duration <- 0 }
+        if (is.na(duration)) { duration <- 0 }
         structure(
           v[, ii, drop = FALSE],
           meta = list(TimeStep = duration)

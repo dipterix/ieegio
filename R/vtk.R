@@ -51,7 +51,7 @@ io_read_vtk_streamlines <- function(file) {
   ext <- strsplit(tolower(file), "\\.")[[1]]
   ext <- ext[[length(ext)]]
 
-  reader_names <- switch (
+  reader_names <- switch(
     ext,
     "pvtp" = c("vtkXMLPPolyDataReader", "vtkXMLPolyDataReader", "vtkPolyDataReader"),
     "vtp" = c("vtkXMLPolyDataReader", "vtkPolyDataReader"),
@@ -63,13 +63,13 @@ io_read_vtk_streamlines <- function(file) {
   )
 
   ensure_py_package("vtk")
-  vtk <- rpymat::import('vtk')
+  vtk <- rpymat::import("vtk")
 
   reader_valid <- FALSE
   coords <- NULL
   lines <- NULL
   lapply(reader_names, function(reader_name) {
-    if(reader_valid) { return() }
+    if (reader_valid) { return() }
     tryCatch({
       reader <- vtk[[reader_name]]()
       reader$SetFileName(file)
@@ -87,7 +87,7 @@ io_read_vtk_streamlines <- function(file) {
     return()
   })
 
-  if(!reader_valid) {
+  if (!reader_valid) {
     stop("Unable to read the VTK file using the following readers: ",
          paste(sprintf("`vtk.%s`", reader_names), collapse = ", "))
   }
@@ -105,7 +105,7 @@ io_read_vtk_streamlines <- function(file) {
   offsets <- 1
   offset_idx <- 1
   nl <- length(lines)
-  while(offset_idx <= nl) {
+  while (offset_idx <= nl) {
     n_points <- lines[[offset_idx]]
     offset_idx <- offset_idx + 1 + n_points
     offsets <- c(offsets, offset_idx)
@@ -115,10 +115,10 @@ io_read_vtk_streamlines <- function(file) {
   tracts <- lapply(seq_len(length(offsets) - 1), function(ii) {
     start_idx <- offsets[[ii]] + 1
     end_idx <- offsets[[ii + 1]] - 1
-    if(start_idx >= end_idx) { return(NULL) }
+    if (start_idx >= end_idx) { return(NULL) }
     idx <- lines[seq.int(from = start_idx, to = end_idx)] + 1L
     idx <- idx[idx <= nr]
-    if(length(idx) < 2) { return(NULL) }
+    if (length(idx) < 2) { return(NULL) }
     list(
       coords = coords[idx, , drop = FALSE],
       num_points = length(idx)
@@ -157,7 +157,7 @@ io_write_vtk_streamlines <- function(x, con, binary = TRUE) {
   lines <- as.integer(unlist(lines))
 
   ensure_py_package("vtk")
-  vtk <- rpymat::import('vtk')
+  vtk <- rpymat::import("vtk")
 
   numpy_to_vtk <- vtk$util$numpy_support$numpy_to_vtk
   numpy_to_vtkIdTypeArray <- vtk$util$numpy_support$numpy_to_vtkIdTypeArray
@@ -171,7 +171,7 @@ io_write_vtk_streamlines <- function(x, con, binary = TRUE) {
   lines_py <- rpymat::r_to_py(matrix(lines, nrow = 1))
   lines_py <- lines_py$astype("int64")
 
-  vtk_line_array <- numpy_to_vtkIdTypeArray(lines_py, deep=TRUE)
+  vtk_line_array <- numpy_to_vtkIdTypeArray(lines_py, deep = TRUE)
   vtk_lines$SetCells(n, vtk_line_array)
 
   # Create PolyData
@@ -179,13 +179,13 @@ io_write_vtk_streamlines <- function(x, con, binary = TRUE) {
   polydata$SetPoints(vtk_points)
   polydata$SetLines(vtk_lines)
 
-  if( endsWith(tolower(con), "vtp") ) {
+  if ( endsWith(tolower(con), "vtp") ) {
     writer <- vtk$vtkXMLPolyDataWriter()
-  } else if( endsWith(tolower(con), "h5") || endsWith(tolower(con), "vtpb") ) {
+  } else if ( endsWith(tolower(con), "h5") || endsWith(tolower(con), "vtpb") ) {
     writer <- vtk$vtkHDFWriter()
   } else {
     writer <- vtk$vtkPolyDataWriter()
-    if( binary ) {
+    if ( binary ) {
       writer$SetFileTypeToBinary()
     } else {
       writer$SetFileTypeToASCII()
@@ -195,7 +195,7 @@ io_write_vtk_streamlines <- function(x, con, binary = TRUE) {
   writer$SetInputData(polydata)
 
   dname <- dirname(con)
-  if(!dir_exists(dname)) {
+  if (!dir_exists(dname)) {
     dir_create(dname)
   }
   writer$Write()

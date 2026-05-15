@@ -15,7 +15,7 @@ py_capture_output <- function(...) {
 validate_python <- function(verbose = TRUE) {
   check_py_flag()
   verb <- function(expr) {
-    if(verbose) {
+    if (verbose) {
       force( expr )
     }
   }
@@ -34,11 +34,11 @@ validate_python <- function(verbose = TRUE) {
   verb(message("Validating packages..."))
 
   package_missing <- NULL
-  for(package in c("pynwb")) {
+  for (package in c("pynwb")) {
     tryCatch({
       verb({ cat(sprintf("%s: ...", package)) })
       module <- rpymat::import(package)
-      ver <-rpymat::py_to_r( module$`__version__`)
+      ver <- rpymat::py_to_r(module$`__version__`)
       verb({ cat("\b\b\b", ver, "\n", sep = "") })
     }, error = function(e) {
       verb({ cat("\b\b\b N/A   \n", sep = "") })
@@ -55,11 +55,11 @@ validate_python <- function(verbose = TRUE) {
 
   get_pynwb <- function(force = FALSE, error_if_missing = TRUE) {
     check_py_flag()
-    if(!force && inherits(pynwb, "python.builtin.module")) {
+    if (!force && inherits(pynwb, "python.builtin.module")) {
       return( pynwb )
     }
-    if( !rpymat_is_setup() ) {
-      if( error_if_missing ) {
+    if ( !rpymat_is_setup() ) {
+      if ( error_if_missing ) {
         stop("Please configure environment first. Run the following command:\n   ieegio::install_pynwb()")
       }
       return( NULL )
@@ -67,11 +67,11 @@ validate_python <- function(verbose = TRUE) {
     tryCatch({
       rpymat::ensure_rpymat(verbose = FALSE)
       m <- rpymat::import("pynwb", convert = FALSE, delay_load = FALSE, as = "pynwb")
-      class(m) <- c('nwb.proxy', class(m))
+      class(m) <- c("nwb.proxy", class(m))
       pynwb <<- m
       return( pynwb )
     }, error = function(e) {
-      if( error_if_missing ) {
+      if ( error_if_missing ) {
         stop(e)
       }
       return(NULL)
@@ -94,19 +94,19 @@ ensure_py_package <- local({
 
   function(packages, python_ver = "auto", ...) {
     check_py_flag()
-    if(!dir.exists(rpymat::env_path())) {
+    if (!dir.exists(rpymat::env_path())) {
       standalone <- !file.exists(rpymat::conda_bin())
       rpymat::configure_conda(python_ver = python_ver, force = TRUE, standalone = standalone)
     }
     rpymat::ensure_rpymat(verbose = FALSE)
 
-    if(is.null(installed_pkgs_tbl) || !is.data.frame(installed_pkgs_tbl) || !all(packages %in% installed_pkgs_tbl$package)) {
+    if (is.null(installed_pkgs_tbl) || !is.data.frame(installed_pkgs_tbl) || !all(packages %in% installed_pkgs_tbl$package)) {
       installed_pkgs_tbl <<- rpymat::list_pkgs()
     }
 
     packages <- packages[!packages %in% installed_pkgs_tbl$package]
 
-    if(length(packages)) {
+    if (length(packages)) {
       tryCatch({
         rpymat::run_command("conda tos accept --channel https://repo.anaconda.com/pkgs/r --channel https://repo.anaconda.com/pkgs/main")
       }, error = function(e) {})

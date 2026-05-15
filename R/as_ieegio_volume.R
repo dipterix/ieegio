@@ -102,7 +102,7 @@ as_ieegio_volume.ieegio_volume <- function(x, ...) {
 #' @rdname as_ieegio_volume
 #' @export
 as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x), ...) {
-  if(!is.matrix(vox2ras)) {
+  if (!is.matrix(vox2ras)) {
     warning("`io_write_nii.array`: `vox2ras` is missing, using identity matrix. Please specify voxel-to-RAS transform (4x4 matrix).")
     vox2ras <- diag(1, 4)
   }
@@ -117,7 +117,7 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
   # and dimension 5 is for storing multiple values at each spatiotemporal
   # voxel.
   stopifnot(nshapes %in% c(3, 4, 5))
-  if(length(shape) > 3) {
+  if (length(shape) > 3) {
     nframes <- shape[[4]]
   } else {
     nframes <- 1
@@ -129,7 +129,7 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
   pixdim <- as.double(pixdim)
 
   # Drop frames if necessary
-  if( nframes == 1 && length(shape) == 4 ) {
+  if ( nframes == 1 && length(shape) == 4 ) {
     pixdim[[5]] <- 0
     shape <- shape[1:3]
     x <- array(x[seq_len(prod(shape))], dim = shape)
@@ -137,12 +137,12 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
 
   nshapes <- length(shape)
 
-  if(as_color) {
+  if (as_color) {
     # treat as rgbArray
     rgba <- grDevices::col2rgb(x, alpha = TRUE)
     storage.mode(rgba) <- "integer"
     rgba[, is.na(x)] <- 0L
-    if(all(rgba[4, ] == 255)) {
+    if (all(rgba[4, ] == 255)) {
       x <- RNifti::rgbArray(rgba[1, ], rgba[2, ], rgba[3, ], max = 255L, dim = shape)
       datatype_code <- as_nifti_type("NIFTI_TYPE_RGB24")
     } else {
@@ -155,8 +155,8 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
     x[is.na(x)] <- 0
     rg <- range(x)
 
-    if(all(x - round(x) == 0)) {
-      if( rg[[1]] >= 0 && rg[[2]] <= 255 ) {
+    if (all(x - round(x) == 0)) {
+      if ( rg[[1]] >= 0 && rg[[2]] <= 255 ) {
         # UINT8
         datatype_code <- 2L
         storage.mode(x) <- "integer"
@@ -200,7 +200,7 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
   )
 
   use_oro <- FALSE
-  if(!as_color && (get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE))) {
+  if (!as_color && (get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE))) {
     # This is running for WASM (special as RNifti is not available in WASM)
     use_oro <- TRUE
     header <- oro.nifti::as.nifti(x)
@@ -260,7 +260,7 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
     vox2fsl = vox2fsl
   )
 
-  if( use_oro ) {
+  if ( use_oro ) {
     new_volume(
       type = c("oro", "nifti"),
       header = header,
@@ -306,12 +306,12 @@ as_ieegio_volume.niftiImage <- function(x, ...) {
     code = sfcode
   )
 
-  if( sfcode > 0 ) {
+  if ( sfcode > 0 ) {
     vox2ras <- structure(sform, which_xform = "sform")
   } else {
     vox2ras <- structure(qform, which_xform = "qform")
   }
-  if(nrow(vox2ras) == 3) {
+  if (nrow(vox2ras) == 3) {
     vox2ras <- rbind(vox2ras, c(0, 0, 0, 1))
   }
 
@@ -332,7 +332,7 @@ as_ieegio_volume.niftiImage <- function(x, ...) {
     vox2fsl = vox2fsl
   )
 
-  if(inherits(x, "rgbArray")) {
+  if (inherits(x, "rgbArray")) {
     type <- c("rnifti", "rgba", "nifti")
   } else {
     type <- c("rnifti", "nifti")
@@ -366,7 +366,7 @@ as_ieegio_volume.ants.core.ants_image.ANTsImage <- function(x, ...) {
 
   f <- tempfile(fileext = ".nii.gz")
   on.exit({
-    if(file.exists(f)) {
+    if (file.exists(f)) {
       unlink(f)
     }
   })

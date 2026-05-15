@@ -87,7 +87,7 @@ get_vox2fsl <- function(shape, pixdim, vox2ras) {
   voxToScaledVoxMat <- diag(c(pixdim[1:3], 1))
   isneuro <- det(vox2ras) > 0
 
-  if( isneuro ) {
+  if ( isneuro ) {
     flip <- matrix(c(
       -1, 0, 0, (shape[1] - 1) * pixdim[1],
       0, 1, 0, 0,
@@ -111,7 +111,7 @@ get_vox2ras_tkr <- function(vox2ras, crs_c) {
 
 new_volume <- function(type, header, meta, transforms, data, shape) {
   use_expression <- FALSE
-  if(is.null(data)) {
+  if (is.null(data)) {
     class <- c(
       sprintf("ieegio_%s", type),
       "ieegio_header_only",
@@ -122,7 +122,7 @@ new_volume <- function(type, header, meta, transforms, data, shape) {
   } else {
     class <- c(sprintf("ieegio_%s", type), "ieegio_volume")
     header_only <- FALSE
-    if(is.language(data)) {
+    if (is.language(data)) {
       use_expression <- TRUE
       force(shape)
     } else {
@@ -154,7 +154,7 @@ print.ieegio_volume <- function(x, ...) {
 #' @export
 format.ieegio_volume <- function(x, ...) {
 
-  if(x$header_only) {
+  if (x$header_only) {
     banner <- "<Image Volume, header-only>"
     footer <- "* This object is read-only."
   } else {
@@ -162,7 +162,7 @@ format.ieegio_volume <- function(x, ...) {
     footer <- NULL
   }
 
-  if(length(x$transforms)) {
+  if (length(x$transforms)) {
     transforms_str <- vapply(names(x$transforms), function(nm) {
       mat <- x$transforms[[nm]]
       mat <- apply(mat, 2, function(x) {
@@ -198,8 +198,8 @@ names.ieegio_volume <- function(x) {
 
 #' @export
 `$.ieegio_volume` <- function(x, name) {
-  if(identical(name, "data")) {
-    if(isTRUE(.subset2(x, "use_expression"))) {
+  if (identical(name, "data")) {
+    if (isTRUE(.subset2(x, "use_expression"))) {
       expr <- .subset2(x, "data")
       data <- eval(expr, envir = x, enclos = new.env(parent = globalenv()))
     } else {
@@ -217,11 +217,11 @@ names.ieegio_volume <- function(x) {
 
 #' @export
 `[.ieegio_volume` <- function(x, ..., unpack_rgba = TRUE) {
-  if(isTRUE(.subset2(x, "header_only"))) {
+  if (isTRUE(.subset2(x, "header_only"))) {
     return(NULL)
   }
   re <- `$.ieegio_volume`(x, "data")[...]
-  if(unpack_rgba && inherits(x, "ieegio_rgba")) {
+  if (unpack_rgba && inherits(x, "ieegio_rgba")) {
     # make sure re is integer (32bit)
     storage.mode(re) <- "integer"
     shape <- dim(re)
@@ -233,7 +233,7 @@ names.ieegio_volume <- function(x) {
     green <- bitwShiftR(re, 8)
     red <- as.vector(re - bitwShiftL(green, 8))
 
-    if(all(alpha == 0)) {
+    if (all(alpha == 0)) {
       re <- grDevices::rgb(red = red, green = green, blue = blue, maxColorValue = 255)
     } else {
       re <- grDevices::rgb(red = red, green = green, blue = blue, alpha = alpha, maxColorValue = 255)
@@ -246,22 +246,22 @@ names.ieegio_volume <- function(x) {
 #' @export
 `[<-.ieegio_volume` <- function(x, ..., value) {
 
-  if(isTRUE(.subset2(x, "header_only"))) {
+  if (isTRUE(.subset2(x, "header_only"))) {
     stop("Head-only image. Cannot assign data")
   }
 
-  if(inherits(x, "ieegio_rgba")) {
+  if (inherits(x, "ieegio_rgba")) {
     # this is rgb(a), and value is treated as rgba
     shape <- dim(value)
     value <- grDevices::col2rgb(value, alpha = TRUE)
-    if(all(value[4, ] == 255)) {
+    if (all(value[4, ] == 255)) {
       value[4, ] <- 0L
     }
     value <- bitwShiftL(bitwShiftL(bitwShiftL(value[4, ], 8) + value[3, ], 8) + value[2, ], 8) + value[1, ]
     dim(value) <- shape
   }
 
-  if(isTRUE(.subset2(x, "use_expression"))) {
+  if (isTRUE(.subset2(x, "use_expression"))) {
     x$header[...] <- value
   } else {
     x$data[...] <- value
@@ -400,16 +400,16 @@ read_volume <- function(file, header_only = FALSE,
                         format = c("auto", "nifti", "mgh"), ...) {
   format <- match.arg(format)
 
-  if( format == "auto" ) {
+  if ( format == "auto" ) {
     fname <- tolower(basename(file))
-    if( endsWith(fname, "mgh") || endsWith(fname, "mgz") ) {
+    if ( endsWith(fname, "mgh") || endsWith(fname, "mgz") ) {
       format <- "mgh"
     } else {
       format <- "nifti"
     }
   }
 
-  if(format == "mgh") {
+  if (format == "mgh") {
     # MGH
     return(io_read_mgz(file = file, header_only = header_only))
   }
@@ -422,12 +422,12 @@ write_volume <- function(x, con, format = c("auto", "nifti", "mgh"), ...) {
 
   format <- match.arg(format)
 
-  if(format == "auto") {
-    if(endsWith(tolower(con), "mgz") || endsWith(tolower(con), "mgh")) {
+  if (format == "auto") {
+    if (endsWith(tolower(con), "mgz") || endsWith(tolower(con), "mgh")) {
       format <- "mgh"
     }
   }
-  if(format == "mgh") {
+  if (format == "mgh") {
     re <- io_write_mgz(x = x, con = con, ...)
   } else {
     re <- io_write_nii(x = x, con = con, ...)
@@ -552,12 +552,12 @@ plot.ieegio_volume <- function(
   # crosshair_col = "#00FF00A0"
   continuous <- TRUE
 
-  if(is.matrix(transform)) {
+  if (is.matrix(transform)) {
     stopifnot(nrow(transform) == 4 && ncol(transform) == 4)
     mat <- transform
   } else {
     mat <- x$transforms[[transform]]
-    if(is.null(mat) || !is.matrix(mat)) {
+    if (is.null(mat) || !is.matrix(mat)) {
       stop("Cannot interpret transform", sQuote(transform))
     }
   }
@@ -566,26 +566,26 @@ plot.ieegio_volume <- function(
   x_shape <- x$shape
 
   slice_index <- as.integer(slice_index[[1]])
-  if(slice_index <= 1L) {
+  if (slice_index <= 1L) {
     slice_index <- 1L
   }
-  if(length(x_shape) >= 4) {
-    if(slice_index > x_shape[[4]]) {
+  if (length(x_shape) >= 4) {
+    if (slice_index > x_shape[[4]]) {
       stop("Cannot query the slice index. Maximum index is ", x_shape[[4]], ".")
     }
   } else {
     slice_index <- 1L
   }
 
-  if(inherits(x, "ieegio_rgba")) {
+  if (inherits(x, "ieegio_rgba")) {
     # this is RGB(A) image
     is_rgba <- TRUE
     x_data <- x[drop = FALSE]
   } else {
     is_rgba <- FALSE
     x_data <- .xdata
-    if( continuous ) {
-      if(length(vlim) == 1) {
+    if ( continuous ) {
+      if (length(vlim) == 1) {
         vlim <- c(-1, 1) * abs(vlim)
       } else if (length(vlim) >= 2) {
         vlim <- range(vlim, na.rm = TRUE)
@@ -598,7 +598,7 @@ plot.ieegio_volume <- function(
           original_meta = .subset2(x, "original_meta")
         )
       }
-      if(length(col) < 256) {
+      if (length(col) < 256) {
         col <- grDevices::colorRampPalette(col)(256)
       }
     } else {
@@ -607,13 +607,13 @@ plot.ieegio_volume <- function(
     }
   }
 
-  if(length(pixel_width) < 1) {
+  if (length(pixel_width) < 1) {
     pixel_width <- 1
   }
   pixel_width <- abs(pixel_width)
   pixel_width[pixel_width > 50] <- 50
   pixel_width[pixel_width < 0.05] <- 0.05
-  if(length(pixel_width) == 1) {
+  if (length(pixel_width) == 1) {
     p_x <- pixel_width
     p_y <- pixel_width
   } else {
@@ -628,7 +628,7 @@ plot.ieegio_volume <- function(
   y_axis <- c(-rev(tmp), tmp[-1]) / zoom
 
   # Now get center of the image
-  if( center_position ) {
+  if ( center_position ) {
 
     center_ras <- position
 
@@ -707,7 +707,7 @@ plot.ieegio_volume <- function(
   vox_data[vox_data < vlim[1]] <- vlim[1]
   vox_data[vox_data > vlim[2]] <- vlim[2]
 
-  if(!add) {
+  if (!add) {
     oldpar <- graphics::par(
       fg = foreground,
       col.axis = foreground,
@@ -719,11 +719,11 @@ plot.ieegio_volume <- function(
     on.exit({ graphics::par(oldpar) })
   }
 
-  if( is_rgba ) {
+  if ( is_rgba ) {
     # RGBA raster
     xlim <- range(x_axis, na.rm = TRUE)
     ylim <- range(y_axis, na.rm = TRUE)
-    if( !add ) {
+    if ( !add ) {
       plot(
         x = xlim,
         y = ylim,
@@ -737,7 +737,7 @@ plot.ieegio_volume <- function(
       )
     }
     vox_data <- t(vox_data)[rev(seq_len(ncol(vox_data))), , drop = FALSE]
-    if(!is.na(alpha)) {
+    if (!is.na(alpha)) {
       alpha_255 <- floor(alpha * 255)
       alpha_255[alpha_255 < 0] <- 0
       alpha_255[alpha_255 > 255] <- 255
@@ -759,7 +759,7 @@ plot.ieegio_volume <- function(
                            ylim[[2]],
                            interpolate = FALSE)
   } else {
-    if(!is.na(alpha)) {
+    if (!is.na(alpha)) {
       alpha_255 <- floor(alpha * 255)
       alpha_255[alpha_255 < 0] <- 0
       alpha_255[alpha_255 > 255] <- 255
@@ -817,7 +817,7 @@ plot.ieegio_volume <- function(
   )
 
   # bottom
-  if(!is.na(label_col)) {
+  if (!is.na(label_col)) {
     graphics::text(
       x = xrg[[2]],
       y = yrg[[1]],
@@ -850,7 +850,7 @@ plot.ieegio_volume <- function(
       col = label_col,
     )
   }
-  if(!is.na(crosshair_col) && !is.na(crosshair_gap)) {
+  if (!is.na(crosshair_col) && !is.na(crosshair_gap)) {
     crosshair_delta <- crosshair_gap / 2
 
     graphics::segments(
@@ -992,10 +992,10 @@ merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_
   # merge_list <- list(y)
 
   check_shape <- function(shape) {
-    if(length(shape) >= 4 && all(shape[-c(1,2,3)] == 1)) {
+    if (length(shape) >= 4 && all(shape[-c(1, 2, 3)] == 1)) {
       shape <- shape[1:3]
     }
-    if(length(shape) != 3) {
+    if (length(shape) != 3) {
       stop("Not yer implemented: cannot merge volumes with 4th dimension (e.g. time-series...).")
     }
     shape
@@ -1004,14 +1004,14 @@ merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_
   reshape <- check_shape(reshape)
 
   # resample if reshape is not dim(x)
-  if(!all(dmx == reshape)) {
+  if (!all(dmx == reshape)) {
     x <- resample_volume(x, new_dim = reshape, na_fill = na_fill)
     dmx <- reshape
   }
 
   merge_list <- list(y, ...)
-  if(!length(merge_list)) { return(x) }
-  if(length(thresholds) < length(merge_list)) {
+  if (!length(merge_list)) { return(x) }
+  if (length(thresholds) < length(merge_list)) {
     thresholds <- rep(thresholds, ceiling(length(merge_list) / length(thresholds)))
   }
 
@@ -1020,12 +1020,12 @@ merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_
 
   # If we have ravetools installed
   ravetools <- check_ravetools_flag()
-  if(!isFALSE(ravetools) && is.function(ravetools$resample_3d_volume)) {
+  if (!isFALSE(ravetools) && is.function(ravetools$resample_3d_volume)) {
     # use ravetools resample_3d_volume
     lapply(seq_along(merge_list), function(jj) {
       y <- merge_list[[jj]]
       thres <- thresholds[[jj]]
-      if(!is.finite(thres)) {
+      if (!is.finite(thres)) {
         thres <- -Inf
       }
       dmy <- check_shape(dim(y))
@@ -1047,7 +1047,7 @@ merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_
     lapply(seq_along(merge_list), function(jj) {
       y <- merge_list[[jj]]
       thres <- thresholds[[jj]]
-      if(!is.finite(thres)) {
+      if (!is.finite(thres)) {
         thres <- -Inf
       }
       dmy <- check_shape(dim(y))
@@ -1059,13 +1059,13 @@ merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_
       lapply(seq_len(reshape[3]), function(ii) {
         vox_plane <- round(vox_y_base + (ii - 1) * dj)
         is_invalid <- colSums(is.na(vox_plane) | vox_plane < 0 | vox_plane >= dmy) > 0
-        if(all(is_invalid)) { return() }
+        if (all(is_invalid)) { return() }
         vox_plane <- colSums(round(vox_plane) * cdmy) + 1
         vox_plane[is_invalid] <- NA
         plane_sample <- y[vox_plane]
         sel <- !is.na(plane_sample) & plane_sample > thres
-        if(any(sel)) {
-          env$xdata[sel , ii] <- plane_sample[sel]
+        if (any(sel)) {
+          env$xdata[sel, ii] <- plane_sample[sel]
         }
         return()
       })
@@ -1075,13 +1075,13 @@ merge.ieegio_volume <- function(x, y, ..., thresholds = 0, reshape = dim(x), na_
   }
 
   na_fill <- na_fill[[1]]
-  if(!is.na(na_fill)) {
+  if (!is.na(na_fill)) {
     env$xdata[is.na(env$xdata)] <- na_fill
   }
 
   re <- as_ieegio_volume.array(x = env$xdata, vox2ras = x$transforms$vox2ras)
   original_meta <- .subset2(x, "original_meta")
-  if(length(original_meta)) {
+  if (length(original_meta)) {
 
     # No need to set pixdim as the 4-7th components are lost
     # pixdim <- original_meta$pixdim

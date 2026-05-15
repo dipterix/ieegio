@@ -1,7 +1,7 @@
 test_that("read_edf", {
 
   testthat::skip_on_cran()
-  testthat::skip_if_not(ieegio_sample_data('edfPlusD.edf', test = TRUE))
+  testthat::skip_if_not(ieegio_sample_data("edfPlusD.edf", test = TRUE))
   testthat::skip_if_not(dir.exists(rpymat::env_path()))
 
   edf_path <- ieegio_sample_data("edfPlusD.edf")
@@ -18,7 +18,7 @@ test_that("read_edf", {
   )
 
 
-  for(label in labels) {
+  for (label in labels) {
     chan <- data$get_channel(label)
     cmne <- as.double(rpymat::py_to_r(dmne$get_data(label, units = "uV")))
 

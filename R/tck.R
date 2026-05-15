@@ -69,7 +69,7 @@ io_read_tck <- function(file) {
   # }
 
   fsize <- as.double(file_size(file))
-  if(fsize < 20) {
+  if (fsize < 20) {
     stop("TCK file size too small")
   }
 
@@ -78,26 +78,26 @@ io_read_tck <- function(file) {
 
   # read first lines
   header_text <- NULL
-  while({
+  while ({
     line <- readLines(conn, n = 1)
     length(row) == 1 && !grepl("END", trimws(line), ignore.case = FALSE, fixed = TRUE)
   }) {
     header_text <- c(header_text, line)
   }
   header_text <- trimws(header_text)
-  if(!any(grepl('mrtrix tracks', header_text, ignore.case = TRUE))) {
+  if (!any(grepl("mrtrix tracks", header_text, ignore.case = TRUE))) {
     stop('Not a valid TCK file: header text must contain "mrtrix tracks" keyword.')
   }
 
   offset_text <- header_text[grepl("file:", header_text, ignore.case = TRUE)]
-  if(!length(offset_text)) {
-    stop('Not a valid TCK file: missing header offset')
+  if (!length(offset_text)) {
+    stop("Not a valid TCK file: missing header offset")
   }
   offset <- strsplit(offset_text[[1]], " ")[[1]]
   offset <- as.integer(offset[[length(offset)]])
 
-  if(!isTRUE(offset >= 20)) {
-    stop('Not a valid TCK file: invalid header offset')
+  if (!isTRUE(offset >= 20)) {
+    stop("Not a valid TCK file: invalid header offset")
   }
 
 
@@ -106,14 +106,14 @@ io_read_tck <- function(file) {
   datatype_text <- header_text[grepl("datatype:", header_text, ignore.case = TRUE)]
   datatype <- trimws(gsub("datatype:", "", datatype_text, ignore.case = TRUE))
 
-  if( !isTRUE(toupper(datatype) %in% toupper(valid_datatypes) )) {
+  if ( !isTRUE(toupper(datatype) %in% toupper(valid_datatypes) )) {
     warning("Invalid datatype in TCK file header... Assuming little endian - Float32LE")
     datatype <- "Float32LE"
   } else {
     datatype <- valid_datatypes[toupper(valid_datatypes) %in% toupper(datatype)][[1]]
   }
 
-  switch (
+  switch(
     datatype,
     "Float32BE" = {
       endian <- "big"
@@ -144,11 +144,11 @@ io_read_tck <- function(file) {
 
   cutoffs <- which(colSums(is.finite(tracks_rawdata)) < 3)
   last_cutoff <- ncol(tracks_rawdata) + 1L
-  if(length(cutoffs) > 0) {
-    if(cutoffs[[1]] != 0) {
+  if (length(cutoffs) > 0) {
+    if (cutoffs[[1]] != 0) {
       cutoffs <- c(0L, cutoffs)
     }
-    if(cutoffs[[length(cutoffs)]] != last_cutoff) {
+    if (cutoffs[[length(cutoffs)]] != last_cutoff) {
       cutoffs <- c(cutoffs, last_cutoff)
     }
   } else {
@@ -157,7 +157,7 @@ io_read_tck <- function(file) {
   tracts <- lapply(seq_len(length(cutoffs) - 1), function(ii) {
     start_idx <- cutoffs[[ii]] + 1
     end_idx <- cutoffs[[ii + 1]] - 1
-    if(start_idx >= end_idx) { return(NULL) }
+    if (start_idx >= end_idx) { return(NULL) }
     idx <- seq.int(start_idx, end_idx)
     list(
       coords = t(tracks_rawdata[, idx, drop = FALSE]),
@@ -182,7 +182,7 @@ io_write_tck <- function(x, con, datatype = c("Float32LE", "Float32BE", "Float64
   # con <- "~/Downloads/junk.tck"
   # datatype <- "Float32LE"
 
-  switch (
+  switch(
     datatype,
     "Float32BE" = {
       endian <- "big"
@@ -208,7 +208,7 @@ io_write_tck <- function(x, con, datatype = c("Float32LE", "Float32BE", "Float64
   n_tracts <- length(x$data)
 
 
-  if(inherits(con, "connection")) {
+  if (inherits(con, "connection")) {
     connection <- con
   } else {
     connection <- file(con, open = "wb")
@@ -224,12 +224,12 @@ io_write_tck <- function(x, con, datatype = c("Float32LE", "Float32BE", "Float64
 
   # turn tract data to a whole matrix
   lapply(seq_len(n_tracts), function(ii) {
-    coords_data <- t(x[[ii]]$coords[, c(1,2,3), drop = FALSE])
+    coords_data <- t(x[[ii]]$coords[, c(1, 2, 3), drop = FALSE])
     dimnames(coords_data) <- NULL
     coords_data <- cbind(coords_data, NaN)
     # if(ii != n_tracts) {
     # }
-    if(!is.double(coords_data)) {
+    if (!is.double(coords_data)) {
       coords_data <- as.double(coords_data)
     }
     writeBin(object = as.vector(coords_data), con = connection, size = byte_size, endian = endian)

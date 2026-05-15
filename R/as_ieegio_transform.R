@@ -5,14 +5,14 @@ infer_transform_spaces <- function(x) {
   entities <- strsplit(fname, "_", fixed = TRUE)[[1]]
 
   from_entity <- entities[startsWith(tolower(entities), "from-")]
-  if(length(from_entity)) {
+  if (length(from_entity)) {
     from_entity <- gsub("^from\\-", "", from_entity[[1]])
   } else {
     from_entity <- ""
   }
 
   to_entity <- entities[startsWith(tolower(entities), "to-")]
-  if(length(to_entity)) {
+  if (length(to_entity)) {
     to_entity <- gsub("^to\\-", "", to_entity[[1]])
   } else {
     to_entity <- ""
@@ -125,12 +125,12 @@ transform_orientation <- function(space_from, orientation_from, orientation_to,
                                   interpretation = c("active", "passive"),
                                   image = NULL) {
 
-  if(missing(space_from)) {
+  if (missing(space_from)) {
     orientation_from <- match.arg(orientation_from, ORIENTATION_CODES)
     space_from <- ""
     dimension <- 3L
   } else {
-    if(!missing(orientation_from)) {
+    if (!missing(orientation_from)) {
       stop("Only one of 'space_from' or 'orientation_from' is allowed, not both")
     }
     orientation_from <- match.arg(attr(space_from, "orientation"), ORIENTATION_CODES)
@@ -144,20 +144,20 @@ transform_orientation <- function(space_from, orientation_from, orientation_to,
   fsl_from <- (orientation_from == "FSL")
   fsl_to <- (orientation_to == "FSL")
 
-  if(fsl_from && fsl_to) {
+  if (fsl_from && fsl_to) {
     # FSL to FSL: identity transform
     mat <- diag(4)
-  } else if(fsl_from || fsl_to) {
+  } else if (fsl_from || fsl_to) {
     # One side is FSL: need image for conversion
-    if(is.null(image)) {
+    if (is.null(image)) {
       stop("'image' is required when converting between FSL and other orientations")
     }
 
     # Load image if it's a path
-    if(is.character(image)) {
+    if (is.character(image)) {
       image <- read_volume(image, header_only = TRUE)
     }
-    if(!inherits(image, "ieegio_volume")) {
+    if (!inherits(image, "ieegio_volume")) {
       stop("'image' must be a file path or ieegio_volume object")
     }
 
@@ -167,12 +167,12 @@ transform_orientation <- function(space_from, orientation_from, orientation_to,
     pixdim <- sqrt(colSums(vox2ras[1:3, 1:3]^2))
     vox2fsl <- get_vox2fsl(shape, pixdim, vox2ras)
 
-    if(fsl_from) {
+    if (fsl_from) {
       # FSL -> RAS (or other world orientation)
       # First convert FSL to RAS, then RAS to target orientation
       fsl2ras <- vox2ras %*% solve(vox2fsl)
 
-      if(orientation_to == "RAS") {
+      if (orientation_to == "RAS") {
         mat <- fsl2ras
       } else {
         # Chain: FSL -> RAS -> target
@@ -184,7 +184,7 @@ transform_orientation <- function(space_from, orientation_from, orientation_to,
       # First convert source to RAS, then RAS to FSL
       ras2fsl <- vox2fsl %*% solve(vox2ras)
 
-      if(orientation_from == "RAS") {
+      if (orientation_from == "RAS") {
         mat <- ras2fsl
       } else {
         # Chain: source -> RAS -> FSL
@@ -198,7 +198,7 @@ transform_orientation <- function(space_from, orientation_from, orientation_to,
   }
 
   # If passive interpretation, use inverse (transpose for orthogonal matrices)
-  if(interpretation == "passive") {
+  if (interpretation == "passive") {
     mat <- t(mat)
   }
 
@@ -224,11 +224,11 @@ new_transform <- function(data,
   interpretation <- match.arg(interpretation)
   dimension <- as.integer(dimension)
 
-  if(type == "affine") {
+  if (type == "affine") {
     data <- as.matrix(data)
     nr <- nrow(data)
     nc <- ncol(data)
-    if(!isTRUE(nr == nc && nr == (dimension + 1))) {
+    if (!isTRUE(nr == nc && nr == (dimension + 1))) {
       nc <- dimension + 1
       stop(sprintf("Affine transform is mal-formed: must be a %d x %d matrix",
                    nc, nc))
@@ -259,7 +259,7 @@ invert_transform <- function(transform, method = c("matrix", "direction", "inter
     method,
     "matrix" = {
       # Invert matrices only (reverse order and compute matrix inverses)
-      if(transform$type == "deformation") {
+      if (transform$type == "deformation") {
         stop("Cannot invert deformation transforms with method='matrix' (not implemented)")
       }
       transform$data <- lapply(rev(transform$data), function(mat) { solve(mat) })
@@ -301,8 +301,8 @@ are_transforms_chainable <- function(transform1, transform2, expected_interpreta
   t2_is_affine <- (transform2$type == "affine")
 
   # Make sure interpretation is consistent
-  if(is.na(expected_interpretation)) {
-    if(!t2_is_affine) {
+  if (is.na(expected_interpretation)) {
+    if (!t2_is_affine) {
       # passive interpretation (for now deformation is always passive)
       expected_interpretation <- t2_interpretation
     } else {
@@ -310,8 +310,8 @@ are_transforms_chainable <- function(transform1, transform2, expected_interpreta
     }
   }
 
-  if(expected_interpretation != t1_interpretation) {
-    if( t1_is_affine ) {
+  if (expected_interpretation != t1_interpretation) {
+    if ( t1_is_affine ) {
       # switch both interpretation and swap space_from & space_to
       # passive transform from A to B is the active transform from B to A
       t1_interpretation <- expected_interpretation
@@ -326,8 +326,8 @@ are_transforms_chainable <- function(transform1, transform2, expected_interpreta
     }
   }
 
-  if(expected_interpretation != t2_interpretation) {
-    if( t2_is_affine ) {
+  if (expected_interpretation != t2_interpretation) {
+    if ( t2_is_affine ) {
       # switch both interpretation and swap space_from & space_to
       # passive transform from A to B is the active transform from B to A
       t2_interpretation <- expected_interpretation
@@ -346,7 +346,7 @@ are_transforms_chainable <- function(transform1, transform2, expected_interpreta
   # After alignment, both should have expected_interpretation
   # Now just check if spaces are compatible
   # Use wildcard matching: empty string matches any space
-  if(t1_space_to == "" || t2_space_from == "" || t1_space_to == t2_space_from) {
+  if (t1_space_to == "" || t2_space_from == "" || t1_space_to == t2_space_from) {
     return(list(
       chainable = TRUE,
       space_from = t1_space_from,
@@ -421,16 +421,16 @@ as_ieegio_transform.character <- function(x, format = c("ants", "flirt"), ...) {
 #' @export
 as_ieegio_transform.matrix <- function(x, space_from = "", space_to = "", ...) {
 
-  if(identical(space_from, "")) {
+  if (identical(space_from, "")) {
     space_from <- attr(x, "source_space")
-    if(length(space_from) != 1) {
+    if (length(space_from) != 1) {
       space_from <- ""
     }
   }
 
-  if(identical(space_to, "")) {
+  if (identical(space_to, "")) {
     space_to <- attr(x, "source_space")
-    if(length(space_to) != 1) {
+    if (length(space_to) != 1) {
       space_to <- ""
     }
   }
@@ -441,7 +441,7 @@ as_ieegio_transform.matrix <- function(x, space_from = "", space_to = "", ...) {
 #' @rdname as_ieegio_transform
 #' @export
 as_ieegio_transform.array <- function(x, space_from = "", space_to = "", ...) {
-  if(length(dim(x)) != 2) {
+  if (length(dim(x)) != 2) {
     stop("Array must be 2-dimensional to convert to transform")
   }
   new_transform(data = x, space_from = space_from, space_to = space_to, ...)
@@ -457,7 +457,7 @@ as_ieegio_transform.list <- function(x, ...) {
 #' @rdname as_ieegio_transform
 #' @export
 as_ieegio_transform.ieegio_transforms <- function(x, ...) {
-  if(...length() > 0) {
+  if (...length() > 0) {
     return(new_transform_chain(x, ...))
   } else {
     # Return as-is to avoid recursive chaining
@@ -583,19 +583,19 @@ io_read_ants_transform <- function(file, space_from, space_to, interpretation = 
   # file <- '/Users/dipterix/PennNeurosurgery Dropbox/Dipterix W/Share_with_ZJ/test_for_ZJ/sub-OCD2_QSIPrep/anat_output_from_QSI_fslcomp_objects_in_this_space/sub-OCD2_from-T1wACPC_to-T1wNative_mode-image_xfm.mat'
   # interpretation = "auto"
 
-  if(missing(space_from) || missing(space_to)) {
+  if (missing(space_from) || missing(space_to)) {
     inferred_space <- infer_transform_spaces(file)
-    if(missing(space_from)) {
+    if (missing(space_from)) {
       space_from <- inferred_space$space_from
     }
-    if(missing(space_to)) {
+    if (missing(space_to)) {
       space_to <- inferred_space$space_to
     }
   }
 
   check_py_flag()
-  if(!rpyANTs::ants_available(module = "ants")) {
-    if(dir.exists(rpymat::env_path())) {
+  if (!rpyANTs::ants_available(module = "ants")) {
+    if (dir.exists(rpymat::env_path())) {
       rpyANTs::install_ants(python_ver = "auto")
     } else {
       rpyANTs::install_ants()
@@ -703,12 +703,12 @@ io_read_ants_transform <- function(file, space_from, space_to, interpretation = 
 io_read_flirt_transform <- function(file, space_from, space_to) {
 
   # Infer spaces from filename if not provided
-  if(missing(space_from) || missing(space_to)) {
+  if (missing(space_from) || missing(space_to)) {
     inferred_space <- infer_transform_spaces(file)
-    if(missing(space_from)) {
+    if (missing(space_from)) {
       space_from <- inferred_space$space_from
     }
-    if(missing(space_to)) {
+    if (missing(space_to)) {
       space_to <- inferred_space$space_to
     }
   }
@@ -719,7 +719,7 @@ io_read_flirt_transform <- function(file, space_from, space_to) {
 
   # Validate matrix dimensions
 
-  if(!identical(dim(flirt_matrix), c(4L, 4L))) {
+  if (!identical(dim(flirt_matrix), c(4L, 4L))) {
     stop(sprintf(
       "FLIRT matrix must be 4x4, got %dx%d",
       nrow(flirt_matrix), ncol(flirt_matrix)
@@ -819,7 +819,7 @@ io_read_flirt_transform <- function(file, space_from, space_to) {
 transform_flirt2ras <- function(transform, source = NULL, reference = NULL) {
 
   # Convert transform to ieegio_transforms if needed
-  if(is.matrix(transform)) {
+  if (is.matrix(transform)) {
     transform <- as_ieegio_transform(transform)
     transform$space_from <- new_space(
       transform$space_from, orientation = "FSL", dimension = 3L)
@@ -831,7 +831,7 @@ transform_flirt2ras <- function(transform, source = NULL, reference = NULL) {
 
   # Get the current matrix
   flirt_matrix <- transform$data[[1]]
-  if(!is.matrix(flirt_matrix)) {
+  if (!is.matrix(flirt_matrix)) {
     stop("transform_flirt2ras only works with affine transforms")
   }
 
@@ -841,10 +841,10 @@ transform_flirt2ras <- function(transform, source = NULL, reference = NULL) {
 
   # Helper to load image and extract needed info
   get_image_info <- function(img) {
-    if(is.character(img)) {
+    if (is.character(img)) {
       img <- read_volume(img, header_only = TRUE)
     }
-    if(!inherits(img, "ieegio_volume")) {
+    if (!inherits(img, "ieegio_volume")) {
       stop("Image must be a file path or ieegio_volume object")
     }
     shape <- dim(img$data)[1:3]
@@ -858,7 +858,7 @@ transform_flirt2ras <- function(transform, source = NULL, reference = NULL) {
   }
 
   # Process source image (right side of transform chain)
-  if(!is.null(source)) {
+  if (!is.null(source)) {
     src_info <- get_image_info(source)
     src_vox2fsl <- get_vox2fsl(src_info$shape, src_info$pixdim, src_info$vox2ras)
     src_ras2vox <- solve(src_info$vox2ras)
@@ -869,7 +869,7 @@ transform_flirt2ras <- function(transform, source = NULL, reference = NULL) {
   }
 
   # Process reference image (left side of transform chain)
-  if(!is.null(reference)) {
+  if (!is.null(reference)) {
     ref_info <- get_image_info(reference)
     ref_vox2fsl <- get_vox2fsl(ref_info$shape, ref_info$pixdim, ref_info$vox2ras)
     ref_fsl2vox <- solve(ref_vox2fsl)
@@ -896,7 +896,7 @@ transform_flirt2ras <- function(transform, source = NULL, reference = NULL) {
 new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "passive", "active")) {
 
   interpretation <- match.arg(interpretation)
-  if(interpretation == "unset") {
+  if (interpretation == "unset") {
     interpretation <- NA
   }
 
@@ -907,14 +907,14 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
   transform_list <- drop_nulls(transform_list)
 
   # If empty, return identity transform (wildcard space, RAS to RAS)
-  if(length(transform_list) == 0) {
+  if (length(transform_list) == 0) {
     return(new_transform(
       data = diag(4),
       type = "affine",
       space_from = "",
       space_to = "",
       dimension = 3,
-      interpretation = if(is.na(interpretation)) "active" else interpretation
+      interpretation = if (is.na(interpretation)) "active" else interpretation
     ))
   }
 
@@ -922,12 +922,12 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
   transform_list <- lapply(transform_list, as_ieegio_transform)
 
   # If single transform, adjust interpretation if needed
-  if(length(transform_list) == 1) {
+  if (length(transform_list) == 1) {
     transform <- transform_list[[1]]
 
     # If interpretation was explicitly specified and differs, invert the transform
-    if(!is.na(interpretation) && transform$interpretation != interpretation) {
-      if(transform$type == "deformation") {
+    if (!is.na(interpretation) && transform$interpretation != interpretation) {
+      if (transform$type == "deformation") {
         # Deformation: swap direction + toggle interpretation (using equivalence)
         transform <- invert_transform(
           invert_transform(transform, method = "direction"),
@@ -946,21 +946,21 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
   }
 
   # Determine chain interpretation from first transform if not specified
-  if(is.na(interpretation)) {
+  if (is.na(interpretation)) {
     interpretation <- transform_list[[1]]$interpretation
   }
 
   # Helper: check if spaces are compatible for chaining
   spaces_match <- function(space1, space2, allow_wildcard = TRUE) {
     # Wildcards match anything
-    if(space1 == "" || space2 == "") return(allow_wildcard)
+    if (space1 == "" || space2 == "") return(allow_wildcard)
     return(space1 == space2)
   }
 
   # Helper: determine primary inversion method for interpretation change
   inversion_method <- function(trans) {
     # Returns the primary method (matrix or direction)
-    if(trans$type == "deformation") {
+    if (trans$type == "deformation") {
       return("direction")
     }
     return("matrix")
@@ -970,11 +970,11 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
   result <- Reduce(function(accumulated, next_transform) {
 
     # First iteration
-    if(is.null(accumulated)) {
+    if (is.null(accumulated)) {
 
       # Align next_transform to target interpretation
       # This makes sure accumulated always has consistent `interpretation`
-      if(next_transform$interpretation != interpretation) {
+      if (next_transform$interpretation != interpretation) {
         method <- inversion_method(next_transform)
         next_transform <- invert_transform(
           invert_transform(next_transform, method = method),
@@ -986,7 +986,7 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
     }
 
     # Validate: Check dimension compatibility
-    if(accumulated$dimension != next_transform$dimension) {
+    if (accumulated$dimension != next_transform$dimension) {
       stop(sprintf(
         "Dimension mismatch: previous transform has dimension %d, next has %d",
         accumulated$dimension, next_transform$dimension
@@ -995,7 +995,7 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
 
     # Align next_transform to target interpretation
     next_transform_inverse_method <- inversion_method(next_transform)
-    if(next_transform$interpretation != interpretation) {
+    if (next_transform$interpretation != interpretation) {
       next_transform <- invert_transform(
         invert_transform(next_transform, method = next_transform_inverse_method),
         method = "interpretation"
@@ -1006,8 +1006,8 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
     accum_space_to <- unclass(accumulated$space_to)
     next_space_from <- unclass(next_transform$space_from)
 
-    if(!spaces_match(accum_space_to, next_space_from)) {
-      if(next_transform_inverse_method == "matrix" &&
+    if (!spaces_match(accum_space_to, next_space_from)) {
+      if (next_transform_inverse_method == "matrix" &&
          spaces_match(accum_space_to, unclass(next_transform$space_to), allow_wildcard = FALSE)) {
         # Backwards transform recovery: accumulated ends where next_transform ends
         # Double-invert to create forward transform (matrix inversion + direction swap)
@@ -1031,7 +1031,7 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
     last_idx <- length(accumulated$data)
     last_data_is_matrix <- is.matrix(accumulated$data[[last_idx]])
 
-    if(!is.null(orientation_from) && !is.null(orientation_to) && orientation_from != orientation_to) {
+    if (!is.null(orientation_from) && !is.null(orientation_to) && orientation_from != orientation_to) {
       # Create orientation transform
       orientation_xform <- transform_orientation(
         space_from = accumulated$space_to,
@@ -1039,7 +1039,7 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
         interpretation = interpretation
       )
       # Append orientation transform matrix to accumulated data
-      if(last_data_is_matrix) {
+      if (last_data_is_matrix) {
         accumulated$data[[last_idx]] <- orientation_xform$data[[1]] %*% accumulated$data[[last_idx]]
       } else {
         accumulated$data <- c(accumulated$data, orientation_xform$data)
@@ -1055,12 +1055,12 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
       )
     }
 
-    if(last_data_is_matrix &&
+    if (last_data_is_matrix &&
        is.matrix(next_transform$data[[1]])) {
       # Multiply matrices and replace last element
       accumulated$data[[last_idx]] <- next_transform$data[[1]] %*% accumulated$data[[last_idx]]
       # Concatenate remaining data from next_transform (skip first element)
-      if(length(next_transform$data) > 1) {
+      if (length(next_transform$data) > 1) {
         accumulated$data <- c(accumulated$data, next_transform$data[-1])
       }
     } else {
@@ -1073,7 +1073,7 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
     accumulated$interpretation <- interpretation
 
     # Update type: "deformation" if any non-matrix, otherwise "affine"
-    if( accumulated$type == "affine" && next_transform$type == "affine" ) {
+    if ( accumulated$type == "affine" && next_transform$type == "affine" ) {
       accumulated$type <- "affine"
     } else {
       accumulated$type <- "deformation"
@@ -1098,7 +1098,7 @@ apply_transform_to_points <- function(points, transform) {
 
   dimension <- transform$dimension
 
-  if(length(points) %in% c(dimension, dimension + 1)) {
+  if (length(points) %in% c(dimension, dimension + 1)) {
     points <- matrix(points, nrow = 1)
   } else {
     points <- as.matrix(points)
@@ -1107,14 +1107,14 @@ apply_transform_to_points <- function(points, transform) {
   stopifnot(is.numeric(points) && nc %in% c(dimension, dimension + 1))
   dimnames(points) <- NULL
 
-  if(ncol(points) == dimension) {
+  if (ncol(points) == dimension) {
     points <- cbind(points, 1)
   } else {
     points[, dimension + 1] <- 1
   }
 
-  for(item in transform$data) {
-    if(is.matrix(item)) {
+  for (item in transform$data) {
+    if (is.matrix(item)) {
       points <- points %*% t(item)
     } else {
       .NotYetImplemented()

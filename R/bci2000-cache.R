@@ -6,13 +6,13 @@ BCI2000Cache <- R6::R6Class(
   private = list(
     .filearray = NULL,
     assert_valid = function() {
-      if(!self$valid) {
+      if (!self$valid) {
         stop("`BCI2000Cache`: the loaded cache was removed/changed. ",
              "Please recache the data.")
       }
     },
     finalize = function() {
-      if(self$temporary) {
+      if (self$temporary) {
         self$delete()
       }
     }
@@ -20,7 +20,7 @@ BCI2000Cache <- R6::R6Class(
   active = list(
     valid = function() {
       arr <- private$.filearray
-      if( dir_exists(arr$.filebase) && isTRUE(arr$get_header("ready")) ) {
+      if ( dir_exists(arr$.filebase) && isTRUE(arr$get_header("ready")) ) {
         return(TRUE)
       }
       FALSE
@@ -35,12 +35,12 @@ BCI2000Cache <- R6::R6Class(
     annotations = NULL,
 
     initialize = function(x) {
-      if(!inherits(x, "FileArray")) {
+      if (!inherits(x, "FileArray")) {
         x <- filearray::filearray_load(x, mode = "readonly")
       }
       private$.filearray <- x
       annot_path <- file_path(x$.filebase, "annot.fst")
-      if(file_exists(annot_path)) {
+      if (file_exists(annot_path)) {
         self$annotations <- io_read_fst(annot_path, method = "proxy")
       }
       nchannels <- dim(x)[[2]]
@@ -58,24 +58,24 @@ BCI2000Cache <- R6::R6Class(
     get_channel = function(x, begin = NA, end = NA) {
       private$assert_valid()
 
-      if(is.character(x)) {
+      if (is.character(x)) {
         chan <- which(self$channel_table$Label == x)
       } else {
         chan <- x[[1]]
       }
       chan <- unique(chan)
 
-      if(length(chan) != 1) {
+      if (length(chan) != 1) {
         stop("`BCI2000Cache`: Please load one channel at a time. ",
              "If two channels share the same label name, ",
              "please do not get channel by label. Instead, ",
              "specify the channel order explicitly.")
       }
-      if(!isTRUE(chan %in% seq_len(nrow(self$channel_table)))) {
+      if (!isTRUE(chan %in% seq_len(nrow(self$channel_table)))) {
         stop("Channel not found or not loaded: ", chan)
       }
-      if(is.na(begin)) { begin <- 0 }
-      if(is.na(end)) { end <- Inf }
+      if (is.na(begin)) { begin <- 0 }
+      if (is.na(end)) { end <- Inf }
 
       arr <- private$.filearray
       signals <- subset(arr,
@@ -115,7 +115,7 @@ BCI2000Cache <- R6::R6Class(
 
     delete = function() {
       path <- arr$.filebase
-      if(length(path) == 1 && file_exists(path)) {
+      if (length(path) == 1 && file_exists(path)) {
         file_delete(path, use_base_r = TRUE)
       }
     }

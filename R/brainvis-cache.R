@@ -6,12 +6,12 @@ BrainVisionCache <- R6::R6Class(
   private = list(
     .filearray = NULL,
     assert_valid = function() {
-      if(!self$valid) {
+      if (!self$valid) {
         stop("`BrainVisionCache`: the loaded cache was removed/changed. Please recache the data.")
       }
     },
     finalize = function() {
-      if(self$temporary) {
+      if (self$temporary) {
         self$delete()
       }
     }
@@ -19,7 +19,7 @@ BrainVisionCache <- R6::R6Class(
   active = list(
     valid = function() {
       arr <- private$.filearray
-      if( dir_exists(arr$.filebase) && isTRUE(arr$get_header("ready")) ) {
+      if ( dir_exists(arr$.filebase) && isTRUE(arr$get_header("ready")) ) {
         return(TRUE)
       }
       FALSE
@@ -34,12 +34,12 @@ BrainVisionCache <- R6::R6Class(
     annotations = NULL,
 
     initialize = function(x) {
-      if(!inherits(x, "FileArray")) {
+      if (!inherits(x, "FileArray")) {
         x <- filearray::filearray_load(x, mode = "readonly")
       }
       private$.filearray <- x
       annot_path <- file_path(x$.filebase, "annot.fst")
-      if(file_exists(annot_path)) {
+      if (file_exists(annot_path)) {
         self$annotations <- io_read_fst(annot_path, method = "proxy")
       }
 
@@ -47,7 +47,7 @@ BrainVisionCache <- R6::R6Class(
 
       # try to get channel number
       chn <- gsub("ch", "", channel_table$ChannelString, ignore.case = TRUE)
-      if(all(grepl("^[0-9]+$", chn))) {
+      if (all(grepl("^[0-9]+$", chn))) {
         chn <- as.integer(chn)
       } else {
         chn <- seq_along(chn)
@@ -61,24 +61,24 @@ BrainVisionCache <- R6::R6Class(
     get_channel = function(x, begin = NA, end = NA) {
       private$assert_valid()
 
-      if(is.character(x)) {
+      if (is.character(x)) {
         chan <- which(self$channel_table$Label == x)
       } else {
         chan <- x[[1]]
       }
       chan <- unique(chan)
 
-      if(length(chan) != 1) {
+      if (length(chan) != 1) {
         stop("`BrainVisionCache`: Please load one channel at a time. ",
              "If two channels share the same label name, ",
              "please do not get channel by label. Instead, ",
              "specify the channel order explicitly (see column 'Order' in channel table).")
       }
-      if(!isTRUE(chan %in% seq_len(nrow(self$channel_table)))) {
+      if (!isTRUE(chan %in% seq_len(nrow(self$channel_table)))) {
         stop("Channel order not found or not loaded: ", chan)
       }
-      if(is.na(begin)) { begin <- 0 }
-      if(is.na(end)) { end <- Inf }
+      if (is.na(begin)) { begin <- 0 }
+      if (is.na(end)) { end <- Inf }
 
       arr <- private$.filearray
       signals <- subset(arr,
@@ -126,7 +126,7 @@ BrainVisionCache <- R6::R6Class(
         sprintf("  Sample rate     : %.1f", header$CommonInfos$SampleRate)
       )
 
-      if(length(header$ChannelComments)) {
+      if (length(header$ChannelComments)) {
         s <- c(
           s,
           "  Channel comments:",
@@ -134,7 +134,7 @@ BrainVisionCache <- R6::R6Class(
         )
       }
 
-      if(length(header$MarkerComments)) {
+      if (length(header$MarkerComments)) {
         s <- c(
           s,
           "  Annotation comments:",
@@ -146,7 +146,7 @@ BrainVisionCache <- R6::R6Class(
 
     delete = function() {
       path <- arr$.filebase
-      if(length(path) == 1 && file_exists(path)) {
+      if (length(path) == 1 && file_exists(path)) {
         file_delete(path, use_base_r = TRUE)
       }
     }

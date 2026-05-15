@@ -2,7 +2,7 @@
 # Correct path if prefix has incorrect cases (works on case-sensitive os)
 correct_filepath <- function(path) {
   stopifnot(length(path) == 1)
-  if(file_exists(path)) { return(path) }
+  if (file_exists(path)) { return(path) }
   # path_prefix = "bidsr.rproj"
   dir <- dirname(path)
   prefix <- basename(path)
@@ -15,7 +15,7 @@ correct_filepath <- function(path) {
     no.. = TRUE
   )
   sel <- toupper(files) == toupper(prefix)
-  if(!any(sel)) { return(NA) }
+  if (!any(sel)) { return(NA) }
 
   return(files[sel][[1]])
 }
@@ -25,14 +25,14 @@ path_to_nearest_file <- function(filename, start, root = NA, ignore_cases = FALS
   # filename <- "rave"
   # start = "."
 
-  if( ignore_cases ) {
+  if ( ignore_cases ) {
     filename <- tolower(filename)
     start <- tolower(start)
   }
 
-  if(file_exists(start)) {
-    if(fs::is_file(start)) {
-      if( basename(start) == filename ) {
+  if (file_exists(start)) {
+    if (fs::is_file(start)) {
+      if ( basename(start) == filename ) {
         # start is a file and is the filename
         return(start)
       }
@@ -40,25 +40,25 @@ path_to_nearest_file <- function(filename, start, root = NA, ignore_cases = FALS
     }
     # now start is a folder
     tmp <- fs::path(start, filename)
-    if( file_exists(tmp) ) {
+    if ( file_exists(tmp) ) {
       return(tmp)
     }
     # folder does not have this file
   }
-  if(!fs::is_absolute_path(start)) {
+  if (!fs::is_absolute_path(start)) {
     start <- fs::path_abs(start)
   }
   start_ <- fs::path_dir(start)
 
-  if(!is.na(root)) {
-    if(!fs::is_absolute_path(root)) {
+  if (!is.na(root)) {
+    if (!fs::is_absolute_path(root)) {
       root <- fs::path_abs(root)
     }
-    if(!fs::path_has_parent(start_, root)) {
+    if (!fs::path_has_parent(start_, root)) {
       return(NA_character_)
     }
   } else {
-    if(start_ == start) {
+    if (start_ == start) {
       return(NA_character_)
     }
   }
@@ -73,7 +73,7 @@ dir_create <- function(x, showWarnings = FALSE, recursive = TRUE, check = TRUE, 
     dir.create(x, showWarnings = showWarnings, recursive = recursive, ...)
   }
   if (check && !dir.exists(x)) {
-    stop('Cannot create directory at ', shQuote(x))
+    stop("Cannot create directory at ", shQuote(x))
   }
   invisible(normalizePath(x))
 }
@@ -103,15 +103,15 @@ file_exists <- function(path) {
 }
 
 file_assert <- function(path, dir_ok = FALSE, follow = TRUE) {
-  if(length(path) != 1 || is.na(path)) {
+  if (length(path) != 1 || is.na(path)) {
     stop("File path must be length of 1 and cannot be N/A")
   }
-  if( dir_ok ) {
-    if(!fs::file_exists(path)) {
+  if ( dir_ok ) {
+    if (!fs::file_exists(path)) {
       stop("File or directory `", path, "` is missing.")
     }
   } else {
-    if( !fs::is_file(path, follow = follow) ) {
+    if ( !fs::is_file(path, follow = follow) ) {
       stop("File `", path, "` is missing.")
     }
   }
@@ -139,8 +139,8 @@ is_absolute_path <- function(path) {
 }
 
 file_delete <- function(path, use_base_r = FALSE, ...) {
-  if( use_base_r ) {
-    if( dir_exists(path) ) {
+  if ( use_base_r ) {
+    if ( dir_exists(path) ) {
       unlink(x = path, recursive = TRUE, ...)
     } else if (file_exists(path)) {
       unlink(path, recursive = FALSE, ...)
@@ -186,20 +186,20 @@ path_ext <- function(path, archive_ext = ARCHIVE_EXTENSIONS) {
   }
 
   vapply(strsplit(basename(path), ".", fixed = TRUE), function(x) {
-    if(isTRUE(is.na(x))) { return(NA_character_) }
-    if(length(x) == 1) { return("") }
-    if(x[[1]] == "") {
+    if (isTRUE(is.na(x))) { return(NA_character_) }
+    if (length(x) == 1) { return("") }
+    if (x[[1]] == "") {
       x <- x[-c(1, 2)]
     } else {
       x <- x[-1]
     }
-    if(!length(x)) { return("") }
+    if (!length(x)) { return("") }
     sel <- which(!tolower(x) %in% tolower(archive_ext))
-    if(!length(sel)) {
+    if (!length(sel)) {
       return(paste(x, collapse = "."))
     }
     sel <- max(sel)
-    if(sel == length(x)) {
+    if (sel == length(x)) {
       return(x[[sel]])
     }
     paste(x[seq.int(sel, length(x))], collapse = ".")

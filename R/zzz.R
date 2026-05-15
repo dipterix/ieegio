@@ -13,29 +13,29 @@ install_extras <- function() {
 }
 
 setup_test_env <- function() {
-  if(!identical(Sys.getenv("IEEGIO_WITH_EXAMPLES"), "")) {
+  if (!identical(Sys.getenv("IEEGIO_WITH_EXAMPLES"), "")) {
     install_extras()
   }
 }
 
-get_os <- function(){
+get_os <- function() {
   os <- R.version$os
-  if(grepl('^darwin', os, ignore.case = TRUE)){
-    return('darwin')
+  if (grepl("^darwin", os, ignore.case = TRUE)) {
+    return("darwin")
   }
-  if(grepl('^linux', os, ignore.case = TRUE)){
-    return('linux')
+  if (grepl("^linux", os, ignore.case = TRUE)) {
+    return("linux")
   }
-  if(grepl('^solaris', os, ignore.case = TRUE)){
-    return('solaris')
+  if (grepl("^solaris", os, ignore.case = TRUE)) {
+    return("solaris")
   }
-  if(grepl('^win', os, ignore.case = TRUE)){
-    return('windows')
+  if (grepl("^win", os, ignore.case = TRUE)) {
+    return("windows")
   }
-  if(grepl("^(emscr|wasm)", os, ignore.case = TRUE)) {
-    return('emscripten')
+  if (grepl("^(emscr|wasm)", os, ignore.case = TRUE)) {
+    return("emscripten")
   }
-  return('unknown')
+  return("unknown")
 }
 
 # load_py <- local({
@@ -45,13 +45,13 @@ get_os <- function(){
 #   function() {
 #     if (!is.null(main)) { return(main) }
 #
-#     if( !rpymat_is_setup() ) {
+#     if ( !rpymat_is_setup() ) {
 #       return( NULL )
 #     }
 #
 #     py <- tryCatch({
 #       reticulate <- asNamespace("reticulate")
-#       if(isTRUE(reticulate$is_python_initialized())) {
+#       if (isTRUE(reticulate$is_python_initialized())) {
 #         py <- reticulate$import_main(convert = TRUE)
 #       } else {
 #         py <- NULL
@@ -61,7 +61,7 @@ get_os <- function(){
 #       reticulate$py
 #     })
 #
-#     if(!is.null(py)) {
+#     if (!is.null(py)) {
 #       main <<- py
 #     }
 #     main
@@ -89,7 +89,7 @@ get_os <- function(){
 enable_debugging <- local({
   enabled <- FALSE
   function(x = TRUE) {
-    if(!is.na(x)) {
+    if (!is.na(x)) {
       enabled <<- isTRUE(x)
     }
     invisible(enabled)

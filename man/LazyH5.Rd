@@ -9,87 +9,91 @@ not intended for direct-use. Please see \code{\link{io_read_h5}} and
 \code{\link{io_write_h5}}.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{quiet}}{whether to suppress messages}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{quiet}}{whether to suppress messages}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-LazyH5-do_finalize}{\code{LazyH5$do_finalize()}}
-\item \href{#method-LazyH5-print}{\code{LazyH5$print()}}
-\item \href{#method-LazyH5-new}{\code{LazyH5$new()}}
-\item \href{#method-LazyH5-save}{\code{LazyH5$save()}}
-\item \href{#method-LazyH5-open}{\code{LazyH5$open()}}
-\item \href{#method-LazyH5-close}{\code{LazyH5$close()}}
-\item \href{#method-LazyH5-subset}{\code{LazyH5$subset()}}
-\item \href{#method-LazyH5-get_dims}{\code{LazyH5$get_dims()}}
-\item \href{#method-LazyH5-get_type}{\code{LazyH5$get_type()}}
-}
+  \itemize{
+    \item \href{#method-LazyH5-do_finalize}{\code{LazyH5$do_finalize()}}
+    \item \href{#method-LazyH5-print}{\code{LazyH5$print()}}
+    \item \href{#method-LazyH5-initialize}{\code{LazyH5$new()}}
+    \item \href{#method-LazyH5-save}{\code{LazyH5$save()}}
+    \item \href{#method-LazyH5-open}{\code{LazyH5$open()}}
+    \item \href{#method-LazyH5-close}{\code{LazyH5$close()}}
+    \item \href{#method-LazyH5-subset}{\code{LazyH5$subset()}}
+    \item \href{#method-LazyH5-get_dims}{\code{LazyH5$get_dims()}}
+    \item \href{#method-LazyH5-get_type}{\code{LazyH5$get_type()}}
+  }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LazyH5-do_finalize"></a>}}
 \if{latex}{\out{\hypertarget{method-LazyH5-do_finalize}{}}}
-\subsection{Method \code{do_finalize()}}{
-garbage collection method
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LazyH5$do_finalize()}\if{html}{\out{</div>}}
+\subsection{\code{LazyH5$do_finalize()}}{
+  garbage collection method
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LazyH5$do_finalize()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    none
+  }
 }
 
-\subsection{Returns}{
-none
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LazyH5-print"></a>}}
 \if{latex}{\out{\hypertarget{method-LazyH5-print}{}}}
-\subsection{Method \code{print()}}{
-overrides print method
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LazyH5$print()}\if{html}{\out{</div>}}
+\subsection{\code{LazyH5$print()}}{
+  overrides print method
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LazyH5$print()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    self instance
+  }
 }
 
-\subsection{Returns}{
-self instance
-}
-}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LazyH5-new"></a>}}
-\if{latex}{\out{\hypertarget{method-LazyH5-new}{}}}
-\subsection{Method \code{new()}}{
-constructor
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LazyH5$new(file_path, data_name, read_only = FALSE, quiet = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{file_path}}{where data is stored in 'HDF5' format}
-
-\item{\code{data_name}}{the data stored in the file}
-
-\item{\code{read_only}}{whether to open the file in read-only mode. It's highly
+\if{html}{\out{<a id="method-LazyH5-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-LazyH5-initialize}{}}}
+\subsection{\code{LazyH5$new()}}{
+  constructor
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LazyH5$new(file_path, data_name, read_only = FALSE, quiet = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{file_path}}{where data is stored in 'HDF5' format}
+      \item{\code{data_name}}{the data stored in the file}
+      \item{\code{read_only}}{whether to open the file in read-only mode. It's highly
 recommended to set this to be true, otherwise the file connection is
 exclusive.}
+      \item{\code{quiet}}{whether to suppress messages, default is false}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    self instance
+  }
+}
 
-\item{\code{quiet}}{whether to suppress messages, default is false}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-self instance
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LazyH5-save"></a>}}
 \if{latex}{\out{\hypertarget{method-LazyH5-save}{}}}
-\subsection{Method \code{save()}}{
-save data to a 'HDF5' file
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LazyH5$save(
+\subsection{\code{LazyH5$save()}}{
+  save data to a 'HDF5' file
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LazyH5$save(
   x,
   chunk = "auto",
   level = 7,
@@ -99,143 +103,141 @@ save data to a 'HDF5' file
   ctype = NULL,
   size = NULL,
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{x}}{vector, matrix, or array}
-
-\item{\code{chunk}}{chunk size, length should matches with data dimension}
-
-\item{\code{level}}{compress level, from 1 to 9}
-
-\item{\code{replace}}{if the data exists in the file, replace the file or not}
-
-\item{\code{new_file}}{remove the whole file if exists before writing?}
-
-\item{\code{force}}{if you open the file in read-only mode, then saving
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{x}}{vector, matrix, or array}
+      \item{\code{chunk}}{chunk size, length should matches with data dimension}
+      \item{\code{level}}{compress level, from 1 to 9}
+      \item{\code{replace}}{if the data exists in the file, replace the file or not}
+      \item{\code{new_file}}{remove the whole file if exists before writing?}
+      \item{\code{force}}{if you open the file in read-only mode, then saving
 objects to the file will raise error. Use \code{force=TRUE} to force
 write data}
-
-\item{\code{ctype}}{data type, see \code{\link{mode}}, usually the data type
+      \item{\code{ctype}}{data type, see \code{\link{mode}}, usually the data type
 of \code{x}. Try \code{mode(x)} or \code{storage.mode(x)} as hints.}
+      \item{\code{size}}{deprecated, for compatibility issues}
+      \item{\code{...}}{passed to self \code{open()} method}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{size}}{deprecated, for compatibility issues}
-
-\item{\code{...}}{passed to self \code{open()} method}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LazyH5-open"></a>}}
 \if{latex}{\out{\hypertarget{method-LazyH5-open}{}}}
-\subsection{Method \code{open()}}{
-open connection
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LazyH5$open(new_dataset = FALSE, robj, ...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{new_dataset}}{only used when the internal pointer is closed, or
+\subsection{\code{LazyH5$open()}}{
+  open connection
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LazyH5$open(new_dataset = FALSE, robj, ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{new_dataset}}{only used when the internal pointer is closed, or
 to write the data}
+      \item{\code{robj}}{data array to save}
+      \item{\code{...}}{passed to \code{createDataSet} in \code{hdf5r} package}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{robj}}{data array to save}
-
-\item{\code{...}}{passed to \code{createDataSet} in \code{hdf5r} package}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LazyH5-close"></a>}}
 \if{latex}{\out{\hypertarget{method-LazyH5-close}{}}}
-\subsection{Method \code{close()}}{
-close connection
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LazyH5$close(all = TRUE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{all}}{whether to close all connections associated to the data file.
+\subsection{\code{LazyH5$close()}}{
+  close connection
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LazyH5$close(all = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{all}}{whether to close all connections associated to the data file.
 If true, then all connections, including access from other programs,
 will be closed}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LazyH5-subset"></a>}}
 \if{latex}{\out{\hypertarget{method-LazyH5-subset}{}}}
-\subsection{Method \code{subset()}}{
-subset data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LazyH5$subset(..., drop = FALSE, stream = FALSE, envir = parent.frame())}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{drop}}{whether to apply \code{\link{drop}} the subset}
-
-\item{\code{stream}}{whether to read partial data at a time}
-
-\item{\code{envir}}{if \code{i,j,...} are expressions, where should the
+\subsection{\code{LazyH5$subset()}}{
+  subset data
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LazyH5$subset(..., drop = FALSE, stream = FALSE, envir = parent.frame())}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{drop}}{whether to apply \code{\link{drop}} the subset}
+      \item{\code{stream}}{whether to read partial data at a time}
+      \item{\code{envir}}{if \code{i,j,...} are expressions, where should the
 expression be evaluated}
+      \item{\code{i, j, ...}}{index along each dimension}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    subset of data
+  }
+}
 
-\item{\code{i, j, ...}}{index along each dimension}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-subset of data
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LazyH5-get_dims"></a>}}
 \if{latex}{\out{\hypertarget{method-LazyH5-get_dims}{}}}
-\subsection{Method \code{get_dims()}}{
-get data dimension
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LazyH5$get_dims(stay_open = TRUE)}\if{html}{\out{</div>}}
+\subsection{\code{LazyH5$get_dims()}}{
+  get data dimension
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LazyH5$get_dims(stay_open = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{stay_open}}{whether to leave the connection opened}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    dimension of the array
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{stay_open}}{whether to leave the connection opened}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-dimension of the array
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LazyH5-get_type"></a>}}
 \if{latex}{\out{\hypertarget{method-LazyH5-get_type}{}}}
-\subsection{Method \code{get_type()}}{
-get data type
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LazyH5$get_type(stay_open = TRUE)}\if{html}{\out{</div>}}
+\subsection{\code{LazyH5$get_type()}}{
+  get data type
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LazyH5$get_type(stay_open = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{stay_open}}{whether to leave the connection opened}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    data type, currently only character, integer, raw,
+double, and complex are available, all other types will yield "unknown"
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{stay_open}}{whether to leave the connection opened}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-data type, currently only character, integer, raw,
-double, and complex are available, all other types will yield "unknown"
-}
-}
 }

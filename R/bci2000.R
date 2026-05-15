@@ -10,7 +10,7 @@ impl_read_bci2000_header <- function(file) {
 impl_read_bci2000_data <- function(file, extract_path = NULL,
                                    cache_ok = TRUE, verbose = TRUE) {
 
-  if(length(extract_path) != 1 || is.na(extract_path)) {
+  if (length(extract_path) != 1 || is.na(extract_path)) {
     prefix <- path_ext_remove(file)
     extract_path <- sprintf("%s.cache", prefix)
   }
@@ -19,11 +19,11 @@ impl_read_bci2000_data <- function(file, extract_path = NULL,
   sig <- digest::digest(file, file = TRUE)
   cache_path <- file_path(extract_path, sprintf("ieegio_bci2000_digest_%s", sig))
 
-  if( file_exists(cache_path) ) {
+  if ( file_exists(cache_path) ) {
 
-    if( cache_ok ) {
+    if ( cache_ok ) {
 
-      if( verbose ) {
+      if ( verbose ) {
         cat("Found existing cache. Trying to reuse the cache...\n")
       }
 
@@ -31,19 +31,19 @@ impl_read_bci2000_data <- function(file, extract_path = NULL,
 
         re <- filearray::filearray_load(cache_path, mode = "readonly")
 
-        if(isTRUE(re$get_header("ready")) && identical(re$get_header("source_digests"), sig)) {
+        if (isTRUE(re$get_header("ready")) && identical(re$get_header("source_digests"), sig)) {
           return(re)
         }
 
       }, error = function(...) {})
 
-      if( verbose ) {
+      if ( verbose ) {
         cat("Existing cache is invalid. Re-generate cache\n")
       }
 
     }
 
-    if( verbose ) {
+    if ( verbose ) {
       cat("Removing existing cache...\n")
     }
 
@@ -58,7 +58,7 @@ impl_read_bci2000_data <- function(file, extract_path = NULL,
     x$parameters$Source$`Signal Properties`$DataIOFilter$SamplingRate$value
   )
 
-  if(!length(sample_rate)) {
+  if (!length(sample_rate)) {
     warning("Unable to find sample rate from Parameters > Source. Please contact the maintainer to report this issue. Using time-points instead")
     sample_rate <- 1
   } else {
@@ -72,7 +72,7 @@ impl_read_bci2000_data <- function(file, extract_path = NULL,
 
   smry <- source_header$summary
   idx <- which(startsWith(smry, "[Enclosing Items]"))
-  if(length(idx)) {
+  if (length(idx)) {
     idx <- idx[[length(idx)]]
     source_header$summary <- smry[seq_len(idx - 1)]
   }
@@ -143,7 +143,7 @@ impl_read_bci2000_data <- function(file, extract_path = NULL,
 read_bci2000 <- function(
     file, extract_path = getOption("ieegio.extract_path", NULL),
     header_only = FALSE, cache_ok = TRUE, verbose = TRUE) {
-  if( header_only ) {
+  if ( header_only ) {
     return(impl_read_bci2000_header(file))
   }
 

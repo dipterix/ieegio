@@ -5,8 +5,8 @@ read_char <- function(conn, n, to = "UTF-8") {
 
 write_char <- function(conn, text, n = NA) {
   r <- charToRaw(text)
-  if(!is.na(n)) {
-    if(n > length(r)) {
+  if (!is.na(n)) {
+    if (n > length(r)) {
       r <- r[seq_len(n)]
     } else if (n < length(r)) {
       r <- c(r, rep(as.raw(0), n - length(r)))
@@ -99,7 +99,7 @@ io_read_trk <- function(file, half_voxel_offset = TRUE) {
     # this would happen maybe in the future, but not in the near future
     dim_raw <- readBin(fh, "raw", n = 6, endian = endian)
     dim <- readBin(dim_raw, "integer", n = 3, size = 2, endian = endian, signed = TRUE)
-    if(any(dim <= 0)) {
+    if (any(dim <= 0)) {
       endian <- "big"
       dim <- readBin(dim_raw, "integer", n = 3, size = 2, endian = endian, signed = TRUE)
     }
@@ -112,9 +112,9 @@ io_read_trk <- function(file, half_voxel_offset = TRUE) {
     trk$header$property_names <- read_char(fh, 200L)
     # https://github.com/niivue/niivue/issues/926
     mm2ras <- matrix(readBin(fh, numeric(), n = 16, size = 4, endian = endian), ncol = 4, byrow = TRUE)
-    if(mm2ras[[16]] == 0) { mm2ras <- diag(1, 4) }
+    if (mm2ras[[16]] == 0) { mm2ras <- diag(1, 4) }
     vox2mm <- diag(c(1 / trk$header$voxel_size, 1))
-    if(half_voxel_offset) {
+    if (half_voxel_offset) {
       vox2mm[1:3, 4] <- -0.5
     }
     trk$header$vox2ras <- mm2ras %*% vox2mm
@@ -135,7 +135,7 @@ io_read_trk <- function(file, half_voxel_offset = TRUE) {
     trk
   }
 
-  if(endsWith(tolower(file), ".gz")) {
+  if (endsWith(tolower(file), ".gz")) {
     fh <- gzfile(file, "rb")
   } else {
     fh <- file(file, "rb")
@@ -144,11 +144,11 @@ io_read_trk <- function(file, half_voxel_offset = TRUE) {
 
   endian <- "little"
   trk <- parse_header(fh, endian)
-  if(trk$header$version > 1000) {
+  if (trk$header$version > 1000) {
     # inverse endianess
     close(fh)
 
-    if(endsWith(tolower(file), ".gz")) {
+    if (endsWith(tolower(file), ".gz")) {
       fh <- gzfile(file, "rb")
     } else {
       fh <- file(file, "rb")
@@ -176,7 +176,7 @@ io_read_trk <- function(file, half_voxel_offset = TRUE) {
     num_points <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
     current_track$num_points <- num_points
 
-    if(num_points > 0) {
+    if (num_points > 0) {
       buff <- readBin(fh, what = "numeric", n = (3 + n_scalars) * num_points, size = 4, endian = endian)
       dim(buff) <- c(3 + n_scalars, num_points)
 
@@ -214,26 +214,26 @@ io_write_trk <- function(x, con, half_voxel_offset = NA) {
   endian <- "little"
 
   # sample
-  if(length(x$data) > 0) {
+  if (length(x$data) > 0) {
     item <- x$data[[1]]
 
     scalar_names <- as.character(names(item$scalars))
-    if(length(scalar_names)) {
+    if (length(scalar_names)) {
       scalar_names <- lapply(scalar_names, function(name) {
-        if(is.na(name)) { return(NULL) }
-        if(!is.numeric(item$scalars[[name]])) {
+        if (is.na(name)) { return(NULL) }
+        if (!is.numeric(item$scalars[[name]])) {
           warning("TRK scalars must be numeric, while ", sQuote(name),
                   " is not float/integer. Ignoring this scalar")
           return(NULL)
         }
-        if(nchar(name, type = "bytes", keepNA = TRUE) > 20) {
+        if (nchar(name, type = "bytes", keepNA = TRUE) > 20) {
           name <- substr(name, start = 1L, stop = 20)
         }
         return(name)
       })
       scalar_names <- unlist(scalar_names)
       n_scalars <- length(scalar_names)
-      if(n_scalars > 10) {
+      if (n_scalars > 10) {
         warning("TRK file can only store at most 10 scalars. Only the first 10 scalars will be saved")
         n_scalars <- 10
         scalar_names <- scalar_names[seq_len(n_scalars)]
@@ -244,22 +244,22 @@ io_write_trk <- function(x, con, half_voxel_offset = NA) {
 
 
     property_names <- as.character(names(item$properties))
-    if(length(property_names)) {
+    if (length(property_names)) {
       property_names <- lapply(property_names, function(name) {
-        if(is.na(name)) { return(NULL) }
-        if(!is.numeric(item$properties[[name]])) {
+        if (is.na(name)) { return(NULL) }
+        if (!is.numeric(item$properties[[name]])) {
           warning("TRK properties must be numeric, while ", sQuote(name),
                   " is not float/integer. Ignoring this scalar")
           return(NULL)
         }
-        if(nchar(name, type = "bytes", keepNA = TRUE) > 20) {
+        if (nchar(name, type = "bytes", keepNA = TRUE) > 20) {
           name <- substr(name, start = 1L, stop = 20)
         }
         return(name)
       })
       property_names <- unlist(property_names)
       n_properties <- length(property_names)
-      if(n_properties > 10) {
+      if (n_properties > 10) {
         warning("TRK file can only store at most 10 properties Only the first 10 scalars will be saved")
         n_properties <- 10
         property_names <- property_names[seq_len(n_properties)]
@@ -277,9 +277,9 @@ io_write_trk <- function(x, con, half_voxel_offset = NA) {
   }
 
 
-  if(!inherits(con, "connection")) {
+  if (!inherits(con, "connection")) {
     path <- con
-    if(endsWith(tolower(path), ".gz")) {
+    if (endsWith(tolower(path), ".gz")) {
       con <- gzfile(path, "wb")
     } else {
       con <- file(path, "wb")
@@ -289,19 +289,19 @@ io_write_trk <- function(x, con, half_voxel_offset = NA) {
 
   write_char("TRACK", conn = con, n = 6)
   dim <- x$header$dim
-  if(!length(dim)) { dim <- c(256, 256, 256) }
+  if (!length(dim)) { dim <- c(256, 256, 256) }
   dim <- dim[1:3]
   writeBin(as.integer(dim), con = con, size = 2, endian = endian)
 
   voxel_size <- x$header$voxel_size
-  if(!length(voxel_size)) {
+  if (!length(voxel_size)) {
     voxel_size <- c(1, 1, 1)
   }
   voxel_size <- voxel_size[1:3]
   writeBin(as.double(voxel_size), con = con, size = 4, endian = endian)
 
   origin <- x$header$origin
-  if(!length(origin)) { origin <- c(0, 0, 0) }
+  if (!length(origin)) { origin <- c(0, 0, 0) }
   origin <- origin[1:3]
   writeBin(as.double(origin), con = con, size = 4, endian = endian)
 
@@ -331,11 +331,11 @@ io_write_trk <- function(x, con, half_voxel_offset = NA) {
   writeBin(property_names_raw, con = con, endian = endian)
 
   # https://github.com/niivue/niivue/issues/926
-  if(is.na(half_voxel_offset)) {
+  if (is.na(half_voxel_offset)) {
     half_voxel_offset <- !isFALSE(x$header$half_voxel_offset)
   }
   vox2mm <- diag(c(1 / voxel_size, 1))
-  if(half_voxel_offset) {
+  if (half_voxel_offset) {
     vox2mm[1:3, 4] <- -0.5
   }
   vox2ras <- x$header$vox2ras # mm2ras %*% vox2mm
@@ -348,26 +348,26 @@ io_write_trk <- function(x, con, half_voxel_offset = NA) {
 
   # voxel_order
   voxel_order <- x$header$voxel_order
-  if(length(voxel_order) != 1 || nchar(voxel_order, "bytes") > 4L) {
+  if (length(voxel_order) != 1 || nchar(voxel_order, "bytes") > 4L) {
     voxel_order <- "LPS"
   }
   write_char(conn = con, text = voxel_order, n = 4L)
 
   pad2 <- x$header$pad2
-  if(length(pad2) != 1 || nchar(pad2, "bytes") > 4L) {
+  if (length(pad2) != 1 || nchar(pad2, "bytes") > 4L) {
     pad2 <- "LPS"
   }
   write_char(conn = con, text = pad2, n = 4L)
 
   image_orientation_patient <- x$header$image_orientation_patient
-  if(length(image_orientation_patient) != 6) {
+  if (length(image_orientation_patient) != 6) {
     image_orientation_patient <- c(1, 0, 0, 0, 1, 0)
   }
   writeBin(as.double(image_orientation_patient), con = con, size = 4L,
            endian = endian)
 
   pad1 <- x$header$pad1
-  if(!length(pad1) || nchar(pad1, "bytes") > 2L) {
+  if (!length(pad1) || nchar(pad1, "bytes") > 2L) {
     pad1 <- ""
   }
   write_char(conn = con, text = pad1, n = 2L)
@@ -407,10 +407,10 @@ io_write_trk <- function(x, con, half_voxel_offset = NA) {
     n_pts <- length(coords) / 3
     writeBin(object = as.integer(n_pts), con = con, size = 4, endian = endian)
 
-    if(length(coords)) {
+    if (length(coords)) {
       coords <- as.vector(t(coords))
     }
-    if(length(scalar_names)) {
+    if (length(scalar_names)) {
       scalars <- do.call("cbind", lapply(scalar_names, function(name) {
         as.double(item$scalars[[name]])
       }))
@@ -418,7 +418,7 @@ io_write_trk <- function(x, con, half_voxel_offset = NA) {
     } else {
       scalars <- NULL
     }
-    if(length(property_names)) {
+    if (length(property_names)) {
       properties <- vapply(property_names, function(name) {
         as.double(item$properties[[name]])
       }, 0.0)

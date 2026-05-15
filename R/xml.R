@@ -1,4 +1,4 @@
-cdata <- function (string) {
+cdata <- function(string) {
   cdata_start_tag <- "<![CDATA["
   cdata_end_tag <- "]]>"
   if (grepl(string, cdata_start_tag, fixed = TRUE)) {
@@ -12,9 +12,9 @@ cdata <- function (string) {
   return(paste(cdata_start_tag, string, cdata_end_tag, sep = ""))
 }
 
-check_data_and_settings_consistency <- function (index, data, datatype, intent, force = FALSE) {
+check_data_and_settings_consistency <- function(index, data, datatype, intent, force = FALSE) {
   msg <- NULL
-  if (is.integer(data) & startsWith(datatype, "NIFTI_TYPE_FLOAT")) {
+  if (is.integer(data) && startsWith(datatype, "NIFTI_TYPE_FLOAT")) {
     msg <- sprintf("Dataset # %d in file will be corrupted: integer R data passed, and written as '%s'.\n",
                   index, datatype)
   }
@@ -25,14 +25,13 @@ check_data_and_settings_consistency <- function (index, data, datatype, intent, 
   if (!is.null(msg)) {
     if (force) {
       warning(msg)
-    }
-    else {
+    } else {
       stop(msg)
     }
   }
 }
 
-xml_node_gifti_coordtransform <- function (transform_matrix, data_space = "NIFTI_XFORM_UNKNOWN",
+xml_node_gifti_coordtransform <- function(transform_matrix, data_space = "NIFTI_XFORM_UNKNOWN",
           transformed_space = "NIFTI_XFORM_UNKNOWN", as_cdata = TRUE)
 {
   if (!is.character(data_space)) {
@@ -42,15 +41,14 @@ xml_node_gifti_coordtransform <- function (transform_matrix, data_space = "NIFTI
     stop("Parameter 'transformed_space' must be a character string.")
   }
   if (!is.matrix(transform_matrix)) {
-    if(is.null(transform_matrix)) {
+    if (is.null(transform_matrix)) {
       # special case where there is no transform, use identity matrix
       transform_matrix <- diag(1, 4)
     } else {
       stop("Parameter 'transform_matrix' must be a numerical matrix.")
     }
   }
-  if (!(ncol(transform_matrix) == 4L & nrow(transform_matrix) ==
-        4L)) {
+  if (!(ncol(transform_matrix) == 4L && nrow(transform_matrix) == 4L)) {
     stop("Parameter 'transform_matrix' must be a numerical 4x4 matrix.")
   }
   if (as_cdata) {
@@ -76,7 +74,7 @@ xml_node_gifti_coordtransform <- function (transform_matrix, data_space = "NIFTI
   return(matrix_node)
 }
 
-create_gii_xml <- function (data_array,
+create_gii_xml <- function(data_array,
                             intent = "NIFTI_INTENT_SHAPE",
                             datatype = "NIFTI_TYPE_FLOAT32",
                             encoding = "GZipBase64Binary",
@@ -203,9 +201,9 @@ create_gii_xml <- function (data_array,
                                                 data_array_node)
 
     data_array_meta_content <- xml2::read_xml("<MetaData></MetaData>")
-    if(length(da_meta)) {
+    if (length(da_meta)) {
       lapply(names(da_meta), function(key) {
-        if(!nzchar(key)) { return() }
+        if (!nzchar(key)) { return() }
         md_content <- xml2::read_xml("<MD></MD>")
         val <- paste(format(da_meta[[key]]), collapse = "")
         item <- xml2::read_xml("<Name></Name>")
@@ -236,13 +234,11 @@ create_gii_xml <- function (data_array,
         )
         xml2::xml_add_child(data_array_node_added,
                             tf_node)
-      }
-      else if (is.matrix(tf)) {
+      } else if (is.matrix(tf)) {
         tf_node <- xml_node_gifti_coordtransform(tf)
         xml2::xml_add_child(data_array_node_added,
                             tf_node)
-      }
-      else {
+      } else {
         if (!is.na(tf)) {
           stop(
             sprintf(
@@ -258,8 +254,8 @@ create_gii_xml <- function (data_array,
   }
 
   # construct look-up table
-  if(is.data.frame(label_table) && nrow(label_table)) {
-    if(!length(label_table$Alpha)) { label_table$Alpha <- 1.0 }
+  if (is.data.frame(label_table) && nrow(label_table)) {
+    if (!length(label_table$Alpha)) { label_table$Alpha <- 1.0 }
     xml_label_table <- sprintf(
       '<Label Key="%d" Red="%f" Green="%f" Blue="%f" Alpha="%f"><![CDATA[%s]]></Label>',
       label_table$Key, label_table$Red, label_table$Green, label_table$Blue,

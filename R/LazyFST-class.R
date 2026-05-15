@@ -29,7 +29,7 @@
 #'
 #' @export
 LazyFST <- R6::R6Class(
-  classname = 'LazyFST',
+  classname = "LazyFST",
   cloneable = FALSE,
   portable = TRUE,
   private = list(
@@ -46,14 +46,14 @@ LazyFST <- R6::R6Class(
     #' @description to be compatible with \code{\link{LazyH5}}
     #' @param ... ignored
     #' @returns none
-    open = function(...){},
+    open = function(...) {},
 
     #' @description close the connection
     #' @param ... ignored
     #' @param .remove_file whether to remove the file when garbage collected
     #' @returns none
-    close = function(..., .remove_file = FALSE){
-      if(.remove_file){
+    close = function(..., .remove_file = FALSE) {
+      if (.remove_file) {
         unlink(private$file_path)
       }
     },
@@ -61,8 +61,8 @@ LazyFST <- R6::R6Class(
     #' @description to be compatible with \code{\link[ieegio]{LazyH5}}
     #' @param ... ignored
     #' @returns none
-    save = function(...){
-      warning('NOT Implemented yet')
+    save = function(...) {
+      warning("NOT Implemented yet")
     },
 
     #' @description constructor
@@ -70,26 +70,26 @@ LazyFST <- R6::R6Class(
     #' @param transpose whether to load data transposed
     #' @param dims data dimension, only support 1 or 2 dimensions
     #' @param ... ignored
-    initialize = function(file_path, transpose = FALSE, dims = NULL, ...){
+    initialize = function(file_path, transpose = FALSE, dims = NULL, ...) {
       private$file_path <- file_path
       private$transpose <- transpose
       # check if dimension matches
       # private$meta <- fst::metadata_fst(file_path)
       private$meta <- io_read_fst(file_path, method = "header_only")
-      if(length(dims) == 2){
-        if(private$meta$nrOfRows * length(private$meta$columnNames) == prod(dims)){
+      if (length(dims) == 2) {
+        if (private$meta$nrOfRows * length(private$meta$columnNames) == prod(dims)) {
           private$dims <- dims
-        }else{
-          stop('cached data has different dimensions than the given value')
+        } else {
+          stop("cached data has different dimensions than the given value")
         }
-      }else{
-        if(is.null(dims)){
+      } else {
+        if (is.null(dims)) {
           private$dims <- c(private$meta$nrOfRows, length(private$meta$columnNames))
-          if(transpose){
-            private$dims <- private$dims[c(2,1)]
+          if (transpose) {
+            private$dims <- private$dims[c(2, 1)]
           }
-        }else{
-          stop('fast cache only supports 2 dimension data')
+        } else {
+          stop("fast cache only supports 2 dimension data")
         }
       }
     },
@@ -97,7 +97,7 @@ LazyFST <- R6::R6Class(
     #' @description get data dimension
     #' @param ... ignored
     #' @returns vector, dimensions
-    get_dims = function(...){
+    get_dims = function(...) {
       private$dims
     },
 
@@ -105,17 +105,17 @@ LazyFST <- R6::R6Class(
     #' @param i,j,... index along each dimension
     #' @param drop whether to apply \code{\link{drop}} the subset
     #' @returns subset of data
-    subset = function(i = NULL, j = NULL, ..., drop = TRUE){
-      if(!length(j)){
+    subset = function(i = NULL, j = NULL, ..., drop = TRUE) {
+      if (!length(j)) {
         j <- seq_len(private$dims[2])
       }
-      if(!length(i)){
+      if (!length(i)) {
         i <- seq_len(private$dims[1])
       }
-      if(is.logical(i)){
+      if (is.logical(i)) {
         i <- which(i)
       }
-      if(is.logical(j)){
+      if (is.logical(j)) {
         j <- which(j)
       }
 
@@ -127,24 +127,24 @@ LazyFST <- R6::R6Class(
 
       private$last_visited <- Sys.time()
 
-      # if(is.null(private$data)){
+      # if(is.null(private$data)) {
       #   # load all data
       #   private$data = as.matrix(fst::read_fst(private$file_path))
       # }
 
 
-      # if(private$transpose){
+      # if(private$transpose) {
       #   re[real_i, real_j] = t(private$data[j[real_j], i[real_i]])
       # }else{
       #   re[real_i, real_j] = private$data[i[real_i], j[real_j]]
       # }
 
-      if(private$transpose){
+      if (private$transpose) {
         col_names <- private$meta$columnNames[i[real_i]]
         dat <- as.matrix(io_read_fst(private$file_path, columns = col_names, method = "data_table"))
         dat <- dat[j[real_j], ]
         re[real_i, real_j] <- t(dat)
-      }else{
+      } else {
         col_names <- private$meta$columnNames[j[real_j]]
         dat <- as.matrix(io_read_fst(private$file_path, columns = col_names, method = "data_table"))
         dat <- dat[i[real_i], ]
@@ -158,17 +158,17 @@ LazyFST <- R6::R6Class(
       dimnames(re) <- NULL
 
       # wait 10 secs to see if data idle, if true, remove private$data
-      # later::later(function(){
+      # later::later(function() {
       #   d = as.numeric(difftime(Sys.time(), private$last_visited, units = 'secs') )
-      #   if(d >= private$delayed){
+      #   if (d >= private$delayed) {
       #     private$data = NULL
       #     gc()
       #   }
       # }, delay = private$delayed)
 
-      if(drop){
+      if (drop) {
         return(drop(re))
-      }else{
+      } else {
         return(re)
       }
 
@@ -180,72 +180,72 @@ LazyFST <- R6::R6Class(
 
 
 #' @export
-`[.LazyFST` <- function(obj, i, j, ..., drop = FALSE){
-  if(missing(i)){
+`[.LazyFST` <- function(obj, i, j, ..., drop = FALSE) {
+  if (missing(i)) {
     i <- NULL
   }
-  if(missing(j)){
+  if (missing(j)) {
     j <- NULL
   }
   obj$subset(i, j, ..., drop = drop)
 }
 
 #' @export
-`+.LazyFST` <- function(a, b){
+`+.LazyFST` <- function(a, b) {
   b + a$subset()
 }
 
 #' @export
-`-.LazyFST` <- function(a, b){
+`-.LazyFST` <- function(a, b) {
   -(b - a$subset())
 }
 
 #' @export
-`*.LazyFST` <- function(a, b){
+`*.LazyFST` <- function(a, b) {
   b * (a$subset())
 }
 
 #' @export
-`/.LazyFST` <- function(a, b){
-  if(inherits(b, 'LazyFST')){
+`/.LazyFST` <- function(a, b) {
+  if (inherits(b, "LazyFST")) {
     b <- b$subset()
   }
   a$subset() / b
 }
 
 #' @export
-dim.LazyFST <- function(x){
+dim.LazyFST <- function(x) {
   dim_info <- x$get_dims()
-  if(length(dim_info) == 1){
+  if (length(dim_info) == 1) {
     dim_info <- NULL
   }
   dim_info
 }
 
 #' @export
-length.LazyFST <- function(x){
+length.LazyFST <- function(x) {
   dim_info <- x$get_dims()
   prod(dim_info)
 }
 
 #' @export
-as.array.LazyFST <- function(x, ...){
+as.array.LazyFST <- function(x, ...) {
   as.array(x$subset(), ...)
 }
 
 #' @export
-Mod.LazyFST <- function(z){
+Mod.LazyFST <- function(z) {
   base::Mod(z$subset())
 }
 
 #' @export
-Arg.LazyFST <- function(z){
+Arg.LazyFST <- function(z) {
   base::Arg(z$subset())
 }
 
 
 #' @export
-exp.LazyFST <- function(x){
+exp.LazyFST <- function(x) {
   base::exp(x$subset())
 }
 
@@ -273,24 +273,24 @@ exp.LazyFST <- function(x){
 io_read_fstarray_or_h5 <- function(
     fst_path, h5_path, h5_name, fst_need_transpose = FALSE,
     fst_need_drop = FALSE, ram = FALSE
-){
+) {
   # check if fst_path exists
-  if(file.exists(fst_path)){
-    if(ram){
+  if (file.exists(fst_path)) {
+    if (ram) {
       re <- as.matrix(io_read_fst(fst_path))
       dimnames(re) <- NULL
-      if(fst_need_transpose){
+      if (fst_need_transpose) {
         re <- t(re)
       }
-      if(fst_need_drop){
+      if (fst_need_drop) {
         re <- drop(re)
       }
       return(re)
-    }else{
+    } else {
       re <- LazyFST$new(file_path = fst_path, transpose = fst_need_transpose)
       return(re)
     }
-  }else{
+  } else {
     re <- io_read_h5(file = h5_path, name = h5_name, read_only = TRUE, ram = ram)
     return(re)
   }
@@ -318,18 +318,18 @@ convert_fst_to_hdf5 <- function(fst_path, hdf5_path, exclude_names = NULL) {
   # tbl <- fst::fst(fst_path)
   tbl <- io_read_fst(con = fst_path, method = "proxy")
 
-  if(file.exists(hdf5_path)) {
+  if (file.exists(hdf5_path)) {
     unlink(hdf5_path)
   }
 
   nms <- names(tbl)
   nms <- nms[!nms %in% exclude_names]
 
-  for(nm in nms) {
+  for (nm in nms) {
     dat <- tbl[[nm]]
-    if(is.factor(dat)) { dat <- as.character(dat) }
+    if (is.factor(dat)) { dat <- as.character(dat) }
     compress_level <- 9
-    if(is.numeric(dat)) {
+    if (is.numeric(dat)) {
       compress_level <- 4
     }
     io_write_h5(x = dat, file = hdf5_path, name = nm, level = compress_level, replace = TRUE)
@@ -349,7 +349,7 @@ convert_fst_to_csv <- function(fst_path, csv_path, exclude_names = NULL) {
   # tbl <- fst::fst(fst_path)
   tbl <- io_read_fst(con = fst_path, method = "proxy")
 
-  if(file.exists(csv_path)) {
+  if (file.exists(csv_path)) {
     unlink(csv_path)
   }
 

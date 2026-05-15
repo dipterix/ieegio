@@ -1,11 +1,11 @@
 #' @rdname low-level-read-write
 #' @export
-io_read_ini <- function (con, ...) {
+io_read_ini <- function(con, ...) {
   regexp_section <- "^\\s*\\[\\s*(.+?)\\s*]"
   regexp_keyval <- "^\\s*[^=]+=.+"
   regexp_comment <- "^\\s*[;#]"
 
-  if(!inherits(con, "connection")) {
+  if (!inherits(con, "connection")) {
     con <- file(con, open = "r", ...)
     on.exit(close(con))
   }
@@ -13,7 +13,7 @@ io_read_ini <- function (con, ...) {
   re <- fastmap::fastmap()
 
   ensure_section <- function(name) {
-    if(!re$has(name)) {
+    if (!re$has(name)) {
       re$set(name, list(
         data = fastmap::fastqueue(),
         comments = fastmap::fastqueue()

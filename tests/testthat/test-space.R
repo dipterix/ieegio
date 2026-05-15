@@ -84,8 +84,8 @@ test_that("orientation_transform handles all common 8 orientations", {
   common_orientations <- c("RAS", "LAS", "LPS", "RPS", "LPI", "RPI", "LAI", "RAI")
   
   # Test all pairs can be transformed
-  for(from_orient in common_orientations) {
-    for(to_orient in common_orientations) {
+  for (from_orient in common_orientations) {
+    for (to_orient in common_orientations) {
       mat <- ieegio:::orientation_transform(from_orient, to_orient)
       
       # Matrix should be 4x4

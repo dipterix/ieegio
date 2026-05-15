@@ -1,10 +1,9 @@
-check_rgl <- function (strict = NA) {
+check_rgl <- function(strict = NA) {
   rgl_unavailable <- function() {
     msg <- "Package `rgl` is not installed. Please install `rgl` to use this function."
     if (isTRUE(strict)) {
       stop(msg)
-    }
-    else if (is.na(strict)) {
+    } else if (is.na(strict)) {
       message(msg)
     }
     FALSE
@@ -21,7 +20,7 @@ check_rgl <- function (strict = NA) {
   TRUE
 }
 
-helper_rgl_call <- function (FUN, ...) {
+helper_rgl_call <- function(FUN, ...) {
   check_rgl()
 
   oldopt <- options(rgl.useNULL = TRUE)
@@ -34,7 +33,7 @@ helper_rgl_call <- function (FUN, ...) {
   rgl[[FUN]](...)
 }
 
-helper_rgl_view <- function (expr, quoted = FALSE, env = parent.frame()) {
+helper_rgl_view <- function(expr, quoted = FALSE, env = parent.frame()) {
   if (!quoted) {
     expr <- substitute(expr)
   }

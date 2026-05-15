@@ -1,10 +1,10 @@
 # Experimental function to write STL format
 write_binary_stl <- function(surf, file) {
 
-  if(!inherits(surf, "ieegio_surface")) {
+  if (!inherits(surf, "ieegio_surface")) {
     surf <- as_ieegio_surface(x = surf)
   }
-  if(!inherits(surf, "ieegio_surface_contains_geometry")) {
+  if (!inherits(surf, "ieegio_surface_contains_geometry")) {
     stop("surface is not a valid `ieegio_surface` object")
   }
 
@@ -21,9 +21,9 @@ write_binary_stl <- function(surf, file) {
   # Compute facet normals via cross-product
   e1 <- v2 - v1
   e2 <- v3 - v1
-  nx <- e1[2,]*e2[3,] - e1[3,]*e2[2,]
-  ny <- e1[3,]*e2[1,] - e1[1,]*e2[3,]
-  nz <- e1[1,]*e2[2,] - e1[2,]*e2[1,]
+  nx <- e1[2, ] * e2[3, ] - e1[3, ] * e2[2, ]
+  ny <- e1[3, ] * e2[1, ] - e1[1, ] * e2[3, ]
+  nz <- e1[1, ] * e2[2, ] - e1[2, ] * e2[1, ]
   lengths <- sqrt(nx^2 + ny^2 + nz^2)
   # normalize, avoid division by zero
   nonzero <- lengths > 0
@@ -39,7 +39,7 @@ write_binary_stl <- function(surf, file) {
   con <- file(file, "wb")
   con_is_closed <- FALSE
   on.exit({
-    if(!con_is_closed) {
+    if (!con_is_closed) {
       close(con)
     }
   })

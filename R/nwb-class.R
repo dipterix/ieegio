@@ -28,7 +28,7 @@ NWBHDF5IO <- R6::R6Class(
     ensure_file_handler = function() {
       # check if .file_handler is valid
       ptr <- private$.file_handler
-      if(is.null(ptr) || is_invalid_py_pointer(ptr)) {
+      if (is.null(ptr) || is_invalid_py_pointer(ptr)) {
         nwb <- pynwb_module()
         ptr <- do.call(nwb$NWBHDF5IO, private$construct_params)
         private$.file_handler <- ptr
@@ -47,7 +47,7 @@ NWBHDF5IO <- R6::R6Class(
     #' @param ... Other parameters passed to \code{nwb$NWBHDF5IO}
     initialize = function(
     path = NULL, mode = c("r", "w", "r+", "a", "w-", "x"), ...) {
-      if(length(path)) {
+      if (length(path)) {
         path <- normalizePath(path)
       }
       mode <- match.arg(mode)
@@ -90,11 +90,11 @@ NWBHDF5IO <- R6::R6Class(
       passed <- FALSE
       # Make sure closing the file links when exiting the function
       on.exit({
-        if(!passed) {
+        if (!passed) {
           self$close()
         }
       })
-      if(!self$opened) {
+      if (!self$opened) {
         stop("Cannot open file...")
       }
       passed <- TRUE
@@ -107,13 +107,13 @@ NWBHDF5IO <- R6::R6Class(
     #' file; default is true
     #' @return Nothing
     close = function(close_links = TRUE) {
-      if( close_links ) {
+      if ( close_links ) {
         close_links <- TRUE
       } else {
         close_links <- FALSE
       }
       ptr <- private$.file_handler
-      if(is.null(ptr) || is_invalid_py_pointer(ptr)) { return(invisible()) }
+      if (is.null(ptr) || is_invalid_py_pointer(ptr)) { return(invisible()) }
       # clean up and close the file handler
       ieegio_debug("Closing the [NWBHDF5IO] file handler")
       tryCatch({
@@ -133,7 +133,7 @@ NWBHDF5IO <- R6::R6Class(
     #' @return Nothing
     close_linked_files = function() {
       ptr <- private$.file_handler
-      if(is.null(ptr) || is_invalid_py_pointer(ptr)) { return(invisible()) }
+      if (is.null(ptr) || is_invalid_py_pointer(ptr)) { return(invisible()) }
       # clean up and close the file handler
       ieegio_debug("Closing the [NWBHDF5IO] all linked files")
       tryCatch({
@@ -149,7 +149,7 @@ NWBHDF5IO <- R6::R6Class(
     #' \code{'$with'} method
     #' @return \code{'NWBFile'} container
     read = function() {
-      if(!self$opened) {
+      if (!self$opened) {
         stop("The file is not opened. Must run under `x$with` context")
       }
       handler <- private$ensure_file_handler()
@@ -173,13 +173,13 @@ NWBHDF5IO <- R6::R6Class(
     #'
     #' }
     with = function(expr, quoted = FALSE, envir = parent.frame()) {
-      if(!quoted) {
+      if (!quoted) {
         expr <- substitute(expr)
       }
       private$ensure_file_handler()
       # Make sure closing the file links when exiting the function
       on.exit({ self$close() })
-      if(!self$opened) {
+      if (!self$opened) {
         stop("Cannot open file...")
       }
       eval(expr, envir = envir)
@@ -190,7 +190,7 @@ NWBHDF5IO <- R6::R6Class(
     #' @field opened Whether the container is opened.
     opened = function() {
       ptr <- private$.file_handler
-      if(is.null(ptr) || is_invalid_py_pointer(ptr)) {
+      if (is.null(ptr) || is_invalid_py_pointer(ptr)) {
         return(FALSE)
       }
       return(TRUE)
@@ -200,7 +200,7 @@ NWBHDF5IO <- R6::R6Class(
 
 #' @export
 close.pynwb.NWBHDF5IO <- function(con, close_links = TRUE, ...) {
-  if(close_links) {
+  if (close_links) {
     close_links <- TRUE
   } else {
     close_links <- FALSE

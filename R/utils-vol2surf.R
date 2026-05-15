@@ -46,7 +46,7 @@ volume_to_surface <- function(
 
   vox_to_ras <- volume$transforms[[1]]
 
-  if(length(vol_dim) < 3) {
+  if (length(vol_dim) < 3) {
     vol_dim <- c(vol_dim, 1, 1, 1)[seq_len(3)]
     volume <- array(volume[], dim = vol_dim)
   } else if (length(vol_dim) > 3) {
@@ -56,16 +56,16 @@ volume_to_surface <- function(
     volume <- array(volume[], dim = vol_dim)
   }
 
-  if(is.na(threshold_lb)) { threshold_lb <- 0 }
-  if(is.na(threshold_ub)) {
+  if (is.na(threshold_lb)) { threshold_lb <- 0 }
+  if (is.na(threshold_ub)) {
     nvox <- sum(volume > threshold_lb)
   } else {
     nvox <- sum(volume > threshold_lb & volume < threshold_ub)
   }
 
-  if(nvox == 0) {
+  if (nvox == 0) {
     # empty surface
-    return(ieegio::as_ieegio_surface(matrix(c(0,0,0), ncol = 3)))
+    return(ieegio::as_ieegio_surface(matrix(c(0, 0, 0), ncol = 3)))
   }
 
   # Mesh
@@ -76,12 +76,12 @@ volume_to_surface <- function(
     vox_to_ras = vox_to_ras
   )
 
-  if(length(mesh$vb) < 9 && length(mesh$it) < 3) {
+  if (length(mesh$vb) < 9 && length(mesh$it) < 3) {
     return(ieegio::as_ieegio_surface(mesh, transform = diag(1, 4)))
   }
 
   # smooth
-  if( isTRUE( lambda > 0 ) ) {
+  if ( isTRUE( lambda > 0 ) ) {
     mesh <- ravetools::vcg_smooth_implicit(
       mesh,
       lambda = lambda,
@@ -92,7 +92,7 @@ volume_to_surface <- function(
     )
   }
 
-  if(length(mesh$vb) < 9 && length(mesh$it) < 3) {
+  if (length(mesh$vb) < 9 && length(mesh$it) < 3) {
     return(ieegio::as_ieegio_surface(mesh, transform = diag(1, 4)))
   }
 

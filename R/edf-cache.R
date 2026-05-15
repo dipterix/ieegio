@@ -5,12 +5,12 @@ EBDFCache <- R6::R6Class(
   private = list(
     .root_path = character(0L),
     assert_valid = function() {
-      if(!self$valid) {
+      if (!self$valid) {
         stop("`NSXCache`: the loaded cache was removed/changed. Please reload the E/BDF(+) data.")
       }
     },
     finalize = function() {
-      if(self$temporary) {
+      if (self$temporary) {
         self$delete()
       }
     }
@@ -36,29 +36,29 @@ EBDFCache <- R6::R6Class(
       self$selection <- header_and_selection$selection
 
       annot_path <- file_path(path, "annot.fst")
-      if(file_exists(annot_path)) {
+      if (file_exists(annot_path)) {
         self$annotations <- io_read_fst(annot_path, method = "proxy")
       }
     },
 
     get_channel = function(x, begin = NA, end = NA) {
       private$assert_valid()
-      if(is.character(x)) {
+      if (is.character(x)) {
         chan <- self$channel_table$Channel[self$channel_table$Label == x]
       } else {
         chan <- as.integer(x)
       }
-      if(length(chan) != 1) {
+      if (length(chan) != 1) {
         stop("`EBDFCache`: Please load one channel at a time. ",
              "If two channels share the same label name, ",
              "please do not get channel by label. Instead, ",
              "specify the channel index explicitly.")
       }
-      if(!isTRUE(chan %in% self$selection$channels)) {
+      if (!isTRUE(chan %in% self$selection$channels)) {
         stop("Channel not found or not loaded: ", chan)
       }
-      if(is.na(begin)) { begin <- self$selection$begin }
-      if(is.na(end)) { end <- self$selection$end }
+      if (is.na(begin)) { begin <- self$selection$begin }
+      if (is.na(end)) { end <- self$selection$end }
 
       arr <- filearray::filearray_load(file_path(private$.root_path, sprintf("Ch%d", chan)), mode = "readonly")
       # select time
@@ -84,7 +84,7 @@ EBDFCache <- R6::R6Class(
 
     format = function(...) {
       ftype <- self$header$file_type[[1]]
-      if(self$header$is_plus) {
+      if (self$header$is_plus) {
         ftype <- sprintf("%s+", ftype)
       }
       all_chans <- self$channel_table$Channel
@@ -109,7 +109,7 @@ EBDFCache <- R6::R6Class(
 
     delete = function() {
       path <- private$.root_path
-      if(length(path) == 1 && file_exists(path)) {
+      if (length(path) == 1 && file_exists(path)) {
         file_delete(path, use_base_r = TRUE)
       }
     }
@@ -139,7 +139,7 @@ format.ieegio_get_channel <- function(x, ...) {
 }
 
 #' @export
-print.ieegio_get_channel<- function(x, ...) {
+print.ieegio_get_channel <- function(x, ...) {
   cat(format(x), "", sep = "\n")
 }
 

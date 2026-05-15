@@ -3,7 +3,7 @@
 # hdr <- internal_read_brainvis_header(file)
 # infer_names = FALSE
 
-impl_read_brainvis_ini <- function (path, infer_names = FALSE,
+impl_read_brainvis_ini <- function(path, infer_names = FALSE,
                                     tidy_names = TRUE) {
   regexp_section <- "^\\s*\\[\\s*(.+?)\\s*]"
   regexp_keyval <- "^\\s*[^=]+=.+"
@@ -14,7 +14,7 @@ impl_read_brainvis_ini <- function (path, infer_names = FALSE,
   re <- fastmap::fastmap()
 
   ensure_section <- function(name) {
-    if(!re$has(name)) {
+    if (!re$has(name)) {
       re$set(name, list(
         data = fastmap::fastqueue(),
         comments = fastmap::fastqueue()
@@ -57,7 +57,7 @@ impl_read_brainvis_ini <- function (path, infer_names = FALSE,
   re <- re$as_list()
 
   nms <- names(re)
-  if( tidy_names ) {
+  if ( tidy_names ) {
     nms <- stringr::str_replace_all(nms, " ", "")
   }
 
@@ -65,7 +65,7 @@ impl_read_brainvis_ini <- function (path, infer_names = FALSE,
     names = nms,
     lapply(re, function(li) {
       comments <- unlist(li$comments$as_list())
-      if(length(comments)) {
+      if (length(comments)) {
         comments <- trimws(gsub("^[ ]{0,};", "", comments))
       } else {
         comments <- NULL
@@ -73,17 +73,17 @@ impl_read_brainvis_ini <- function (path, infer_names = FALSE,
 
       size <- li$data$size()
 
-      if(!size) { return(comments) }
+      if (!size) { return(comments) }
 
       data <- data.table::rbindlist(li$data$as_list())
-      if( infer_names ) {
+      if ( infer_names ) {
         tmp <- paste(comments, collapse = " ")
 
-        entry_info <- stringr::str_extract(tmp, "<([^=]+)>=(<[^<>]+>[,; ]+){0,}")[[1]]
-        if(length(entry_info) && !is.na(entry_info)) {
+        entry_info <- stringr::str_extract(tmp, "<([^=]+)>=(<[^<>]+>[,; ]+) {0,}")[[1]]
+        if (length(entry_info) && !is.na(entry_info)) {
 
           entry_info <- stringr::str_split(entry_info[[1]], ">[ ]{0,}=[ ]{0,}<")[[1]]
-          if(length(entry_info) >= 2) {
+          if (length(entry_info) >= 2) {
 
             key_name <- stringr::str_remove_all(entry_info[[1]], "[<>,;'\"]+")
             key_name <- stringr::str_to_title(trimws(key_name))
@@ -111,7 +111,7 @@ impl_read_brainvis_ini <- function (path, infer_names = FALSE,
 
             nc <- ncol(values)
 
-            if( nc < length(value_names) ) {
+            if ( nc < length(value_names) ) {
               value_names <- value_names[seq_len(nc)]
             } else if (nc > length(value_names)) {
               value_names2 <- sprintf("Unnamed%d", seq_len(nc))
@@ -127,7 +127,7 @@ impl_read_brainvis_ini <- function (path, infer_names = FALSE,
         }
       }
 
-      if(length(comments)) {
+      if (length(comments)) {
         attr(data, "comments") <- comments
       }
 
@@ -139,7 +139,7 @@ impl_read_brainvis_ini <- function (path, infer_names = FALSE,
 }
 
 
-impl_read_vmrk <- function (file) {
+impl_read_vmrk <- function(file) {
   items <- readLines(file)
   pattern <- stringr::regex("^Mk([0-9]*)?=(.*)$", dotall = TRUE)
   sel <- stringr::str_detect(items, pattern)
@@ -148,14 +148,14 @@ impl_read_vmrk <- function (file) {
   items <- items[sel]
   if (!length(items)) { return() }
   tmp <- paste(comments, collapse = "")
-  marker_info <- stringr::str_extract(tmp, "Mk<([^=]+)>=(<[^<>]+>[,; ]+){0,}")
+  marker_info <- stringr::str_extract(tmp, "Mk<([^=]+)>=(<[^<>]+>[,; ]+) {0,}")
   marker_info <- stringr::str_split(marker_info, "([<>,;]+)|(^Mk)")[[1]]
   marker_info <- stringr::str_trim(marker_info)
   marker_info <- marker_info[!marker_info %in% c("", "=")]
   markers <- stringr::str_match(items, pattern = pattern)
   markers <- cbind(markers[, 2], stringr::str_split(markers[, 3], ",", simplify = TRUE))
   nc <- ncol(markers)
-  if(nc > length(marker_info)) {
+  if (nc > length(marker_info)) {
     marker_info2 <- sprintf("Unnamed%d", seq_len(nc))
     marker_info2[seq_along(marker_info)] <- marker_info
     marker_info <- marker_info2
@@ -169,11 +169,11 @@ impl_read_vmrk <- function (file) {
   colnames(markers) <- marker_cnames
   markers <- data.table::data.table(markers)
 
-  for(nm in marker_cnames) {
-    if(
-      all(grepl('^([0-9\\-][0-9]{1,}|[0-9]{1,})$', markers[[nm]]))
+  for (nm in marker_cnames) {
+    if (
+      all(grepl("^([0-9\\-][0-9]{1,}|[0-9]{1,})$", markers[[nm]]))
     ) {
-      if( all(markers[[nm]] <= .Machine$integer.max) ) {
+      if ( all(markers[[nm]] <= .Machine$integer.max) ) {
         markers[[nm]] <- as.integer(markers[[nm]])
       } else if (all(nchar(markers[[nm]]) < 16)) {
         markers[[nm]] <- as.numeric(markers[[nm]])
@@ -184,7 +184,7 @@ impl_read_vmrk <- function (file) {
   list(comments = comments, header = marker_info, content = markers)
 }
 
-internal_read_brainvis_header <- function (file)
+internal_read_brainvis_header <- function(file)
 {
   # needs to be .vhdr
   file <- path_abs(file)
@@ -236,9 +236,9 @@ internal_read_brainvis_header <- function (file)
 # file <- "/Users/dipterix/PennNeurosurgery Dropbox/Zhengjia Wang/RAVE/Samples/raw/Walker/Block001/Bursts.vmrk"
 internal_read_brainvis_annotation <- function(file) {
   markers <- NULL
-  if(length(file) == 1 && !is.na(file) && file_exists(file)) {
+  if (length(file) == 1 && !is.na(file) && file_exists(file)) {
     markers <- impl_read_brainvis_ini(file, infer_names = TRUE, tidy_names = TRUE)
-    if(all(grepl("^Mk[0-9]+$", markers$MarkerInfos[[1]], ignore.case = TRUE))) {
+    if (all(grepl("^Mk[0-9]+$", markers$MarkerInfos[[1]], ignore.case = TRUE))) {
       markers$MarkerInfos[[1]] <- as.integer(gsub("Mk", "", markers$MarkerInfos[[1]], ignore.case = TRUE))
     }
   }
@@ -320,21 +320,21 @@ impl_read_brainvis <- function(
   # extract_path <- "/Users/dipterix/rave_data/raw_dir/ds005953_01/sub-01_ses-01_task-visual_run-01_ieeg"
   # header_only = FALSE; cache_ok = TRUE; verbose = TRUE
 
-  if(length(file) < 3) {
+  if (length(file) < 3) {
     file <- c(file, NA, NA)
   }
   header_file <- file[[1]]
 
-  if(is.na(header_file)) {
+  if (is.na(header_file)) {
     stop("`read_brainvis`: input `file` is invalid. The first element of `file` must not be NA")
   }
 
   ext <- fs::path_ext(tolower(header_file))
-  if(!endsWith(ext, "hdr")) {
+  if (!endsWith(ext, "hdr")) {
     # this is not a header file
     header_file <- sprintf("%s.vhdr", c(header_file, path_ext_remove(header_file)))
     header_file <- header_file[file_exists(header_file)]
-    if(!length(header_file)) {
+    if (!length(header_file)) {
       stop("`read_brainvis`: Cannot find `vhdr` file with given path: ", file[[1]])
     }
   }
@@ -344,26 +344,26 @@ impl_read_brainvis <- function(
   prefix <- path_ext_remove(header_file)
   root_dir <- dirname(header_file)
 
-  if(length(extract_path) != 1 || is.na(extract_path)) {
+  if (length(extract_path) != 1 || is.na(extract_path)) {
     extract_path <- sprintf("%s.cache", prefix)
   }
 
   # get header
   header <- internal_read_brainvis_header(header_file)
 
-  if(header_only) {
+  if (header_only) {
     return(header)
   }
 
   # get marker
   marker_file <- file[[2]]
-  if(is.na(marker_file)) {
+  if (is.na(marker_file)) {
     marker_file2 <- c(
       file_path(root_dir, header$CommonInfos$MarkerFile),
       header$CommonInfos$MarkerFile,
       sprintf("%s.vmrk", prefix)
     )
-    if(length(marker_file2)) {
+    if (length(marker_file2)) {
       marker_file2 <- marker_file2[dirname(marker_file2) != "."]
     }
     marker_file <- marker_file2[file_exists(marker_file2)]
@@ -372,19 +372,19 @@ impl_read_brainvis <- function(
 
   # get signal data
   data_file <- file[[3]]
-  if(is.na(data_file)) {
+  if (is.na(data_file)) {
     # binary <- isTRUE(toupper(header$CommonInfos$DataFormat) == "BINARY")
     data_file <- c(
       file_path(root_dir, header$CommonInfos$DataFile),
       header$CommonInfos$DataFile,
       sprintf(c("%s.eeg", "%s.dat"), prefix)
     )
-    if(length(data_file)) {
+    if (length(data_file)) {
       data_file <- data_file[dirname(data_file) != "."]
     }
     data_file <- data_file[file_exists(data_file)]
   }
-  if(!length(data_file) || !file_exists(data_file[[1]])) {
+  if (!length(data_file) || !file_exists(data_file[[1]])) {
     stop("`read_brainvis`: Cannot find signal data file from header: file ", sQuote(header$CommonInfos$DataFile), " is missing.")
   }
 
@@ -393,18 +393,18 @@ impl_read_brainvis <- function(
     digest::digest(object = header_file, file = TRUE),
     digest::digest(object = data_file[[1]], file = TRUE)
   )
-  if(length(marker_file)) {
+  if (length(marker_file)) {
     sig <- c(sig, digest::digest(object = marker_file[[1]], file = TRUE))
   }
   sig <- digest::digest(sig)
 
   cache_path <- file_path(extract_path, sprintf("ieegio_brainvis_digest_%s", sig))
 
-  if( file_exists(cache_path) ) {
+  if ( file_exists(cache_path) ) {
 
-    if( cache_ok ) {
+    if ( cache_ok ) {
 
-      if( verbose ) {
+      if ( verbose ) {
         cat("Found existing cache. Trying to reuse the cache...\n")
       }
 
@@ -412,19 +412,19 @@ impl_read_brainvis <- function(
 
         re <- filearray::filearray_load(cache_path, mode = "readonly")
 
-        if(isTRUE(re$get_header("ready")) && identical(re$get_header("source_digests"), sig)) {
+        if (isTRUE(re$get_header("ready")) && identical(re$get_header("source_digests"), sig)) {
           return(re)
         }
 
       }, error = function(...) {})
 
-      if( verbose ) {
+      if ( verbose ) {
         cat("Existing cache is invalid. Re-generate cache\n")
       }
 
     }
 
-    if( verbose ) {
+    if ( verbose ) {
       cat("Removing existing cache...\n")
     }
 
@@ -433,7 +433,7 @@ impl_read_brainvis <- function(
 
   # read annotation
   annotations <- NULL
-  if(length(marker_file)) {
+  if (length(marker_file)) {
     try({
       annotations <- internal_read_brainvis_annotation(marker_file[[1]])
       # annot_nms <- names(annotations)
@@ -478,7 +478,7 @@ impl_read_brainvis <- function(
   dimnames(arr) <- dnames
 
   # also write annotations
-  if(!is.null(annotations) && is.data.frame(annotations$MarkerInfos)) {
+  if (!is.null(annotations) && is.data.frame(annotations$MarkerInfos)) {
     io_write_fst(x = annotations$MarkerInfos, con = file_path(cache_path, "annot.fst"))
   }
 
@@ -526,7 +526,7 @@ read_brainvis <- function(
     header_only = FALSE, cache_ok = TRUE, verbose = TRUE) {
   re <- impl_read_brainvis(file = file, extract_path = extract_path,
                             header_only = header_only, cache_ok, verbose = verbose)
-  if(!header_only) {
+  if (!header_only) {
     re <- BrainVisionCache$new(re)
   }
 

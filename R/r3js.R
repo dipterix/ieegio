@@ -2,7 +2,7 @@ helper_r3js_render_mesh <- function(mesh, col = "grey", r3plot = NULL) {
   ensure_r_package("r3js")
   xyzlim <- apply(mesh$vb, 1L, range, na.rm = TRUE)
 
-  if(is.null(r3plot)) {
+  if (is.null(r3plot)) {
     r3plot <- r3js::plot3js(
       xlim = xyzlim[, 1],
       ylim = xyzlim[, 2],
@@ -22,7 +22,7 @@ helper_r3js_render_mesh <- function(mesh, col = "grey", r3plot = NULL) {
   r3plot <- r3js::light3js(r3plot, position = c(0, -1, 0), type = "directional", intensity = 0.3)
   r3plot <- r3js::light3js(r3plot, position = c(0, 0, 1), type = "directional", intensity = 0.3)
   r3plot <- r3js::light3js(r3plot, position = c(0, 0, -1), type = "directional", intensity = 0.3)
-  if(is.matrix(mesh$it)) {
+  if (is.matrix(mesh$it)) {
     r3plot <- r3js::shape3js(
       r3plot,
       vertices = t(mesh$vb[1:3, , drop = FALSE]),
@@ -46,7 +46,7 @@ helper_r3js_render_mesh <- function(mesh, col = "grey", r3plot = NULL) {
 
 
 helper_r3js_plot <- function(r3plot, rotation = c(0, 0, 0), camera = "orthographic", ...) {
-  if("camera" %in% names(formals(r3js::r3js))) {
+  if ("camera" %in% names(formals(r3js::r3js))) {
     r3js::r3js(r3plot, rotation = rotation, camera = camera, ...)
   } else {
     r3js::r3js(r3plot, rotation = rotation, ...)
@@ -59,7 +59,7 @@ helper_r3js_render_streamlines <- function(streamlines, col = "grey", r3plot = N
 
   n <- length(streamlines$data)
 
-  if(is.null(r3plot)) {
+  if (is.null(r3plot)) {
     ranges <- sapply(seq_len(n), function(i) {
       coords <- streamlines[[ i ]]$coords
       apply(coords, 2, range, na.rm = TRUE)[, 1:3]
@@ -87,7 +87,7 @@ helper_r3js_render_streamlines <- function(streamlines, col = "grey", r3plot = N
   r3plot <- r3js::light3js(r3plot, position = c(0, 0, -1), type = "directional", intensity = 0.3)
 
 
-  for(i in seq_len(n)) {
+  for (i in seq_len(n)) {
     coords <- streamlines[[ i ]]$coords
     r3plot <- r3js::lines3js(r3plot, x = coords[, 1], y = coords[, 2], z = coords[, 3], col = col, geometry = FALSE, lwd = 1)
   }

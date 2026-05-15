@@ -50,7 +50,7 @@
 new_space <- function(name = "", orientation = ORIENTATION_CODES,
                       dimension = 3, ...) {
   name <- as.character(unclass(name))
-  if(length(name) != 1 || is.na(name)) {
+  if (length(name) != 1 || is.na(name)) {
     stop("Invalid space name")
   }
   orientation <- match.arg(orientation)
@@ -70,15 +70,15 @@ print.ieegio_space <- function(x, ...) {
 }
 
 new_space_internal <- function(space, orientation, dimension) {
-  if(missing(orientation) || is.null(orientation)) {
+  if (missing(orientation) || is.null(orientation)) {
     orientation <- attr(space, "orientation")
-    if(length(orientation) != 1) {
+    if (length(orientation) != 1) {
       orientation <- "RAS"
     }
   }
-  if(missing(dimension) || is.null(dimension)) {
+  if (missing(dimension) || is.null(dimension)) {
     dimension <- attr(space, "dimension")
-    if(length(dimension) != 1) {
+    if (length(dimension) != 1) {
       dimension <- 3
     }
   }
@@ -107,15 +107,15 @@ orientation_transform <- function(from, to) {
 
   # For each axis in the target orientation, find where it comes from
   # This is an ACTIVE transform: it transforms point coordinates
-  for(i in 1:3) {
+  for (i in 1:3) {
     to_axis <- to_axes[i]
     opposite_axis <- axis_opposites[to_axis]
 
     # Find which source axis matches (same direction or opposite)
-    if(to_axis %in% from_axes) {
+    if (to_axis %in% from_axes) {
       from_pos <- which(from_axes == to_axis)
       mat[i, from_pos] <- 1
-    } else if(opposite_axis %in% from_axes) {
+    } else if (opposite_axis %in% from_axes) {
       from_pos <- which(from_axes == opposite_axis)
       mat[i, from_pos] <- -1
     } else {

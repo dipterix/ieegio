@@ -105,19 +105,19 @@ surface_to_surface <- function(surface, space_from = "", space_to = "", transfor
   surface <- as_ieegio_surface(surface)
 
   vertices <- surface$geometry$vertices
-  if(isTRUE(nrow(vertices) == 3)) {
+  if (isTRUE(nrow(vertices) == 3)) {
     dimnames(vertices) <- NULL
     vertices <- rbind(vertices, 1)
   }
 
-  if(length(surface$geometry$transforms)) {
+  if (length(surface$geometry$transforms)) {
     vertices <- surface$geometry$transforms[[1]] %*% surface$geometry$vertices
   }
 
-  if(!inherits(space_from, "ieegio_space")) {
+  if (!inherits(space_from, "ieegio_space")) {
     space_from <- ieegio::new_space(name = space_from)
   }
-  if(!inherits(space_to, "ieegio_space")) {
+  if (!inherits(space_to, "ieegio_space")) {
     space_to <- ieegio::new_space(name = space_to)
   }
 
@@ -147,7 +147,7 @@ surface_to_surface <- function(surface, space_from = "", space_to = "", transfor
 
   # The transform is now undefined
   space_to <- as.character(chained_transform$space_to)
-  if(!nzchar(space_to)) {
+  if (!nzchar(space_to)) {
     space_to <- "Unknown"
   }
 
@@ -178,7 +178,7 @@ surface_to_surface <- function(surface, space_from = "", space_to = "", transfor
   #     interpretation = chainable_analysis$interpretation
   #   )
   #   # Append orientation transform matrix to accumulated data
-  #   if(last_data_is_matrix) {
+  #   if (last_data_is_matrix) {
   #     accumulated$data[[last_idx]] <- orientation_xform$data[[1]] %*% accumulated$data[[last_idx]]
   # new_transform_chain()
   # surface$geometry$vertices

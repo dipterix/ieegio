@@ -14,7 +14,7 @@ test_that("io_nii", {
     unlink(f4)
   })
 
-  tmp <- array(rnorm(60), dim = c(3,4,5))
+  tmp <- array(rnorm(60), dim = c(3, 4, 5))
 
   vox2ras <- matrix(
     nrow = 4, byrow = TRUE,
@@ -35,7 +35,12 @@ test_that("io_nii", {
 
   expect_equal(v$shape, dim(tmp))
   expect_equal(v$transforms$vox2ras, vox2ras, tolerance = 1e-4, ignore_attr = TRUE)
-  expect_equal(v$transforms$vox2ras_tkr, get_vox2ras_tkr(vox2ras, v$shape/2), tolerance = 1e-4, ignore_attr = TRUE)
+  expect_equal(
+    v$transforms$vox2ras_tkr,
+    get_vox2ras_tkr(vox2ras, v$shape / 2),
+    tolerance = 1e-4,
+    ignore_attr = TRUE
+  )
 
   unlink(f2)
   io_write_nii(v, con = f2)
@@ -46,13 +51,18 @@ test_that("io_nii", {
 
 
   # io_write_nii.niftiImage
-  v <- read_volume(file = f, method = 'oro')
+  v <- read_volume(file = f, method = "oro")
 
   expect_true(inherits(v, "ieegio_nifti"))
   expect_true(inherits(v, "ieegio_oro"))
   expect_equal(v$shape, dim(tmp))
   expect_equal(v$transforms$vox2ras, vox2ras, tolerance = 1e-4, ignore_attr = TRUE)
-  expect_equal(v$transforms$vox2ras_tkr, get_vox2ras_tkr(vox2ras, v$shape/2), tolerance = 1e-4, ignore_attr = TRUE)
+  expect_equal(
+    v$transforms$vox2ras_tkr,
+    get_vox2ras_tkr(vox2ras, v$shape / 2),
+    tolerance = 1e-4,
+    ignore_attr = TRUE
+  )
 
   unlink(f2)
   io_write_nii(v, con = f2)
@@ -70,13 +80,18 @@ test_that("io_nii", {
 
 
   # io_write_nii.nifti
-  v <- read_volume(file = f, method = 'oro')
+  v <- read_volume(file = f, method = "oro")
 
   expect_true(inherits(v, "ieegio_nifti"))
   expect_true(inherits(v, "ieegio_oro"))
   expect_equal(v$shape, dim(tmp))
   expect_equal(v$transforms$vox2ras, vox2ras, tolerance = 1e-4, ignore_attr = TRUE)
-  expect_equal(v$transforms$vox2ras_tkr, get_vox2ras_tkr(vox2ras, v$shape/2), tolerance = 1e-4, ignore_attr = TRUE)
+  expect_equal(
+    v$transforms$vox2ras_tkr,
+    get_vox2ras_tkr(vox2ras, v$shape / 2),
+    tolerance = 1e-4,
+    ignore_attr = TRUE
+  )
 
   unlink(f2)
   io_write_nii(v, con = f2)
@@ -101,20 +116,30 @@ test_that("io_nii", {
   expect_true(inherits(v2, "ieegio_mgz"))
   expect_equal(v2$shape[1:3], dim(tmp))
   expect_equal(v2$transforms$vox2ras, vox2ras, tolerance = 1e-4, ignore_attr = TRUE)
-  expect_equal(v2$transforms$vox2ras_tkr, get_vox2ras_tkr(vox2ras, v$shape/2), tolerance = 1e-4, ignore_attr = TRUE)
+  expect_equal(
+    v2$transforms$vox2ras_tkr,
+    get_vox2ras_tkr(vox2ras, v$shape / 2),
+    tolerance = 1e-4,
+    ignore_attr = TRUE
+  )
 
   # ANTs
   testthat::skip_on_cran()
   testthat::skip_on_bioc()
   testthat::skip_if(nzchar(Sys.getenv("IEEGIO_NO_PYTHON", unset = "")))
   skip_if_not(rpyANTs::ants_available("ants"), message = "ANTs is not installed")
-  v <- read_volume(file = f, method = 'ants')
+  v <- read_volume(file = f, method = "ants")
 
   expect_true(inherits(v, "ieegio_nifti"))
   expect_true(inherits(v, "ieegio_antspy"))
   expect_equal(v$shape, dim(tmp))
   expect_equal(v$transforms$vox2ras, vox2ras, tolerance = 1e-4, ignore_attr = TRUE)
-  expect_equal(v$transforms$vox2ras_tkr, get_vox2ras_tkr(vox2ras, v$shape/2), tolerance = 1e-4, ignore_attr = TRUE)
+  expect_equal(
+    v$transforms$vox2ras_tkr,
+    get_vox2ras_tkr(vox2ras, v$shape / 2),
+    tolerance = 1e-4,
+    ignore_attr = TRUE
+  )
 
   unlink(f2)
   io_write_nii(v, con = f2)
@@ -144,7 +169,7 @@ test_that("io_mgz", {
     unlink(f3)
   })
 
-  tmp <- array(rnorm(60), dim = c(3,4,5))
+  tmp <- array(rnorm(60), dim = c(3, 4, 5))
 
   vox2ras <- matrix(
     nrow = 4, byrow = TRUE,
@@ -165,7 +190,12 @@ test_that("io_mgz", {
 
   expect_equal(v$shape[1:3], dim(tmp))
   expect_equal(v$transforms$vox2ras, vox2ras, tolerance = 1e-4, ignore_attr = TRUE)
-  expect_equal(v$transforms$vox2ras_tkr, get_vox2ras_tkr(vox2ras, v$shape/2), tolerance = 1e-4, ignore_attr = TRUE)
+  expect_equal(
+    v$transforms$vox2ras_tkr,
+    get_vox2ras_tkr(vox2ras, v$shape / 2),
+    tolerance = 1e-4,
+    ignore_attr = TRUE
+  )
 
   unlink(f2)
   io_write_mgz(v, con = f2)
@@ -183,7 +213,12 @@ test_that("io_mgz", {
   expect_true(inherits(v2, "ieegio_rnifti"))
   expect_equal(v2$shape, dim(tmp))
   expect_equal(v2$transforms$vox2ras, vox2ras, tolerance = 1e-4, ignore_attr = TRUE)
-  expect_equal(v2$transforms$vox2ras_tkr, get_vox2ras_tkr(vox2ras, v$shape/2), tolerance = 1e-4, ignore_attr = TRUE)
+  expect_equal(
+    v2$transforms$vox2ras_tkr,
+    get_vox2ras_tkr(vox2ras, v$shape / 2),
+    tolerance = 1e-4,
+    ignore_attr = TRUE
+  )
 
 })
 

@@ -1,7 +1,7 @@
 alternative_h5_fname <- function(file) {
   dir <- dirname(file)
   fname <- basename(file)
-  if(!endsWith(tolower(fname), ".farr")) {
+  if (!endsWith(tolower(fname), ".farr")) {
     fname <- sprintf("%s.farr", fname)
   }
   file_path(dir, fname)
@@ -44,24 +44,24 @@ alternative_h5_fname <- function(file) {
 #' unlink(file)
 #'
 #' @export
-io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE){
+io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE) {
 
   re <- tryCatch({
     re <- LazyH5$new(file_path = file, data_name = name, read_only = read_only, quiet = quiet)
     re$open()
     re
-  }, error = function(e){
+  }, error = function(e) {
 
-    if(!read_only){
-      stop('Another process is locking the file. Cannot open file with write permission; use ', sQuote('io_write_h5'), ' instead...\n  file: ', file, '\n  name: ', name)
+    if (!read_only) {
+      stop("Another process is locking the file. Cannot open file with write permission; use ", sQuote("io_write_h5"), " instead...\n  file: ", file, "\n  name: ", name)
     }
-    if(!quiet){
-      cat('Open failed. Attempt to open with a temporary copy...\n')
+    if (!quiet) {
+      cat("Open failed. Attempt to open with a temporary copy...\n")
     }
 
     # Fails when other process holds a connection to it!
     # If read_only, then copy the file to local directory
-    tmpf <- tempfile(fileext = 'conflict.h5')
+    tmpf <- tempfile(fileext = "conflict.h5")
     file.copy(file, tmpf)
     tryCatch({
       LazyH5$new(file_path = tmpf, data_name = name, read_only = read_only)
@@ -70,7 +70,7 @@ io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE)
     })
   })
 
-  if(ram){
+  if (ram) {
     f <- re
     re <- re[]
     f$close()
@@ -115,8 +115,8 @@ io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE)
 #' unlink(file)
 #'
 #' @export
-io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4, replace = TRUE,
-                    new_file = FALSE, ctype = NULL, quiet = FALSE, ...){
+io_write_h5 <- function(x, file, name, chunk = "auto", level = 4, replace = TRUE,
+                    new_file = FALSE, ctype = NULL, quiet = FALSE, ...) {
   # DIPSAUS DEBUG START
   # file <- tempfile()
   # name = 'data'
@@ -132,13 +132,13 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4, replace = TRUE
     f$open()
     f$close()
     f
-  }, error = function(e){
-    if( !quiet ){
-      cat('Saving failed. Attempt to unlink the file and retry...\n')
+  }, error = function(e) {
+    if ( !quiet ) {
+      cat("Saving failed. Attempt to unlink the file and retry...\n")
     }
-    if(file.exists(file)){
+    if (file.exists(file)) {
       # File is locked,
-      tmpf <- tempfile(fileext = 'conflict.w.h5')
+      tmpf <- tempfile(fileext = "conflict.w.h5")
       file.copy(file, tmpf)
       unlink(file, recursive = FALSE, force = TRUE)
       file.copy(tmpf, file)
@@ -198,23 +198,23 @@ io_write_h5 <- function(x, file, name, chunk = 'auto', level = 4, replace = TRUE
 #'
 #'
 #' @export
-io_h5_valid <- function(file, mode = c('r', 'w'), close_all = FALSE){
+io_h5_valid <- function(file, mode = c("r", "w"), close_all = FALSE) {
   mode <- match.arg(mode)
 
   h5backend <- ensure_hdf5_backend()
 
   tryCatch({
-    if(inherits(h5backend, "python.builtin.module")) {
+    if (inherits(h5backend, "python.builtin.module")) {
       file <- normalizePath(file, mustWork = TRUE)
-      if(mode == "w") {
+      if (mode == "w") {
         mode <- "r+"
       }
       ptr <- h5backend$File(file, mode = mode)
       ptr$close()
-    } else if(isNamespace(h5backend)) {
+    } else if (isNamespace(h5backend)) {
       file <- normalizePath(file, mustWork = TRUE)
       f <- hdf5r::H5File$new(filename = file, mode = mode)
-      if(close_all){
+      if (close_all) {
         f$close_all()
       } else {
         f$close()
@@ -225,7 +225,7 @@ io_h5_valid <- function(file, mode = c('r', 'w'), close_all = FALSE){
     }
 
     TRUE
-  }, error = function(e){
+  }, error = function(e) {
     FALSE
   })
 
@@ -235,26 +235,26 @@ io_h5_valid <- function(file, mode = c('r', 'w'), close_all = FALSE){
 
 #' @rdname io_h5_valid
 #' @export
-io_h5_names <- function(file){
+io_h5_names <- function(file) {
   # make sure the file is valid
-  if(!io_h5_valid(file, 'r')){ return(FALSE) }
+  if (!io_h5_valid(file, "r")) { return(FALSE) }
   file <- normalizePath(file, mustWork = TRUE)
 
   h5backend <- ensure_hdf5_backend()
 
-  if(inherits(h5backend, "python.builtin.module")) {
+  if (inherits(h5backend, "python.builtin.module")) {
     ptr <- h5backend$File(file, mode = "r")
     on.exit({
       tryCatch({
         ptr$close()
-      }, error = function(e){})
+      }, error = function(e) {})
     })
 
     rpymat <- asNamespace("rpymat")
     group_classes <- rpymat$py_tuple(h5backend$File, h5backend$Group)
 
     iter_func <- function(x, ...) {
-      if(inherits(x, "python.builtin.object")) {
+      if (inherits(x, "python.builtin.object")) {
         name <- py_to_r(x[0L])
         item <- x[1L]
       } else {
@@ -262,11 +262,11 @@ io_h5_names <- function(file){
         item <- x[[2]]
       }
 
-      if( py_isinstance(item, h5backend$Dataset) ) {
+      if ( py_isinstance(item, h5backend$Dataset) ) {
         return(name)
       }
 
-      if( py_isinstance(item, group_classes )  ) {
+      if ( py_isinstance(item, group_classes )  ) {
         re <- rpymat$run_package_function("reticulate", "iterate", item$items(), iter_func, simplify = FALSE)
         return(unique(sprintf("%s/%s", name, unlist(re))))
       }
@@ -279,7 +279,7 @@ io_h5_names <- function(file){
 
     names <- gsub("^[/]+", "", names)
   } else if (isNamespace(h5backend)) {
-    f <- hdf5r::H5File$new(filename = file, mode = 'r')
+    f <- hdf5r::H5File$new(filename = file, mode = "r")
     on.exit({ f$close() })
     names <- hdf5r::list.datasets(f)
   } else {

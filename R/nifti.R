@@ -35,12 +35,12 @@ NIFTI_TYPES <- list(
 as_nifti_type <- function(x) {
   stopifnot(length(x) == 1L)
   x_ <- x
-  if(is.character(x)) {
+  if (is.character(x)) {
     x <- NIFTI_TYPES[[x]]
   } else {
     x <- as.integer(x)
   }
-  if(!isTRUE(x %in% NIFTI_TYPES)) {
+  if (!isTRUE(x %in% NIFTI_TYPES)) {
     stop("Unknown NIfTI datatype: ", x_)
   }
   x
@@ -109,14 +109,14 @@ NIFTI_UNITS <- list(
 
 as_nifti_unit <- function(x, strict = FALSE) {
   stopifnot(length(x) == 1L)
-  if(is.character(x)) {
+  if (is.character(x)) {
     x <- NIFTI_UNITS[[x]]
-    if(!length(x)) {
+    if (!length(x)) {
       x <- 0L
     }
   } else {
     x <- as.integer(x)
-    if(is.na(x) || ( strict && !isTRUE(x %in% NIFTI_UNITS) )) {
+    if (is.na(x) || ( strict && !isTRUE(x %in% NIFTI_UNITS) )) {
       x <- 0L
     }
   }
@@ -422,14 +422,14 @@ NIFTI_INTENTS <- list(
 
 as_nifti_intent <- function(x) {
   stopifnot(length(x) == 1L)
-  if(is.character(x)) {
+  if (is.character(x)) {
     x <- NIFTI_INTENTS[[x]]
-    if(!length(x)) {
+    if (!length(x)) {
       x <- 0L
     }
   } else {
     x <- as.integer(x)
-    if(is.na(x) || !isTRUE(x %in% NIFTI_INTENTS) ) {
+    if (is.na(x) || !isTRUE(x %in% NIFTI_INTENTS) ) {
       x <- 0L
     }
   }
@@ -454,7 +454,7 @@ as_nifti_header.niftiHeader <- function(x) {
 # from oro.nifti
 #' @export
 as_nifti_header.nifti <- function(x) {
-  if(get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE)) {
+  if (get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE)) {
     hdr <- x
     structure(
       list(
@@ -506,7 +506,7 @@ as_nifti_header.nifti <- function(x) {
 #' @export
 as_nifti_header.character <- function(x) {
   # file
-  if(get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE)) {
+  if (get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE)) {
     hdr <- oro.nifti::nifti_header(x)
     meta <- as_nifti_header.nifti(hdr)
   } else {
@@ -526,15 +526,15 @@ as_nifti_header.niftiImage <- function(x) {
 io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only = FALSE, ...) {
   # DIPSAUS DEBUG START
   # file <- "~/rave_data/raw_dir/yael_demo_001/rave-imaging/coregistration/CT_RAW.nii.gz"
-  if(get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE)) {
+  if (get_os() == "emscripten" || getOption("ieegio.debug.emscripten", FALSE)) {
     # WASM: only oro is supported
     method <- "oro"
   } else {
     method <- match.arg(method)
   }
 
-  if(header_only) {
-    if(!identical(method, "oro")) {
+  if (header_only) {
+    if (!identical(method, "oro")) {
       warning("`io_read_nii`: reading with header-only mode, method ", sQuote(method), " will be ignored.")
     }
     method <- "oro"
@@ -549,16 +549,16 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
         fname = file, read_data = !header_only,
         ...
       )
-      if(is.null(args$reorient)) {
+      if (is.null(args$reorient)) {
         args$reorient <- FALSE
       }
-      if(is.null(args$rescale_data)) {
+      if (is.null(args$rescale_data)) {
         args$rescale_data <- FALSE
       }
       volume <- do.call(oro.nifti::readNIfTI, args)
       shape <- dim(volume@.Data)
 
-      if( header_only ) {
+      if ( header_only ) {
         volume@.Data <- array(NA, rep(1, length(shape)))
         data <- NULL
       } else {
@@ -581,12 +581,12 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
         code = sfcode
       )
 
-      if( sfcode > 0 ) {
+      if ( sfcode > 0 ) {
         vox2ras <- structure(sform, which_xform = "sform")
       } else {
         vox2ras <- structure(qform, which_xform = "qform")
       }
-      if(nrow(vox2ras) == 3) {
+      if (nrow(vox2ras) == 3) {
         vox2ras <- rbind(vox2ras, c(0, 0, 0, 1))
       }
 
@@ -633,12 +633,12 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
         code = sfcode
       )
 
-      if( sfcode > 0 ) {
+      if ( sfcode > 0 ) {
         vox2ras <- structure(sform, which_xform = "sform")
       } else {
         vox2ras <- structure(qform, which_xform = "qform")
       }
-      if(nrow(vox2ras) == 3) {
+      if (nrow(vox2ras) == 3) {
         vox2ras <- rbind(vox2ras, c(0, 0, 0, 1))
       }
 
@@ -656,7 +656,7 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
         vox2fsl = vox2fsl
       )
 
-      if(is_color) {
+      if (is_color) {
         type <- c("rnifti", "rgba", "nifti")
       } else {
         type <- c("rnifti", "nifti")
@@ -679,8 +679,8 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
     },
     "ants" = {
       check_py_flag()
-      if(!rpyANTs::ants_available(module = "ants")) {
-        if(dir.exists(rpymat::env_path())) {
+      if (!rpyANTs::ants_available(module = "ants")) {
+        if (dir.exists(rpymat::env_path())) {
           rpyANTs::install_ants(python_ver = "auto")
         } else {
           rpyANTs::install_ants()
@@ -735,7 +735,7 @@ io_write_nii <- function(x, con, ...) {
 #' @rdname imaging-volume
 #' @export
 io_write_nii.ieegio_nifti <- function(x, con, ...) {
-  if(.subset2(x, "header_only")) {
+  if (.subset2(x, "header_only")) {
     stop("The volume object is head-only.")
   }
   io_write_nii(x = x$header, con = con, ...)
@@ -760,28 +760,28 @@ io_write_nii.niftiImage <- function(x, con, ...) {
   version <- args$version
   compression <- args$compression
 
-  if(!length(datatype)) {
-    if(identical(as.double(x$datatype), 64.0)) {
+  if (!length(datatype)) {
+    if (identical(as.double(x$datatype), 64.0)) {
       # using NIFTI_TYPE_FLOAT32 instead of NIFTI_TYPE_FLOAT64
       datatype <- "float"
     } else {
       datatype <- "auto"
     }
   }
-  if(!length(version)) {
-    if(any(dim(x) > 512)) {
+  if (!length(version)) {
+    if (any(dim(x) > 512)) {
       version <- 2
     } else {
       version <- 1
     }
   }
-  if(!length(compression)) {
+  if (!length(compression)) {
     compression <- 6
   }
 
   re <- RNifti::writeNifti(image = x, file = con, datatype = datatype, version = version, compression = compression)
   re <- unique(re)
-  if(length(re) > 1) {
+  if (length(re) > 1) {
     re <- re[[2]]
   }
   re
@@ -790,11 +790,11 @@ io_write_nii.niftiImage <- function(x, con, ...) {
 #' @rdname imaging-volume
 #' @export
 io_write_nii.nifti <- function(x, con, gzipped = NA, ...) {
-  if(is.na(gzipped)) {
+  if (is.na(gzipped)) {
     gzipped <- TRUE
   }
-  if(grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
-    if( grepl("\\.nii$", con, ignore.case = TRUE) ) {
+  if (grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
+    if ( grepl("\\.nii$", con, ignore.case = TRUE) ) {
       gzipped <- FALSE
     }
     con <- path_ext_remove(con)
@@ -819,8 +819,8 @@ io_write_nii.ieegio_mgh <- function(x, con, ...) {
   data <- x$data
   data[is.na(data)] <- 0
   rg <- range(data)
-  if(all(data - round(data) == 0)) {
-    if( rg[[1]] >= 0 && rg[[2]] <= 255 ) {
+  if (all(data - round(data) == 0)) {
+    if ( rg[[1]] >= 0 && rg[[2]] <= 255 ) {
       # UINT8
       datatype_code <- 2L
       bitpix <- 8L
@@ -847,7 +847,7 @@ io_write_nii.ieegio_mgh <- function(x, con, ...) {
   }
 
   shape <- x$shape
-  if(length(shape) == 3 || (length(shape) == 4 && shape[[4]] == 1)) {
+  if (length(shape) == 3 || (length(shape) == 4 && shape[[4]] == 1)) {
     pixdim[[5]] <- 0
     shape <- shape[1:3]
     data <- array(data[seq_len(prod(shape))], dim = shape)
@@ -896,11 +896,11 @@ io_write_nii.array <- function(x, con, vox2ras = NULL,
                                gzipped = NA) {
   # We are using RNifti, which automatically handles gzipped issue
 
-  if(!is.na(gzipped)) {
-    if(grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
+  if (!is.na(gzipped)) {
+    if (grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
       con <- path_ext_remove(con)
     }
-    if( gzipped ) {
+    if ( gzipped ) {
       con <- sprintf("%s.nii.gz", con)
     } else {
       con <- sprintf("%s.nii", con)

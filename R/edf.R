@@ -3,7 +3,7 @@ parse_edf_annot <- function(x) {
   seps <- which(x == 0)
   nsegs <- length(seps)
 
-  if(nsegs == length(x)) {
+  if (nsegs == length(x)) {
     # no annotations
     return(NULL)
   }
@@ -13,7 +13,7 @@ parse_edf_annot <- function(x) {
     # x <- period[[12]]
     idx <- which(x == 20)
 
-    if(!length(idx)) {
+    if (!length(idx)) {
       return(NULL)
     }
 
@@ -21,7 +21,7 @@ parse_edf_annot <- function(x) {
     timestamp_with_duration <- x[seq_len(idx[[1]] - 1)]
 
     idx2 <- which(timestamp_with_duration == 21)
-    if(length(idx2)) {
+    if (length(idx2)) {
       idx2 <- idx2[[1]]
       timestamp <- as.numeric(intToUtf8(timestamp_with_duration[seq_len(idx2 - 1)]))
       duration <- as.numeric(intToUtf8(timestamp_with_duration[- seq_len(idx2)]))
@@ -31,7 +31,7 @@ parse_edf_annot <- function(x) {
     }
 
     comments <- rawToChar(as.raw(x[-seq_len(idx[[1]])]))
-    if(length(idx) > 1) {
+    if (length(idx) > 1) {
       comments <- strsplit(comments, "\024")[[1]]
     }
 
@@ -44,12 +44,12 @@ parse_edf_annot <- function(x) {
   annotations <- data.table::rbindlist(lapply(seq_len(nsegs), function(ii) {
     idx1 <- seps[[ii]] + 1
     idx2 <- seps[[ii + 1]]
-    if(idx1 == idx2) { return(NULL) }
+    if (idx1 == idx2) { return(NULL) }
     # print(x[seq(idx1, idx2)])
     parse_annot_seg(x[seq(idx1, idx2)])
   }))
 
-  if(nrow(annotations) == 0) {
+  if (nrow(annotations) == 0) {
     return(NULL)
   }
 
@@ -62,7 +62,7 @@ internal_read_edf_header <- function(con) {
   # hdr <- edfReader::readEdfHeader(con)
 
 
-  if(!inherits(con, "connection")) {
+  if (!inherits(con, "connection")) {
     file_assert(con)
     con <- file(con, "rb")
     on.exit({ close(con) })
@@ -88,7 +88,7 @@ internal_read_edf_header <- function(con) {
       file_type <- "BDF"
       bdf_version <- gsub("[[:space:]]*$", "", readChar(con, 7, TRUE))
       sampling_bits <- 24
-      if( bdf_version == "BIOSEMI" ) {
+      if ( bdf_version == "BIOSEMI" ) {
         version <- '"255"BIOSEMI'
       } else {
         stop("File is not an EDF nor BDF file.")
@@ -129,7 +129,7 @@ internal_read_edf_header <- function(con) {
   # read labels
   labels <- trimws( replicate(n_signals, { readChar(con, nchars = 16, useBytes = TRUE) }) )
   sel <- labels == ""
-  if(any(sel)) {
+  if (any(sel)) {
     labels[sel] <- sprintf("unnamed channel %d", which(sel))
   }
 
@@ -155,7 +155,7 @@ internal_read_edf_header <- function(con) {
 
   reserved <- trimws( replicate(n_signals, { readChar(con, nchars = 32, useBytes = TRUE) }) )
 
-  if( isTRUE(duration > 0) ) {
+  if ( isTRUE(duration > 0) ) {
     sample_rate <- samples_per_record / duration
   } else {
     sample_rate <- rep(NA_real_, n_signals)
@@ -167,11 +167,11 @@ internal_read_edf_header <- function(con) {
   is_plus <- FALSE
   continuous_recording <- TRUE
   is_annotation <- rep(FALSE, n_signals)
-  if( startsWith(header_reserved, "EDF+") || startsWith(header_reserved, "BDF+") ) {
+  if ( startsWith(header_reserved, "EDF+") || startsWith(header_reserved, "BDF+") ) {
     is_plus <- TRUE
 
     # discrete recording
-    if( endsWith(header_reserved, "+D") ) {
+    if ( endsWith(header_reserved, "+D") ) {
       continuous_recording <- FALSE
     }
 
@@ -219,7 +219,7 @@ internal_read_edf_header <- function(con) {
   # start_time_fraction <- 0.0
   # if(any(is_annotation)) {
   #   expected_header_length <- 256 * (n_signals + 1)
-  #   if( expected_header_length != header_length ) {
+  #   if ( expected_header_length != header_length ) {
   #     seek(con, where = header_length, origin = "start")
   #   }
   #   # get the first data point
@@ -231,7 +231,7 @@ internal_read_edf_header <- function(con) {
   #   # size <- ifelse(is_annotation, 1L, sample_byte)
   #   #
   #   # period <- lapply(seq_len(n_signals), function(ii) {
-  #   #   if( is_annotation[[ii]] ) {
+  #   #   if ( is_annotation[[ii]] ) {
   #   #     readBin(con, what = "integer", n = n[[ii]], size = size[[ii]], signed = TRUE, endian = "little")
   #   #     # readChar(con, n[[ii]], TRUE)
   #   #   } else {
@@ -291,11 +291,11 @@ internal_write_edf_header <- function(header, con) {
   #   cat("File size: ", seek(fout), "\n")
   # }
   write_string <- function(str, len = nchar(str), padding = " ", collapse = TRUE) {
-    if(collapse) {
+    if (collapse) {
       str <- paste(str, collapse = "")
     }
     str <- charToRaw(str)
-    if(length(str) < len) {
+    if (length(str) < len) {
       str <- c(str, rep(charToRaw(padding)[[1]], len))
     }
     str <- str[seq_len(len)]
@@ -306,20 +306,20 @@ internal_write_edf_header <- function(header, con) {
   write_float <- function(x, len) {
     sci <- FALSE
 
-    if(x > 0 && x < 0.1^len) {
+    if (x > 0 && x < 0.1^len) {
       sci <- TRUE
     } else if (x < 0 && x > 0.1^(len - 1)) {
       sci <- TRUE
     } else {
       n1 <- nchar(sprintf("%.0f", x))
-      if(n1 > len) {
+      if (n1 > len) {
         # must support sci
         warning("Number ", x, " is represented with scientific number")
         sci <- TRUE
       }
     }
 
-    if( sci ) {
+    if ( sci ) {
       dec_len <- max(7L - nchar(sprintf("%.0e", x)), 0)
       fmt <- sprintf("%%8.%de", dec_len)
     } else {
@@ -368,13 +368,13 @@ internal_write_edf_header <- function(header, con) {
 
   # channel labels 16 chars
   has_annotations <- length(hdr$channel_table$Annotation) > 0
-  if(!length(hdr$channel_table$Label)) {
+  if (!length(hdr$channel_table$Label)) {
     warning("Channel table has no `Label` column, using default channel numbers")
     hdr$channel_table$Label <- sprintf("Ch%d", seq_len(n_channels))
   }
-  if( has_annotations ) {
+  if ( has_annotations ) {
     lapply(seq_len(n_channels), function(ii) {
-      if(hdr$channel_table$Annotation[[ii]]) {
+      if (hdr$channel_table$Annotation[[ii]]) {
         str <- "EDF Annotations"
       } else {
         str <- hdr$channel_table$Label[[ii]]
@@ -389,7 +389,7 @@ internal_write_edf_header <- function(header, con) {
   }
 
   # transducer_type 80 chars
-  if(!length(hdr$channel_table$TransducerType)) {
+  if (!length(hdr$channel_table$TransducerType)) {
     warning("Channel table has no `TransducerType` column, leaving it blank")
     hdr$channel_table$TransducerType <- ""
   }
@@ -398,7 +398,7 @@ internal_write_edf_header <- function(header, con) {
   })
 
   # physical unit 8 chars
-  if(!length(hdr$channel_table$Unit)) {
+  if (!length(hdr$channel_table$Unit)) {
     warning("Channel table has no `Unit` column (Physical Dimension), set to 'uV'")
     hdr$channel_table$Unit <- "uV"
   }
@@ -427,7 +427,7 @@ internal_write_edf_header <- function(header, con) {
   })
 
   # filters 80 chars
-  if(!length(hdr$channel_table$Filter)) {
+  if (!length(hdr$channel_table$Filter)) {
     warning("Channel table has no `Filter` column (Prefiltering), set to blank")
     hdr$channel_table$Filter <- ""
   }
@@ -443,7 +443,7 @@ internal_write_edf_header <- function(header, con) {
   })
 
   # reserved, 32 chars
-  if(!length(hdr$channel_table$Comment)) {
+  if (!length(hdr$channel_table$Comment)) {
     hdr$channel_table$Comment <- ""
   }
   lapply(seq_len(n_channels), function(ii) {
@@ -467,13 +467,13 @@ internal_write_edf_header <- function(header, con) {
 internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, convert = TRUE, header) {
 
 
-  if(!isTRUE(begin < end)) {
+  if (!isTRUE(begin < end)) {
     stop("Invalid time range: ", begin, " to ", end)
   }
 
-  if(missing(header)) {
-    if(inherits(con, "connection")) {
-      if(isSeekable(con)) {
+  if (missing(header)) {
+    if (inherits(con, "connection")) {
+      if (isSeekable(con)) {
         seek(con = con, 0)
       }
     }
@@ -481,23 +481,23 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
   }
 
   n_channels <- header$basic$n_channels
-  if(missing(channels) || is.null(channels)) {
+  if (missing(channels) || is.null(channels)) {
     channels <- seq_len(n_channels)
   } else {
     channels <- parse_svec(channels, sort = TRUE)
     channels <- channels[channels %in% seq_len(n_channels)]
   }
 
-  if(!length(channels)) {
+  if (!length(channels)) {
     stop("No channel to read. Please specify a valid channel")
   }
 
-  if(!inherits(con, "connection")) {
+  if (!inherits(con, "connection")) {
     con <- file(con, "rb")
     readBin(con, "raw", n = header$basic$header_length)
     on.exit({ close(con) })
   } else {
-    if(isSeekable(con)) {
+    if (isSeekable(con)) {
       seek(con = con, header$basic$header_length)
     }
   }
@@ -522,10 +522,10 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
   n[is_annotation] <- n[is_annotation] * sampling_bytes
   size <- ifelse(is_annotation, 1L, sampling_bytes)
 
-  if(any(is_annotation)) {
+  if (any(is_annotation)) {
     annot_channel <- which(is_annotation)
     first_annot_channel <- min(annot_channel)
-    if( !all(annot_channel %in% channels) ) {
+    if ( !all(annot_channel %in% channels) ) {
       channels <- unique(sort(c(channels, annot_channel)))
     }
   } else {
@@ -534,21 +534,21 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
   }
 
   data <- fastmap::fastmap()
-  for(chn in channels) {
+  for (chn in channels) {
     data$set(as.character(chn), fastmap::fastqueue())
   }
   read_next_record <- function() {
     lapply(seq_len(n_channels), function(ii) {
-      if(!ii %in% channels) {
+      if (!ii %in% channels) {
         # pass and ignore
         readBin(con, what = "raw", n = n[[ii]] * size[[ii]], size = 1L)
         return()
       }
       # map <- data$get(as.character(ii))
-      if( !is_annotation[[ii]] ) {
+      if ( !is_annotation[[ii]] ) {
         elem_size <- size[[ii]]
         n_elems <- n[[ii]]
-        if( elem_size == 2 ) {
+        if ( elem_size == 2 ) {
           slice <- readBin(con, what = "integer", n = n_elems, size = 2L, signed = TRUE, endian = "little")
         } else {
           # BDF format
@@ -561,7 +561,7 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
         }
 
         # readChar(con, n[[ii]], TRUE)
-        if( convert ) {
+        if ( convert ) {
           slope <- header$channel_table$Slope[[ii]]
           interp <- header$channel_table$Intercept[[ii]]
           slice <- slice * slope + interp
@@ -598,7 +598,7 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
     # trying to obtain the timestamp
     # estimate earliest start
     earliest_start <- env$previous_finish
-    if( earliest_start >= end ) { return() }
+    if ( earliest_start >= end ) { return() }
 
     record <- read_next_record()
 
@@ -624,16 +624,16 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
     # of a second after the startdate/time that is specified in the EDF+ header.
     # If X=0, then the .X may be omitted.
 
-    if( length(annot_channel) ) {
+    if ( length(annot_channel) ) {
       timestamp <- NA_real_
       first_annot <- record[[annot_channel[[1]]]]
-      if(!is.null(first_annot)) {
+      if (!is.null(first_annot)) {
         timestamp <- first_annot$timestamp[[1]]
       }
       annot <- data.table::rbindlist(lapply(annot_channel, function(annot_channel_ii) {
         annot_item <- record[[annot_channel_ii]]
-        if( is.null(annot_item) ) { return(NULL) }
-        if(
+        if ( is.null(annot_item) ) { return(NULL) }
+        if (
           isTRUE(annot_channel_ii == first_annot_channel) &&
           isTRUE(annot_item$timestamp[[1]] == 0) &&
           isTRUE(is.na(annot_item$duration[[1]])) &&
@@ -641,11 +641,11 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
         ) {
           annot_item <- annot_item[-1, ]
         }
-        if(nrow(annot_item) == 0) { return(NULL) }
+        if (nrow(annot_item) == 0) { return(NULL) }
         annot_item$channel <- annot_channel_ii
         return(annot_item)
       }))
-      if(!nrow(annot)) {
+      if (!nrow(annot)) {
         annot <- NULL
       }
     } else {
@@ -653,7 +653,7 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
       timestamp <- record_duration * (ii_rec - 1)
       annot <- NULL
     }
-    if(is.na(timestamp)) {
+    if (is.na(timestamp)) {
       # This normally unlikely to happen according to the spec (maybe...?)
       timestamp <- earliest_start
       # warning("EDF file annotations: the first annotation in the first 'EDF Annotations' signal must have timestamp.")
@@ -664,7 +664,7 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
     slice_finish <- slice_start + record_duration
 
     env$previous_finish <- slice_finish
-    if( slice_finish < begin || slice_start >= end ) { return() }
+    if ( slice_finish < begin || slice_start >= end ) { return() }
 
     annots$add(annot)
     timestamps$add(timestamp)
@@ -673,7 +673,7 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
 
     lapply(seq_len(n_channels), function(ii) {
       slice <- record[[ii]]
-      if(is.null(slice) || is.list(slice)) { return() }
+      if (is.null(slice) || is.list(slice)) { return() }
       map <- data$get(as.character(ii))
 
       # if( is.list(slice) ) {
@@ -711,7 +711,7 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
       seg_start <- timestamps[[ii]]
 
       slen <- length(seg)
-      if( slen > samples_per_record ) {
+      if ( slen > samples_per_record ) {
         seg <- seg[seq_len(samples_per_record)]
       } else if (slen < samples_per_record) {
         seg <- c(seg, rep(0.0, samples_per_record - slen))
@@ -741,9 +741,9 @@ internal_read_edf_signal <- function(con, channels, begin = 0, end = Inf, conver
 
   data$reset()
 
-  if(length(annots)) {
+  if (length(annots)) {
     annots <- data.table::rbindlist(annots)
-    if(nrow(annots) == 0) {
+    if (nrow(annots) == 0) {
       annots <- NULL
     }
   } else {
@@ -810,7 +810,7 @@ read_edf <- function(
 
   file_digest <- NULL
   con_path <- NULL
-  if(!inherits(con, "connection")) {
+  if (!inherits(con, "connection")) {
     file_assert(con, dir_ok = FALSE)
     con_path <- con
     file_digest <- digest::digest(
@@ -824,14 +824,14 @@ read_edf <- function(
   }
   header <- internal_read_edf_header(con)
 
-  if( header_only ) {
+  if ( header_only ) {
     return(header)
   }
 
   temporary <- FALSE
 
-  if( length(extract_path) != 1 || is.na(extract_path) ) {
-    if(length(con_path)) {
+  if ( length(extract_path) != 1 || is.na(extract_path) ) {
+    if (length(con_path)) {
       extract_dir <- sprintf("%s.cache", path_ext_remove(con_path))
     } else {
       extract_dir <- tempdir()
@@ -840,40 +840,40 @@ read_edf <- function(
     extract_dir <- extract_path
   }
 
-  if(length(file_digest)) {
+  if (length(file_digest)) {
     extract_path <- file_path(extract_dir, sprintf("ieegio_ebdf_digest_%s", file_digest))
   } else {
     extract_path <- tempfile(pattern = "ieegio_ebdf_", tmpdir = extract_dir)
-    if(file_exists(extract_path)) {
+    if (file_exists(extract_path)) {
       file_delete(extract_path, use_base_r = TRUE)
     }
     temporary <- TRUE
   }
 
-  if(file_exists(extract_path)) {
-    if( cache_ok ) {
+  if (file_exists(extract_path)) {
+    if ( cache_ok ) {
 
-      if( verbose ) {
+      if ( verbose ) {
         cat("Found existing cache. Trying to reuse the cache...\n")
       }
 
       tryCatch(
         {
           re <- EBDFCache$new(extract_path)
-          if( re$valid ) {
+          if ( re$valid ) {
             return(re)
           }
         },
         error = function(...) {}
       )
 
-      if( verbose ) {
+      if ( verbose ) {
         cat("Existing cache is invalid. Re-generate cache\n")
       }
 
     }
 
-    if( verbose ) {
+    if ( verbose ) {
       cat("Removing existing cache...\n")
     }
 
@@ -925,7 +925,7 @@ read_edf <- function(
 
   names(channel_data) <- sprintf("Ch%d", data$selection$channels)
 
-  if(is.data.frame(data$annotations)) {
+  if (is.data.frame(data$annotations)) {
     fst_path <- file_path(extract_path, "annot.fst")
     io_write_fst(x = data$annotations, con = fst_path)
   }
@@ -948,16 +948,16 @@ as_edf_channel_descriptor <- function(item, chan_num, record_duration) {
   item <- as.list(item)
   re <- list(Channel = chan_num)
   is_annot <- isTRUE(item$Annotation)
-  if( length(item$Label) && item$Label == "EDF Annotations" ) {
+  if ( length(item$Label) && item$Label == "EDF Annotations" ) {
     is_annot <- TRUE
   }
-  if(is_annot) {
+  if (is_annot) {
     re$Annotation <- TRUE
     re$Label <- "EDF Annotations"
     re$Unit <- item$Unit %||% ""
   } else {
     re$Annotation <- FALSE
-    if(length(item$Label)) {
+    if (length(item$Label)) {
       re$Label <- item$Label
     } else {
       re$Label <- sprintf("Ch%d", chan_num)
@@ -975,16 +975,16 @@ as_edf_channel_descriptor <- function(item, chan_num, record_duration) {
   re$DigitalMax <- 32767L
 
   re$PhysicalMin <- as.numeric(item$PhysicalMin)
-  if(!length(re$PhysicalMin)) {
-    if(is_annot) {
+  if (!length(re$PhysicalMin)) {
+    if (is_annot) {
       re$PhysicalMin <- -1
     } else {
       re$PhysicalMin <- -3000
     }
   }
   re$PhysicalMax <- as.numeric(item$PhysicalMax)
-  if(!length(re$PhysicalMax)) {
-    if(is_annot) {
+  if (!length(re$PhysicalMax)) {
+    if (is_annot) {
       re$PhysicalMax <- 1
     } else {
       re$PhysicalMax <- 3000
@@ -992,7 +992,7 @@ as_edf_channel_descriptor <- function(item, chan_num, record_duration) {
   }
 
   sample_per_record <- ceiling(item$SampleRate * record_duration)
-  if(!length(sample_per_record)) {
+  if (!length(sample_per_record)) {
     sample_per_record <- 1L
     re$SampleRate <- 1 / record_duration
   } else {
@@ -1012,13 +1012,13 @@ as_edf_header <- function(
 
   # validate
   channel_num <- unlist(lapply(channels, function(channel) {
-    if(!inherits(channel, c('ieegio_edf_channel', 'ieegio_edf_empty', 'ieegio_edf_annotation'))) {
+    if (!inherits(channel, c("ieegio_edf_channel", "ieegio_edf_empty", "ieegio_edf_annotation"))) {
       stop("Invalid channel data: please use `as_edf_channel` to construct your channels!")
     }
     channel$info$Channel[[1]]
   }))
   n_channels <- max(channel_num)
-  if(n_channels != length(channel_num)) {
+  if (n_channels != length(channel_num)) {
     skipped_channels <- seq_len(n_channels)
     skipped_channels <- skipped_channels[!skipped_channels %in% channel_num]
     message(sprintf("Channels `%s` are skipped. To avoid ambiguity, they will be inserted as empty annotation channels", deparse_svec(skipped_channels)))
@@ -1029,7 +1029,7 @@ as_edf_header <- function(
   # correct `channels`
   channels <- lapply(seq_len(n_channels), function(ii) {
     sel <- channel_num == ii
-    if(any(sel)) {
+    if (any(sel)) {
       return(channels[sel][[1]])
     }
     as_edf_channel(NULL, channel_num = ii)
@@ -1037,7 +1037,7 @@ as_edf_header <- function(
 
   # headers
   channel_table <- data.table::rbindlist(lapply(channels, function(channel) {
-    is_annot <- !inherits(channel, 'ieegio_edf_channel')
+    is_annot <- !inherits(channel, "ieegio_edf_channel")
 
     list(
       Channel = channel$info$Channel,
@@ -1057,17 +1057,17 @@ as_edf_header <- function(
     )
   }), use.names = TRUE)
 
-  if(all(channel_table$Annotation)) {
+  if (all(channel_table$Annotation)) {
     stop("Currently ieegio does not support when all channels are annotations. Please file a feature request.")
   }
 
   # Guess record_duration
   srates <- channel_table$SampleRate
   srates <- srates[!is.na(srates)]
-  if(is.na(record_duration)) {
-    for(record_duration in c(1, 2, 4, 5, 8, 10, 16, 25, 32, 50, 80, 100)) {
+  if (is.na(record_duration)) {
+    for (record_duration in c(1, 2, 4, 5, 8, 10, 16, 25, 32, 50, 80, 100)) {
       tmp <- record_duration * srates
-      if(all(tmp == round(tmp))) {
+      if (all(tmp == round(tmp))) {
         break
       }
     }
@@ -1076,9 +1076,9 @@ as_edf_header <- function(
 
   samples_per_record <- vapply(channels, function(channel) {
     # 1 records (2 bytes)
-    if( inherits(channel, "ieegio_edf_empty") ) { return(1L) }
+    if ( inherits(channel, "ieegio_edf_empty") ) { return(1L) }
 
-    if(inherits(channel, 'ieegio_edf_channel')) {
+    if (inherits(channel, "ieegio_edf_channel")) {
       # signal
       re <- ceiling(channel$info$SampleRate * record_duration)
     } else {
@@ -1224,9 +1224,9 @@ as_edf_channel <- function(
   label <- paste(label, collapse = "")
 
   is_annotation <- as.logical(is_annotation)[[1]]
-  if(is.na(is_annotation)) {
+  if (is.na(is_annotation)) {
     is_annotation <- FALSE
-    if(!length(x) || all(c("timestamp", "comments") %in% names(x))) {
+    if (!length(x) || all(c("timestamp", "comments") %in% names(x))) {
       is_annotation <- TRUE
     } else if (is.numeric(x)) {
       is_annotation <- FALSE
@@ -1234,10 +1234,10 @@ as_edf_channel <- function(
   }
 
 
-  if(is_annotation) {
+  if (is_annotation) {
     comment <- label
     # x needs to be a data.frame of timestamp, duration (optional), and comments
-    if(!length(x)) {
+    if (!length(x)) {
       return(structure(
         list(
           type = "E/BDF(+)",
@@ -1247,7 +1247,7 @@ as_edf_channel <- function(
             Annotation = is_annotation
           )
         ),
-        class = 'ieegio_edf_empty'
+        class = "ieegio_edf_empty"
       ))
     }
     x <- as.data.frame(x)
@@ -1262,7 +1262,7 @@ as_edf_channel <- function(
     comments <- trimws(x$comments)
     comments <- iconv(comments, to = "UTF-8")
 
-    if(!length(x$duration)) {
+    if (!length(x$duration)) {
       x$duration <- NA
     }
     duration_str <- sprintf("%.6f", x$duration)
@@ -1275,7 +1275,7 @@ as_edf_channel <- function(
       time_int <- charToRaw(time_str[[ii]])
       duration <- duration_str[[ii]]
       comment_int <- charToRaw(comments[[ii]])
-      if(is.na(duration)) {
+      if (is.na(duration)) {
         duration_int <- as.raw(20L)
       } else {
         duration_int <- c(as.raw(21L), charToRaw(duration))
@@ -1305,10 +1305,10 @@ as_edf_channel <- function(
     sample_rate <- as.numeric(sample_rate)[[1]]
     stopifnot(!is.na(sample_rate))
 
-    if(!nzchar(label)) {
+    if (!nzchar(label)) {
       label <- sprintf("Ch%d", channel_num)
     }
-    if(is.na(physical_min)) {
+    if (is.na(physical_min)) {
       rg <- range(x, na.rm = TRUE)
       physical_min <- rg[[1]]
       physical_max <- rg[[2]]
@@ -1361,8 +1361,8 @@ write_edf <- function(
   # ii <- 1
   #
   # channels <- lapply(1:10, function(ii) {
-  #   if(ii == 6) { return(as_edf_channel(NULL, ii)) }
-  #   if(ii == 9) {
+  #   if (ii == 6) { return(as_edf_channel(NULL, ii)) }
+  #   if (ii == 9) {
   #     annot <- as_edf_channel(x = edf$annotations, channel_num = ii)
   #     return(annot)
   #   }
@@ -1377,7 +1377,7 @@ write_edf <- function(
   # physical_min = NA; physical_max = NA
 
   recording_id <- paste(recording_id, collapse = "")
-  if(is.na(recording_id) || !nzchar(recording_id)) {
+  if (is.na(recording_id) || !nzchar(recording_id)) {
     recording_id <- sprintf('{"generator":"ieegio","timestamp":"%s"}', Sys.time())
   }
 
@@ -1390,11 +1390,11 @@ write_edf <- function(
   )
   channels <- hdr$channels
   hdr$channel_table$SampleRate[is.na(hdr$channel_table$SampleRate)] <- 1L
-  if(!is.na(physical_min)) {
+  if (!is.na(physical_min)) {
     hdr$channel_table$PhysicalMin <- physical_min
   }
   hdr$channel_table$PhysicalMin[hdr$channel_table$Annotation] <- -1
-  if(!is.na(physical_max)) {
+  if (!is.na(physical_max)) {
     hdr$channel_table$PhysicalMax <- physical_max
   }
   hdr$channel_table$PhysicalMax[hdr$channel_table$Annotation] <- 1
@@ -1404,7 +1404,7 @@ write_edf <- function(
   record_duration <- hdr$basic$record_duration
   channel_table <- hdr$channel_table
 
-  if(!inherits(con, "connection")) {
+  if (!inherits(con, "connection")) {
     con <- file(con, "wb")
     on.exit({ close(con) })
   }
@@ -1421,7 +1421,7 @@ write_edf <- function(
 
       channel <- channels[[chn_i]]
 
-      if( is_annot ) {
+      if ( is_annot ) {
         record_start <- record_duration * (rec_i - 1)
         record_end <- record_start + record_duration
         sel <- channel$time >= record_start & channel$time < record_end

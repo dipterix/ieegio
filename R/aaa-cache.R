@@ -11,7 +11,7 @@ SignalDataCache <- R6::R6Class(
     #' Get header information, often small list object
     #' @param ... passed to child methods
     get_header = function(...) {
-      if("header" %in% names(self)) {
+      if ("header" %in% names(self)) {
         return(self$header)
       }
       .NotYetImplemented()
@@ -21,7 +21,7 @@ SignalDataCache <- R6::R6Class(
     #' Get annotation information, often a large table
     #' @param ... passed to child methods
     get_annotations = function(...) {
-      if("annotations" %in% names(self)) {
+      if ("annotations" %in% names(self)) {
         return(self$annotations)
       }
       .NotYetImplemented()
@@ -31,7 +31,7 @@ SignalDataCache <- R6::R6Class(
     #' Get channel table
     #' @param ... passed to child methods
     get_channel_table = function(...) {
-      if("channel_table" %in% names(self)) {
+      if ("channel_table" %in% names(self)) {
         return(self$channel_table)
       }
       .NotYetImplemented()

@@ -105,7 +105,7 @@ create_dummy_transform <- function(type = c("affine", "deformation"),
   type <- match.arg(type)
   interpretation <- match.arg(interpretation)
   
-  if(type == "affine") {
+  if (type == "affine") {
     # Create a simple identity-like affine transform
     data <- diag(4)
   } else {

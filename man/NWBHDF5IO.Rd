@@ -26,7 +26,7 @@ print(electrode_table)
 }
 
 ## ------------------------------------------------
-## Method `NWBHDF5IO$open`
+## Method `NWBHDF5IO$open()`
 ## ------------------------------------------------
 
 \dontrun{
@@ -46,7 +46,7 @@ container$close()
 }
 
 ## ------------------------------------------------
-## Method `NWBHDF5IO$with`
+## Method `NWBHDF5IO$with()`
 ## ------------------------------------------------
 
 \dontrun{
@@ -59,78 +59,79 @@ container$with({
 }
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{opened}}{Whether the container is opened.}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{opened}}{Whether the container is opened.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-NWBHDF5IO-new}{\code{NWBHDF5IO$new()}}
-\item \href{#method-NWBHDF5IO-get_handler}{\code{NWBHDF5IO$get_handler()}}
-\item \href{#method-NWBHDF5IO-open}{\code{NWBHDF5IO$open()}}
-\item \href{#method-NWBHDF5IO-close}{\code{NWBHDF5IO$close()}}
-\item \href{#method-NWBHDF5IO-close_linked_files}{\code{NWBHDF5IO$close_linked_files()}}
-\item \href{#method-NWBHDF5IO-read}{\code{NWBHDF5IO$read()}}
-\item \href{#method-NWBHDF5IO-with}{\code{NWBHDF5IO$with()}}
-\item \href{#method-NWBHDF5IO-clone}{\code{NWBHDF5IO$clone()}}
-}
+  \itemize{
+    \item \href{#method-NWBHDF5IO-initialize}{\code{NWBHDF5IO$new()}}
+    \item \href{#method-NWBHDF5IO-get_handler}{\code{NWBHDF5IO$get_handler()}}
+    \item \href{#method-NWBHDF5IO-open}{\code{NWBHDF5IO$open()}}
+    \item \href{#method-NWBHDF5IO-close}{\code{NWBHDF5IO$close()}}
+    \item \href{#method-NWBHDF5IO-close_linked_files}{\code{NWBHDF5IO$close_linked_files()}}
+    \item \href{#method-NWBHDF5IO-read}{\code{NWBHDF5IO$read()}}
+    \item \href{#method-NWBHDF5IO-with}{\code{NWBHDF5IO$with()}}
+    \item \href{#method-NWBHDF5IO-clone}{\code{NWBHDF5IO$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-NWBHDF5IO-new"></a>}}
-\if{latex}{\out{\hypertarget{method-NWBHDF5IO-new}{}}}
-\subsection{Method \code{new()}}{
-Initialize the class
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{NWBHDF5IO$new(path = NULL, mode = c("r", "w", "r+", "a", "w-", "x"), ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-NWBHDF5IO-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-NWBHDF5IO-initialize}{}}}
+\subsection{\code{NWBHDF5IO$new()}}{
+  Initialize the class
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NWBHDF5IO$new(path = NULL, mode = c("r", "w", "r+", "a", "w-", "x"), ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{path}}{Path to a \code{'.nwb'} file}
+      \item{\code{mode}}{Mode for opening the file}
+      \item{\code{...}}{Other parameters passed to \code{nwb$NWBHDF5IO}}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{path}}{Path to a \code{'.nwb'} file}
-
-\item{\code{mode}}{Mode for opening the file}
-
-\item{\code{...}}{Other parameters passed to \code{nwb$NWBHDF5IO}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NWBHDF5IO-get_handler"></a>}}
 \if{latex}{\out{\hypertarget{method-NWBHDF5IO-get_handler}{}}}
-\subsection{Method \code{get_handler()}}{
-Get internal file handler. Please make sure you close the handler
+\subsection{\code{NWBHDF5IO$get_handler()}}{
+  Get internal file handler. Please make sure you close the handler
 correctly.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{NWBHDF5IO$get_handler()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NWBHDF5IO$get_handler()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    File handler, i.e. 'PyNWB' \code{NWBHDF5IO} instance.
+  }
 }
 
-\subsection{Returns}{
-File handler, i.e. 'PyNWB' \code{NWBHDF5IO} instance.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NWBHDF5IO-open"></a>}}
 \if{latex}{\out{\hypertarget{method-NWBHDF5IO-open}{}}}
-\subsection{Method \code{open()}}{
-Open the connections, must be used together with \code{$close} method.
+\subsection{\code{NWBHDF5IO$open()}}{
+  Open the connections, must be used together with \code{$close} method.
 For high-level method, see \code{$with}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{NWBHDF5IO$open()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-container itself
-}
-\subsection{Examples}{
-\if{html}{\out{<div class="r example copy">}}
-\preformatted{\dontrun{
-
-# low-level method to open NWB file, for safer methods, see
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NWBHDF5IO$open()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    container itself
+  }
+  \subsection{Examples}{
+    \if{html}{\out{<div class="r example copy">}}
+    \preformatted{# low-level method to open NWB file, for safer methods, see
 # `container$with()` below
 
 container$open()
@@ -141,121 +142,120 @@ data <- container$read()
 
 # Make sure the container is closed!
 container$close()
-
 }
-}
-\if{html}{\out{</div>}}
-
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NWBHDF5IO-close"></a>}}
 \if{latex}{\out{\hypertarget{method-NWBHDF5IO-close}{}}}
-\subsection{Method \code{close()}}{
-Close the connections (low-level method, see 'with' method below)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{NWBHDF5IO$close(close_links = TRUE)}\if{html}{\out{</div>}}
+\subsection{\code{NWBHDF5IO$close()}}{
+  Close the connections (low-level method, see 'with' method below)
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NWBHDF5IO$close(close_links = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{close_links}}{Whether to close all files linked to from this
+file; default is true}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Nothing
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{close_links}}{Whether to close all files linked to from this
-file; default is true}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Nothing
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NWBHDF5IO-close_linked_files"></a>}}
 \if{latex}{\out{\hypertarget{method-NWBHDF5IO-close_linked_files}{}}}
-\subsection{Method \code{close_linked_files()}}{
-Close all opened, linked-to files. \code{'MacOS'} and \code{'Linux'}
+\subsection{\code{NWBHDF5IO$close_linked_files()}}{
+  Close all opened, linked-to files. \code{'MacOS'} and \code{'Linux'}
 automatically release the linked-to file after the linking file is
 closed, but \code{'Windows'} does not, which prevents the linked-to
 file from being deleted or truncated. Use this method to close all
 opened, linked-to files.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{NWBHDF5IO$close_linked_files()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NWBHDF5IO$close_linked_files()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Nothing
+  }
 }
 
-\subsection{Returns}{
-Nothing
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NWBHDF5IO-read"></a>}}
 \if{latex}{\out{\hypertarget{method-NWBHDF5IO-read}{}}}
-\subsection{Method \code{read()}}{
-Read the \code{'NWB'} file from the 'IO' source. Please use along with
+\subsection{\code{NWBHDF5IO$read()}}{
+  Read the \code{'NWB'} file from the 'IO' source. Please use along with
 \code{'$with'} method
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{NWBHDF5IO$read()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NWBHDF5IO$read()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{'NWBFile'} container
+  }
 }
 
-\subsection{Returns}{
-\code{'NWBFile'} container
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NWBHDF5IO-with"></a>}}
 \if{latex}{\out{\hypertarget{method-NWBHDF5IO-with}{}}}
-\subsection{Method \code{with()}}{
-Safe wrapper for reading and handling \code{'NWB'} file. See class examples.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{NWBHDF5IO$with(expr, quoted = FALSE, envir = parent.frame())}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{expr}}{R expression to evaluate}
-
-\item{\code{quoted}}{Whether \code{expr} is quoted; default is false}
-
-\item{\code{envir}}{environment for \code{expr} to evaluate; default is the
+\subsection{\code{NWBHDF5IO$with()}}{
+  Safe wrapper for reading and handling \code{'NWB'} file. See class examples.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NWBHDF5IO$with(expr, quoted = FALSE, envir = parent.frame())}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{expr}}{R expression to evaluate}
+      \item{\code{quoted}}{Whether \code{expr} is quoted; default is false}
+      \item{\code{envir}}{environment for \code{expr} to evaluate; default is the
 parent frame (see \code{parent.frame})}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Whatever results generated by \code{expr}
-}
-\subsection{Examples}{
-\if{html}{\out{<div class="r example copy">}}
-\preformatted{\dontrun{
-
-container$with({
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Whatever results generated by \code{expr}
+  }
+  \subsection{Examples}{
+    \if{html}{\out{<div class="r example copy">}}
+    \preformatted{container$with({
   data <- container$read()
   # process data
 })
-
 }
-}
-\if{html}{\out{</div>}}
-
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NWBHDF5IO-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-NWBHDF5IO-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{NWBHDF5IO$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{NWBHDF5IO$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NWBHDF5IO$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -5,7 +5,7 @@ test_that("HDF5 IO with R backend", {
   old_opt <- options("ieegio.debug.emscripten" = FALSE)
   on.exit({ options(old_opt) }, add = TRUE)
 
-  x <- array(1:24, c(1,2,3,1,4,1))
+  x <- array(1:24, c(1, 2, 3, 1, 4, 1))
 
   f <- tempfile()
   on.exit({ unlink(f) })
@@ -35,13 +35,13 @@ test_that("HDF5 IO with R backend", {
   env$idx <- c(FALSE, TRUE, TRUE)
   expect_equal(
     with(env, {
-      y[1,,idx,,,]
+      y[1, , idx, , , ]
     }),
-    x[1,,c(2,3),,,,drop=FALSE]
+    x[1, , c(2, 3), , , , drop = FALSE]
   )
   expect_equal(
-    y[1,,1,,4,,drop=TRUE],
-    x[1,,1,,4,,drop=TRUE]
+    y[1, , 1, , 4, , drop = TRUE],
+    x[1, , 1, , 4, , drop = TRUE]
   )
 
   x <- 1:24
@@ -50,13 +50,13 @@ test_that("HDF5 IO with R backend", {
 
   expect_equal(x, y[])
 
-  x <- array(1:24, c(1,24))
+  x <- array(1:24, c(1, 24))
   io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
   y <- io_read_h5(file = f, name = "data")
 
   expect_equal(x, y[])
 
-  x <- array(1:24, c(24,1))
+  x <- array(1:24, c(24, 1))
   io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
   y <- io_read_h5(file = f, name = "data")
 
@@ -91,7 +91,7 @@ test_that("HDF5 IO with Python backend", {
 
   testthat::expect_true(inherits(h5py, "python.builtin.module"))
 
-  x <- array(1:24, c(1,2,3,1,4,1))
+  x <- array(1:24, c(1, 2, 3, 1, 4, 1))
 
   f <- tempfile()
   on.exit({ unlink(f) })
@@ -121,13 +121,13 @@ test_that("HDF5 IO with Python backend", {
   env$idx <- c(FALSE, TRUE, TRUE)
   expect_equal(
     with(env, {
-      y[1,,idx,,,]
+      y[1, , idx, , , ]
     }),
-    x[1,,c(2,3),,,,drop=FALSE]
+    x[1, , c(2, 3), , , , drop = FALSE]
   )
   expect_equal(
-    y[1,,1,,4,,drop=TRUE],
-    x[1,,1,,4,,drop=TRUE]
+    y[1, , 1, , 4, , drop = TRUE],
+    x[1, , 1, , 4, , drop = TRUE]
   )
 
   x <- 1:24
@@ -136,13 +136,13 @@ test_that("HDF5 IO with Python backend", {
 
   expect_equal(x, y[])
 
-  x <- array(1:24, c(1,24))
+  x <- array(1:24, c(1, 24))
   io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
   y <- io_read_h5(file = f, name = "data")
 
   expect_equal(x, y[])
 
-  x <- array(1:24, c(24,1))
+  x <- array(1:24, c(24, 1))
   io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
   y <- io_read_h5(file = f, name = "data")
 
@@ -174,7 +174,7 @@ test_that("HDF5 IO with no backend", {
   # Skip if h5py is null (no python)
   testthat::expect_true(is.null(h5backend))
 
-  x <- array(1:24, c(1,2,3,1,4,1))
+  x <- array(1:24, c(1, 2, 3, 1, 4, 1))
 
   io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
 
@@ -201,13 +201,13 @@ test_that("HDF5 IO with no backend", {
   env$idx <- c(FALSE, TRUE, TRUE)
   expect_equal(
     with(env, {
-      y[1,,idx,,,]
+      y[1, , idx, , , ]
     }),
-    x[1,,c(2,3),,,,drop=FALSE]
+    x[1, , c(2, 3), , , , drop = FALSE]
   )
   expect_equal(
-    y[1,,1,,4,,drop=TRUE],
-    x[1,,1,,4,,drop=TRUE]
+    y[1, , 1, , 4, , drop = TRUE],
+    x[1, , 1, , 4, , drop = TRUE]
   )
 
   x <- 1:24
@@ -216,13 +216,13 @@ test_that("HDF5 IO with no backend", {
 
   expect_equal(x, y[])
 
-  x <- array(1:24, c(1,24))
+  x <- array(1:24, c(1, 24))
   io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
   y <- io_read_h5(file = f, name = "data")
 
   expect_equal(x, y[])
 
-  x <- array(1:24, c(24,1))
+  x <- array(1:24, c(24, 1))
   io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
   y <- io_read_h5(file = f, name = "data")
 

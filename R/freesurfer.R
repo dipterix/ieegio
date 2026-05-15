@@ -7,7 +7,7 @@ fs_lut <- local({
     data.table::rbindlist(lut$`__global_data__.VolumeColorLUT`$map)
   }
   function() {
-    if(is.null(lut)) {
+    if (is.null(lut)) {
       lut <<- impl()
     }
     lut
@@ -17,7 +17,7 @@ fs_lut <- local({
 remove_freesurfer_cortical_prefix <- function(x, type = c("hemisphere", "tissue")) {
   x <- tolower(x)
 
-  if("hemisphere" %in% type) {
+  if ("hemisphere" %in% type) {
     x <- gsub("^(left|right)[_-]", "", x)
     x <- gsub("^(lh|rh)[_-]", "", x)
     x <- gsub("([_-])(lh|rh)[_-]", "\\1", x)
@@ -26,7 +26,7 @@ remove_freesurfer_cortical_prefix <- function(x, type = c("hemisphere", "tissue"
     x <- gsub("^right[_-]", "rh.", x)
   }
 
-  if("tissue" %in% type) {
+  if ("tissue" %in% type) {
     x <- gsub("^(ctx|wm)[_-]", "", x)
     x <- gsub("^(ctx|wm)[_-]", "", x)
   }
@@ -78,7 +78,7 @@ io_read_fs <- function(file, type = c("geometry", "annotations", "measurements")
               length(surf$faces) * 4
             )
             extra_bytes <- file.size(file) - sum(n)
-            if(length(extra_bytes)) {
+            if (length(extra_bytes)) {
               conn <- base::file(file, "rb")
               on.exit({ close(conn) })
               invisible({ readBin(conn, "raw", n = sum(n)) })
@@ -90,7 +90,7 @@ io_read_fs <- function(file, type = c("geometry", "annotations", "measurements")
               cras <- strsplit(trimws(cras), " ")[[1]]
               cras <- cras[cras != ""]
               cras <- as.numeric(cras)
-              if(length(cras) == 3 && !anyNA(cras)) {
+              if (length(cras) == 3 && !anyNA(cras)) {
                 names(transforms) <- "ScannerAnat"
                 transforms$ScannerAnat[1:3, 4] <- cras
               }
@@ -135,7 +135,7 @@ io_read_fs <- function(file, type = c("geometry", "annotations", "measurements")
       )
       unames <- as.character(unique(annot$label_names))
       unames <- unames[!unames %in% label_table$Label]
-      if(length(unames)) {
+      if (length(unames)) {
         lut[unames] <- 0
       }
       data_table <- data.table::data.table(V = unname(lut[annot$label_names]))
@@ -147,7 +147,7 @@ io_read_fs <- function(file, type = c("geometry", "annotations", "measurements")
         meta = structure(names = annot_name, list(annot$metadata))
       )
       node_index <- annot$vertices
-      if(length(node_index)) {
+      if (length(node_index)) {
         node_index <- list(
           node_index = as.integer(node_index) + 1L,
           node_index_start = 1L
@@ -178,7 +178,7 @@ io_read_fs <- function(file, type = c("geometry", "annotations", "measurements")
         meas
       })
 
-      if( is_sparse ) {
+      if ( is_sparse ) {
         # 1-based
         data_table <- data.table::data.table(V = meas$values)
         node_index <- list(
@@ -252,16 +252,16 @@ io_write_fs_geometry <- function(con, vertex_coords, faces, transforms = NULL) {
   # get tkr-to-scan transform
   # transforms <- x$geometry$transforms
   tkr2ras <- NULL
-  if(is.matrix(transforms)) {
+  if (is.matrix(transforms)) {
     tkr2ras <- transforms
-  } else if(is.list(transforms)) {
-    if(length(transforms$ScannerAnat) == 16) {
+  } else if (is.list(transforms)) {
+    if (length(transforms$ScannerAnat) == 16) {
       tkr2ras <- transforms$ScannerAnat
-    } else if( length(transforms) ) {
+    } else if ( length(transforms) ) {
       tkr2ras <- transforms[[1]]
     }
   }
-  if(length(tkr2ras) == 16 && sum((tkr2ras[1:3, 4]) ^ 2) > 1e-4) {
+  if (length(tkr2ras) == 16 && sum((tkr2ras[1:3, 4]) ^ 2) > 1e-4) {
     # write comments
     cras <- sprintf("%.15e", tkr2ras[1:3, 4])
 
@@ -276,7 +276,7 @@ io_write_fs_geometry <- function(con, vertex_coords, faces, transforms = NULL) {
       sprintf("cras   = %s", paste(cras, collapse = " "))
     )
 
-    conn <- file(con, open = 'ab')
+    conn <- file(con, open = "ab")
     on.exit({ close(conn) })
     writeBin(charToRaw(paste(str, collapse = "\n")), con = conn)
   }
@@ -287,11 +287,11 @@ io_write_fs <- function(x, con, type = c("geometry", "annotations", "measurement
 
   type <- match.arg(type)
 
-  if( type %in% c("color", "time_series") ) {
+  if ( type %in% c("color", "time_series") ) {
     stop("Saving ", type, " data in FreeSurfer format has not been implemented.")
   }
 
-  if(!length(x[[type]])) {
+  if (!length(x[[type]])) {
     nms <- names(x)
     nms <- nms[nms %in% c("geometry", "annotations", "measurements")]
     stop(
@@ -312,7 +312,7 @@ io_write_fs <- function(x, con, type = c("geometry", "annotations", "measurement
       vertices <- t(x$geometry$vertices[1:3, , drop = FALSE])
       faces <- t(x$geometry$faces)
       face_start <- x$geometry$face_start
-      if(length(face_start) == 1 && !is.na(face_start) &&
+      if (length(face_start) == 1 && !is.na(face_start) &&
          is.numeric(face_start) && face_start != 1) {
         faces <- faces - face_start + 1L
       }
@@ -321,15 +321,15 @@ io_write_fs <- function(x, con, type = c("geometry", "annotations", "measurement
     },
     "annotations" = {
       nms <- names(x$annotations$data_table)
-      if(is.character(name) && !isTRUE(name %in% nms)) {
+      if (is.character(name) && !isTRUE(name %in% nms)) {
         stop("Cannot find annotation ", sQuote(name), " in the table. Available names are ",
              paste(sQuote(nms), collapse = ", "))
       }
       n_verts <- 0
-      if( x$sparse ) {
+      if ( x$sparse ) {
         start_index <- attr(x$sparse_node_index, "start_index")
         n_verts <- max(x$sparse_node_index)
-        if(length(start_index) == 1 && !is.na(start_index) && is.numeric(start_index)) {
+        if (length(start_index) == 1 && !is.na(start_index) && is.numeric(start_index)) {
           n_verts <- n_verts - start_index + 1
         }
       }
@@ -349,8 +349,8 @@ io_write_fs <- function(x, con, type = c("geometry", "annotations", "measurement
 
       color_max <- max(label_table$Red, label_table$Green, label_table$Blue)
       alpha_max <- max(c(label_table$Alpha, 1))
-      if(color_max >= 2) { color_max <- 255 } else { color_max <- 1 }
-      if(alpha_max >= 2) { alpha_max <- 255 } else { alpha_max <- 1 }
+      if (color_max >= 2) { color_max <- 255 } else { color_max <- 1 }
+      if (alpha_max >= 2) { alpha_max <- 255 } else { alpha_max <- 1 }
       colortable <- data.frame(
         struct_name = label_table$Label,
         r = floor(label_table$Red / color_max * 255),
@@ -374,18 +374,18 @@ io_write_fs <- function(x, con, type = c("geometry", "annotations", "measurement
       # l <- freesurferformats::read.fs.label.native("~/rave_data/raw_dir/AnonSEEG2/rave-imaging/fs/label/lh.MT_exvivo.label", full = TRUE)
 
       nms <- names(x$measurements$data_table)
-      if(is.character(name) && !isTRUE(name %in% nms)) {
+      if (is.character(name) && !isTRUE(name %in% nms)) {
         stop("Cannot find measurement ", sQuote(name), " in the table. Available names are ",
              paste(sQuote(nms), collapse = ", "))
       }
 
       vec <- x$measurements$data_table[[name]]
 
-      if(x$sparse) {
+      if (x$sparse) {
         # write as weights
         start_index <- attr(x$sparse_node_index, start_index)
         node_index <- x$sparse_node_index
-        if(length(start_index) == 1 && !is.na(start_index) && is.numeric(start_index)) {
+        if (length(start_index) == 1 && !is.na(start_index) && is.numeric(start_index)) {
           node_index <- node_index - start_index + 1L
         }
         freesurferformats::write.fs.weight(

@@ -3,7 +3,7 @@ mat_to_quaternion <- function(m) {
   m <- m[1:3, 1:3]
   m <- apply(m, 2, function(x) {
     l2 <- sum(x^2)
-    if( l2 > 0 ) {
+    if ( l2 > 0 ) {
       x <- x / sqrt(l2)
     }
     x
@@ -22,7 +22,7 @@ mat_to_quaternion <- function(m) {
 
   trace <- m11 + m22 + m33
 
-  if( trace > 0 ) {
+  if ( trace > 0 ) {
     s <- 0.5 / sqrt(trace + 1)
     w <- 0.25 / s
     x <- (m32 - m23) * s
@@ -50,7 +50,7 @@ mat_to_quaternion <- function(m) {
 
   re <- c(x = x, y = y, z = z, w = w)
 
-  if(w < 0) {
+  if (w < 0) {
     # make sure w is positive as described: https://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h
     # Requiring a >= 0 is equivalent to requiring -Pi <= h <= Pi.  (Note that
     # [-a,-b,-c,-d] represents the same rotation as [a,b,c,d]; there are 2

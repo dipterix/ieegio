@@ -47,7 +47,7 @@ io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat7
   file <- normalizePath(con, mustWork = TRUE, winslash = "/")
 
   verb <- function(...) {
-    if(verbose) {
+    if (verbose) {
       cat(..., "\n", sep = "")
     }
   }
@@ -65,14 +65,14 @@ io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat7
     knms <- names(kwargs)
 
     dup_names <- knms[knms %in% pnms]
-    if(length(dup_names)) {
+    if (length(dup_names)) {
       warning("Duplicated input argument(s) found: ", paste(dup_names, collapse = ", "), ". The results might be unexpected.")
     }
     fmls <- fmls[fmls %in% c(pnms, knms)]
     args <- structure(
       names = fmls,
       lapply(fmls, function(nm) {
-        if(nm %in% pnms) {
+        if (nm %in% pnms) {
           v <- params[[nm]]
         } else {
           v <- kwargs[[nm]]
@@ -85,7 +85,7 @@ io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat7
   }
 
   convert_to_r <- function(re) {
-    if(inherits(re, "python.builtin.dict")) {
+    if (inherits(re, "python.builtin.dict")) {
       nms <- names(re)
       re <- structure(
         names = nms,
@@ -134,12 +134,12 @@ io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat7
       fun <- pymatreader$read_mat
 
       args <- list(...)
-      if(length(args$variable_names)) {
+      if (length(args$variable_names)) {
         args$variable_names <- as.list(args$variable_names)
       } else {
         args$variable_names <- NULL
       }
-      if(length(args$ignore_fields)) {
+      if (length(args$ignore_fields)) {
         args$ignore_fields <- as.list(args$ignore_fields)
       } else {
         args$ignore_fields <- NULL
@@ -161,12 +161,12 @@ io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat7
       fun <- mat73$loadmat
 
       args <- list(...)
-      if(length(args$only_include)) {
+      if (length(args$only_include)) {
         args$only_include <- as.list(args$only_include)
       } else {
         args$only_include <- NULL
       }
-      if( verbose ) {
+      if ( verbose ) {
         args$verbose <- TRUE
       } else {
         args$verbose <- FALSE
@@ -204,17 +204,17 @@ io_write_mat <- function(x, con, method = c("R.matlab", "scipy"), ...) {
 
   method <- match.arg(method)
 
-  if(!is.list(x)) {
+  if (!is.list(x)) {
     stop("`write_mat`: `x` must be a named list.")
   }
   nms <- names(x)
-  if(!length(nms) || "" %in% nms) {
+  if (!length(nms) || "" %in% nms) {
     stop("`write_mat`: `x` must be a named list.")
   }
 
-  reserved <- c('con', 'fixNames', 'matVersion', 'onWrite', 'verbose')
+  reserved <- c("con", "fixNames", "matVersion", "onWrite", "verbose")
   reserved <- reserved[reserved %in% nms]
-  if(length(reserved)) {
+  if (length(reserved)) {
     stop("`write_mat`: `x` must NOT contain the following reserved names: ", paste(sQuote(reserved), collapse = ", "))
   }
 

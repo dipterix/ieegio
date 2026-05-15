@@ -28,7 +28,7 @@ io_read_tt <- function(file) {
 
   # source_file <- "~/Downloads/hcp1065_avg_tracts_tt/AF_L.tt.gz"
 
-  if(endsWith(tolower(source_file), ".gz")) {
+  if (endsWith(tolower(source_file), ".gz")) {
     file <- tempfile(fileext = ".mat")
     source_con <- gzfile(source_file, open = "rb")
     file_con <- file(file, "wb")
@@ -38,7 +38,7 @@ io_read_tt <- function(file) {
       try({ close(source_con) }, silent = TRUE)
     }, add = TRUE)
 
-    while({
+    while ({
       raw <- readBin(source_con, raw(), n = 1e6)
       length(raw) > 0
     }) {
@@ -49,15 +49,15 @@ io_read_tt <- function(file) {
   }
 
 
-  tt <- io_read_mat(file, method = 'R.matlab')
+  tt <- io_read_mat(file, method = "R.matlab")
 
   dimension <- as.vector(tt$dimension)
   voxel_size <- as.vector(tt$voxel.size)
   report <- as.integer(tt$report)
 
-  if(length(tt$trans.to.mni) == 16) {
+  if (length(tt$trans.to.mni) == 16) {
     vox2ras <- matrix(tt$trans.to.mni, c(4, 4), byrow = TRUE, dimnames = NULL)
-  } else if(length(tt$trans.to.mni) == 12) {
+  } else if (length(tt$trans.to.mni) == 12) {
     vox2ras <- matrix(tt$trans.to.mni, c(3, 4), byrow = TRUE, dimnames = NULL)
     vox2ras <- rbind(vox2ras, c(0, 0, 0, 1))
   } else {
@@ -69,7 +69,7 @@ io_read_tt <- function(file) {
 
   i <- 0L
   start_pos <- NULL
-  while(i < length(track)) {
+  while (i < length(track)) {
     start_pos <- c(start_pos, i)
 
     n_points <- readBin(track[i + seq_len(4)], what = "integer", size = 4, signed = TRUE, endian = "little")

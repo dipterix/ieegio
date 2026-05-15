@@ -22,17 +22,17 @@ new_surface <- function(
   n_vert_values <- NA # if sparse, what's the expected number of node values
 
   validate_n <- function(n) {
-    if( is.na(n_vert_values) && is.na(n_vertex) ) { return(TRUE) }
-    if(is.na(n_vert_values)) {
+    if ( is.na(n_vert_values) && is.na(n_vertex) ) { return(TRUE) }
+    if (is.na(n_vert_values)) {
       return(isTRUE(n_vertex == n))
     }
-    if(is.na(n_vertex)) {
+    if (is.na(n_vertex)) {
       return(isTRUE(n_vert_values == n))
     }
     isTRUE(n_vert_values == n) || isTRUE(n_vertex == n)
   }
 
-  if( has_sparse_node_index ) {
+  if ( has_sparse_node_index ) {
     node_start <- sparse_node_index$node_index_start
     node_index <- as.integer(sparse_node_index$node_index - node_start + 1L)
 
@@ -44,10 +44,10 @@ new_surface <- function(
     re$sparse_node_index <- sparse_node_index
   }
 
-  if(has_geometry) {
+  if (has_geometry) {
     contains <- "geometry"
     re$geometry <- geometry
-    if(is.matrix(geometry$vertices)) {
+    if (is.matrix(geometry$vertices)) {
       n_vertex <- ncol(geometry$vertices)
     } else {
       # what the hell?
@@ -55,14 +55,14 @@ new_surface <- function(
       contains <- NULL
     }
     n_vert_values <- n_vertex
-  } else if(has_sparse_node_index) {
+  } else if (has_sparse_node_index) {
     n_vertex <- max(sparse_node_index, na.rm = TRUE)
   }
 
 
 
-  if( has_color ) {
-    if(validate_n(nrow(color))) {
+  if ( has_color ) {
+    if (validate_n(nrow(color))) {
       re$color <- color
       contains <- c(contains, "color")
     } else {
@@ -71,13 +71,13 @@ new_surface <- function(
     }
   }
 
-  if(has_annotations) {
+  if (has_annotations) {
     # list(
     #   label_table = parse_label_table(gii$label),
     #   data_table = data.table::data.table(),
     #   meta = list()
     # )
-    if(validate_n( nrow(annotations$data_table) )) {
+    if (validate_n( nrow(annotations$data_table) )) {
       re$annotations <- annotations
       contains <- c(contains, "annotations")
     } else {
@@ -87,12 +87,12 @@ new_surface <- function(
     }
   }
 
-  if(has_measurements) {
+  if (has_measurements) {
     # list(
     #   data_table = data.table::data.table(),
     #   meta = list()
     # )
-    if(validate_n( nrow(measurements$data_table) )) {
+    if (validate_n( nrow(measurements$data_table) )) {
       re$measurements <- measurements
       contains <- c(contains, "measurements")
     } else {
@@ -102,13 +102,13 @@ new_surface <- function(
     }
   }
 
-  if(has_time_series) {
+  if (has_time_series) {
     # list(
     #   description = "`value`: vertex by time-point matrix",
     #   slice_duration = numeric(0L),
     #   value = NULL
     # )
-    if(validate_n( nrow(time_series$value) )) {
+    if (validate_n( nrow(time_series$value) )) {
       re$time_series <- time_series
       contains <- c(contains, "time_series")
     } else {
@@ -138,7 +138,7 @@ format.ieegio_surface <- function(x, ...) {
   )
   contains <- NULL
   ss <- NULL
-  if(!is.null(x$geometry)) {
+  if (!is.null(x$geometry)) {
     contains <- "geometry"
     ss <- c(
       sprintf("  Geometry%s : ",
@@ -150,15 +150,15 @@ format.ieegio_surface <- function(x, ...) {
               paste(names(x$geometry$transforms), collapse = ", "))
     )
   }
-  if(!is.null(x$color)) {
+  if (!is.null(x$color)) {
     contains <- c(contains, "color")
   }
-  if(!is.null(x$annotations)) {
+  if (!is.null(x$annotations)) {
     contains <- c(contains, "annotations")
     ss <- c(ss, sprintf("  Annotations: %s", paste(
       sprintf("`%s`", names(x$annotations$data_table)), collapse = ", "
     )))
-    if(is.data.frame(x$annotations$label_table)) {
+    if (is.data.frame(x$annotations$label_table)) {
       ss <- c(ss, sprintf("    # of labels: %d",
                           nrow(x$annotations$label_table)))
     } else {
@@ -166,17 +166,17 @@ format.ieegio_surface <- function(x, ...) {
     }
   }
 
-  if(!is.null(x$measurements)) {
+  if (!is.null(x$measurements)) {
     contains <- c(contains, "measurements")
     ss <- c(ss, sprintf("  Measurements: %s", paste(
       sprintf("`%s`", names(x$measurements$data_table)), collapse = ", "
     )))
   }
 
-  if(!is.null(x$time_series)) {
+  if (!is.null(x$time_series)) {
     contains <- c(contains, "time_series")
     slice_duration <- x$time_series$slice_duration
-    if(!all(is.na(slice_duration))) {
+    if (!all(is.na(slice_duration))) {
       avg_duration <- mean(slice_duration, na.rm = TRUE)
     } else {
       avg_duration <- NA_real_
@@ -204,23 +204,23 @@ print.ieegio_surface <- function(x, ...) {
 }
 
 sparse_to_dense_geometry <- function(x) {
-  if(!x$sparse) { return(x) }
+  if (!x$sparse) { return(x) }
 
   node_index <- x$sparse_node_index
   n_verts <- max(node_index, na.rm = TRUE)
 
-  if(length(x$geometry)) {
+  if (length(x$geometry)) {
     vertices <- array(NA_real_, c(4, n_verts))
     vertices[1:3, node_index] <- x$geometry$vertices[1:3, ]
     vertices[4, ] <- 1
     x$geometry$vertices <- vertices
 
-    if(length(x$geometry$faces)) {
+    if (length(x$geometry$faces)) {
       face_start <- x$geometry$face_start
-      if(!length(face_start)) {
+      if (!length(face_start)) {
         face_start <- min(x$geometry$faces, na.rm = TRUE)
       }
-      if(face_start <= 0) {
+      if (face_start <= 0) {
         x$geometry$faces <- x$geometry$faces + (1 - face_start)
         storage.mode(x$geometry$faces) <- "integer"
       }
@@ -228,20 +228,20 @@ sparse_to_dense_geometry <- function(x) {
     }
   }
 
-  if(length(x$color)) {
+  if (length(x$color)) {
     vertex_color <- array(0, dim = c(n_verts, 4))
     vertex_color[, 4] <- 1
     vertex_color[node_index, seq_len(ncol(x$color))] <- x$color
     x$color <- vertex_color
   }
 
-  if(length(x$time_series)) {
+  if (length(x$time_series)) {
     re <- array(0, dim = c(n_verts, ncol(x$time_series$value)))
     re[node_index, ] <- x$time_series$value
     x$time_series$value <- re
   }
 
-  if(length(x$annotations)) {
+  if (length(x$annotations)) {
     stable <- x$annotations$data_table
     nms <- names(stable)
     x$annotations$data_table <- data.table::as.data.table(structure(
@@ -253,7 +253,7 @@ sparse_to_dense_geometry <- function(x) {
     ))
   }
 
-  if(length(x$measurements)) {
+  if (length(x$measurements)) {
     stable <- x$measurements$data_table
     nms <- names(stable)
     x$measurements$data_table <- data.table::as.data.table(structure(
@@ -285,10 +285,10 @@ fix_surface_class <- function(x) {
   class(x) <- unique(cls)
 
   # also fix the internal header
-  if("ieegio_surface_contains_geometry" %in% contain_classes) {
+  if ("ieegio_surface_contains_geometry" %in% contain_classes) {
     geometry <- .subset2(x, "geometry")
     nverts <- ncol(geometry$vertices)
-    if(length(geometry$faces)) {
+    if (length(geometry$faces)) {
       type <- "tris"
       nfaces <- ncol(geometry$faces)
     } else {
@@ -427,7 +427,7 @@ merge.ieegio_surface <- function(
   merge_space <- match.arg(merge_space)
 
   base_surface <- x
-  if(missing(y)) {
+  if (missing(y)) {
     additional_surfaces <- list(...)
   } else {
     additional_surfaces <- list(y, ...)
@@ -438,7 +438,7 @@ merge.ieegio_surface <- function(
 
   has_geometry <- !is.null(x$geometry)
 
-  if(!has_geometry) {
+  if (!has_geometry) {
     stop("`merge.ieegio_surface`: the first element `x` MUST contain the ",
          "geometry data (surface vertex nodes, face indices).")
   }
@@ -446,7 +446,7 @@ merge.ieegio_surface <- function(
   n_verts <- ncol(x$geometry$vertices)
 
   # if x is sparse, expand
-  if( x$sparse ) {
+  if ( x$sparse ) {
     node_index <- x$sparse_node_index
   } else {
     node_index <- seq_len(n_verts)
@@ -455,22 +455,22 @@ merge.ieegio_surface <- function(
 
 
 
-  if( merge_type == "geometry" ) {
+  if ( merge_type == "geometry" ) {
     # throw all the attributes: they will no longer be valid
     x$annotations <- NULL
     x$measurements <- NULL
     x$color <- NULL
     x$time_series <- NULL
 
-    if(merge_space == "world") {
-      if(verbose) {
+    if (merge_space == "world") {
+      if (verbose) {
         message("Merging geometries in the transformed world space indicated by `transform_index` list.")
       }
       n_total_surfs <- length(additional_surfaces) + 1
-      if(length(transform_index) == 1) {
+      if (length(transform_index) == 1) {
         transform_index <- rep(transform_index, n_total_surfs)
       } else {
-        if(length(transform_index) != n_total_surfs) {
+        if (length(transform_index) != n_total_surfs) {
           stop(
             "`transform_index` length must be either 1 ",
             "(same transform index for all), or its length must equal ",
@@ -478,11 +478,11 @@ merge.ieegio_surface <- function(
         }
       }
     } else {
-      if(verbose) {
+      if (verbose) {
         message("Merging geometries directly without checking transforms (assuming the transforms are the same)")
       }
     }
-  } else if(verbose) {
+  } else if (verbose) {
     message("Merging geometry attributes, assuming all the surface objects have the same number of vertices.")
   }
   # make dense x and make sure face starts from 1
@@ -490,16 +490,16 @@ merge.ieegio_surface <- function(
 
   get_transform <- function(z, idx) {
     transforms <- z$geometry$transforms
-    if(is.na(idx) || !length(transforms)) {
+    if (is.na(idx) || !length(transforms)) {
       return(diag(1, 4))
     }
-    if( idx <= 0 || idx > length(transforms) ) {
+    if ( idx <= 0 || idx > length(transforms) ) {
       stop(sprintf("Surface has no transform index %s.", idx))
     }
     transforms[[idx]]
   }
 
-  if(merge_type == "geometry" && merge_space == "world") {
+  if (merge_type == "geometry" && merge_space == "world") {
     x_world2local <- solve(get_transform(x, transform_index[[1]]))
   } else {
     x_world2local <- NULL
@@ -517,14 +517,14 @@ merge.ieegio_surface <- function(
       switch(
         merge_type,
         "geometry" = {
-          if( is.null(y$geometry) ) { return(x) }
+          if ( is.null(y$geometry) ) { return(x) }
           y$annotations <- NULL
           y$measurements <- NULL
           y$color <- NULL
           y$time_series <- NULL
           y <- sparse_to_dense_geometry(y)
 
-          if( merge_space == "world" ) {
+          if ( merge_space == "world" ) {
             t_idx <- transform_index[[ kk + 1 ]]
             y_local2world <- get_transform(y, t_idx)
             transform_y2x <- x_world2local %*% y_local2world
@@ -536,14 +536,14 @@ merge.ieegio_surface <- function(
             # bind vertices directly
             x$geometry$vertices <- cbind(x$geometry$vertices, y$geometry$vertices)
           }
-          if(length(y$geometry$faces)) {
+          if (length(y$geometry$faces)) {
             x$geometry$faces <- cbind(x$geometry$faces, y$geometry$faces + n_verts)
           }
         },
         {
           y <- sparse_to_dense_geometry(y)
 
-          if( !is.null(y$geometry) && n_verts != ncol(y$geometry$vertices) ) {
+          if ( !is.null(y$geometry) && n_verts != ncol(y$geometry$vertices) ) {
             stop(
               "You are trying to merge attributes. ",
               "One of the surface object contains geometry that has ",
@@ -553,13 +553,13 @@ merge.ieegio_surface <- function(
           }
 
           # color
-          if( !is.null(y$color) ) {
+          if ( !is.null(y$color) ) {
             x$color <- y$color
           }
 
           # annot
-          if(length(y$annotations)) {
-            if( length(x$annotations) ) {
+          if (length(y$annotations)) {
+            if ( length(x$annotations) ) {
               label_table_x <- x$annotations$label_table[, c("Key", "Label")]
               label_table_y <- y$annotations$label_table[, c("Key", "Label")]
               merged <- merge(
@@ -571,7 +571,7 @@ merge.ieegio_surface <- function(
               )
               merged <- merged[!is.na(merged$Key), ]
               sel <- merged$Label_x != merged$Label_y
-              if(any(sel)) {
+              if (any(sel)) {
                 key_x <- merged$Key[sel][[1]]
                 Label_x <- merged$Label_x[sel][[1]]
                 Label_y <- merged$Label_y[sel][[1]]
@@ -593,8 +593,8 @@ merge.ieegio_surface <- function(
           }
 
           # measurements
-          if(length(y$measurements)) {
-            if( length(x$measurements) ) {
+          if (length(y$measurements)) {
+            if ( length(x$measurements) ) {
               x$measurements$data_table <- cbind(
                 x$measurements$data_table,
                 y$measurements$data_table
@@ -606,8 +606,8 @@ merge.ieegio_surface <- function(
           }
 
           # time_series
-          if(length(y$time_series)) {
-            if(length(x$time_series)) {
+          if (length(y$time_series)) {
+            if (length(x$time_series)) {
               x$time_series$value <- cbind(
                 x$time_series$value,
                 y$time_series$value
@@ -758,24 +758,24 @@ plot.ieegio_surface <- function(
   # col = c("black", "white")
 
 
-  if(!length(x$geometry)) {
+  if (!length(x$geometry)) {
     stop("This `ieeg_surface` object does not contain any geometry.")
   }
 
-  if(is.matrix(transform)) {
+  if (is.matrix(transform)) {
     stopifnot(nrow(transform) == 4 && ncol(transform) == 4)
-  } else if(is.null(transform) || !length(x$geometry$transforms)) {
+  } else if (is.null(transform) || !length(x$geometry$transforms)) {
     transform <- diag(1, 4)
   } else {
     transform <- x$geometry$transforms[[transform]]
-    if(!is.matrix(transform)) {
+    if (!is.matrix(transform)) {
       stop("Unable to find transform matrix ", sQuote(transform))
     }
   }
 
   # vert
   vertices <- x$geometry$vertices
-  if(nrow(vertices) == 3) {
+  if (nrow(vertices) == 3) {
     vertices <- rbind(vertices, 1)
   }
   vertices <- transform %*% vertices
@@ -786,14 +786,14 @@ plot.ieegio_surface <- function(
   )
 
   # name: "color", c(annotation, xxx), c(measure xxx), "flat", "auto"
-  if(identical(name, "auto")) {
-    if(length(x$color)) {
+  if (identical(name, "auto")) {
+    if (length(x$color)) {
       name <- "color"
-    } else if(length(x$annotations)) {
+    } else if (length(x$annotations)) {
       name <- c("annot", names(x$annotations$data_table)[[1]])
-    } else if(length(x$measurements)) {
+    } else if (length(x$measurements)) {
       name <- c("meas", names(x$measurements$data_table)[[1]])
-    } else if(length(x$time_series)) {
+    } else if (length(x$time_series)) {
       name <- "time_series"
     } else {
       name <- "flat"
@@ -806,38 +806,38 @@ plot.ieegio_surface <- function(
   main <- ""
 
   vlim <- vlim[!is.na(vlim)]
-  if(length(vlim) == 1) {
+  if (length(vlim) == 1) {
     vlim <- abs(vlim) * c(-1, 1)
-  } else if(length(vlim)){
+  } else if (length(vlim)) {
     vlim <- range(vlim)
   }
 
   switch(
     name[[1]],
     "colo" = {
-      if(length(x$color)) {
+      if (length(x$color)) {
         rgb <- x$color[, c(1, 2, 3)]
         max_val <- max(rgb, na.rm = TRUE)
-        if(max_val < 1) {
+        if (max_val < 1) {
           max_val <- 1
         } else if (max_val > 1.1) {
           max_val <- 255
         }
-        col <- grDevices::rgb(red = rgb[,1], green = rgb[,2], blue = rgb[,3],
+        col <- grDevices::rgb(red = rgb[, 1], green = rgb[, 2], blue = rgb[, 3],
                               maxColorValue = max_val)
         vert_color <- TRUE
       }
     },
     "anno" = {
       val <- x$annotations$data_table[[cname]]
-      if(length(val)) {
+      if (length(val)) {
         col <- cmap <- structure(
           x$annotations$label_table$Color,
           names = sprintf("%d", x$annotations$label_table$Key)
         )
         col <- cmap[sprintf("%d", val)]
         vert_color <- TRUE
-        if(is.numeric(cname)) {
+        if (is.numeric(cname)) {
           cname <- names(x$annotations$data_table)[[cname]]
         }
         main <- sprintf("Annotation: %s", cname)
@@ -846,12 +846,12 @@ plot.ieegio_surface <- function(
     "meas" = {
 
       val <- x$measurements$data_table[[cname]]
-      if(length(val) && !all(is.na(val))) {
-        if(length(vlim) == 0) {
+      if (length(val) && !all(is.na(val))) {
+        if (length(vlim) == 0) {
           vlim <- range(val, na.rm = TRUE)
         }
         ncols <- length(col)
-        if(ncols < 256) {
+        if (ncols < 256) {
           col <- grDevices::colorRampPalette(col)(256)
           ncols <- 256
         }
@@ -863,24 +863,24 @@ plot.ieegio_surface <- function(
         col <- col[idx]
         vert_color <- TRUE
 
-        if(is.numeric(cname)) {
+        if (is.numeric(cname)) {
           cname <- names(x$measurements$data_table)[[cname]]
         }
         main <- sprintf("Measurement: %s", cname)
       }
     },
     "time" = {
-      if(length(x$time_series)) {
+      if (length(x$time_series)) {
         dm <- dim(x$time_series$value)
-        if(!length(slice_index)) {
+        if (!length(slice_index)) {
           slice_index <- round(seq(1, dm[[2]], length.out = 4))
         }
         slice_index <- unique(slice_index)
-        if(length(vlim) != 2) {
+        if (length(vlim) != 2) {
           vlim <- range(x$time_series$value, na.rm = TRUE)
         }
         ncols <- length(col)
-        if(ncols < 256) {
+        if (ncols < 256) {
           col <- grDevices::colorRampPalette(col)(256)
           ncols <- 256
         }
@@ -899,7 +899,7 @@ plot.ieegio_surface <- function(
     }
   )
 
-  if( vert_color ) {
+  if ( vert_color ) {
     mesh$meshColor <- "vertices"
     mesh$col <- col
   } else {
@@ -908,10 +908,10 @@ plot.ieegio_surface <- function(
   }
 
 
-  if(name[[1]] == "time") {
+  if (name[[1]] == "time") {
     n_slices <- length(slice_index)
 
-    if( package_installed("r3js") ) {
+    if ( package_installed("r3js") ) {
       main <- sprintf("Slice %d", slice_index[[1]])
       r3plot <- helper_r3js_render_mesh(mesh, col = col[1, ])
       r3plot <- r3js::legend3js(r3plot, legend = main, fill = NA)
@@ -953,9 +953,9 @@ plot.ieegio_surface <- function(
       })
     }
   } else {
-    if(identical(method, "auto")) {
+    if (identical(method, "auto")) {
       method <- "r3js"
-      if(!package_installed("r3js") && package_installed("rgl")) {
+      if (!package_installed("r3js") && package_installed("rgl")) {
         method <- "rgl_basic"
       }
     }
@@ -978,11 +978,11 @@ plot.ieegio_surface <- function(
           helper_rgl_call("arrow3d", rg[1, ], rg[c(1, 3, 6)], s = 0.02,
                           type = "line", col = "blue")
           helper_rgl_call("text3d", texts = "Right", x = rg[c(2, 3, 5)],
-                          adj = c(1,1,1))
+                          adj = c(1, 1, 1))
           helper_rgl_call("text3d", texts = "Anterior", x = rg[c(1, 4, 5)],
-                          adj = c(1,1,1))
+                          adj = c(1, 1, 1))
           helper_rgl_call("text3d", texts = "Superior", x = rg[c(1, 3, 6)],
-                          adj = c(1,1,1))
+                          adj = c(1, 1, 1))
           helper_rgl_call("title3d", main = main, cex = 1.2)
         })
       },
@@ -1078,12 +1078,12 @@ plot.ieegio_surface <- function(
 #' @export
 read_surface <- function(file, format = "auto", type = NULL, ...) {
   fname <- basename(file)
-  if(endsWith(tolower(fname), "gii") || endsWith(tolower(fname), "gii.gz") ||
+  if (endsWith(tolower(fname), "gii") || endsWith(tolower(fname), "gii.gz") ||
      tolower(format) %in% c("gii", "gifti", "gii.gz")) {
     # GIfTI
     return(io_read_gii(file))
   }
-  if(!length(type)) {
+  if (!length(type)) {
     # Guess the type
     ext <- tolower(path_ext(fname))
 
@@ -1114,19 +1114,19 @@ write_surface <- function(
   x <- as_ieegio_surface(x)
 
 
-  if(format == "gifti") {
+  if (format == "gifti") {
     re <- io_write_gii(x = x, con = con, ...)
     return(invisible(re))
   }
 
   type <- match.arg(type)
 
-  if( type %in% c("color", "time_series") ) {
+  if ( type %in% c("color", "time_series") ) {
     stop("Saving ", type,
          " data in FreeSurfer format has not been implemented.")
   }
 
-  if(!length(x[[type]])) {
+  if (!length(x[[type]])) {
     nms <- names(x)
     nms <- nms[nms %in% c("geometry", "annotations", "measurements")]
     stop(
@@ -1137,7 +1137,7 @@ write_surface <- function(
     )
   }
 
-  if(x$sparse && type == "measurements") {
+  if (x$sparse && type == "measurements") {
     warning("Saving ", type, " data with sparse index in ",
             "FreeSurfer format is not supported. ",
             "The result might be wrong. ",
@@ -1151,12 +1151,12 @@ write_surface <- function(
       vertices <- t(x$geometry$vertices[1:3, , drop = FALSE])
       faces <- t(x$geometry$faces)
       face_start <- x$geometry$face_start
-      if(length(face_start) == 1 && !is.na(face_start) &&
+      if (length(face_start) == 1 && !is.na(face_start) &&
          is.numeric(face_start) && face_start != 1) {
         faces <- faces - face_start + 1L
       }
       # check if the format ends with STL
-      if(endsWith(tolower(con), ".stl")) {
+      if (endsWith(tolower(con), ".stl")) {
         write_binary_stl(x, con)
       } else {
         # freesurferformats::write.fs.surface(filepath = con, vertex_coords = vertices, faces = faces)
@@ -1165,10 +1165,10 @@ write_surface <- function(
     },
     "measurements" = {
       n_verts <- 0
-      if( x$sparse ) {
+      if ( x$sparse ) {
         start_index <- attr(x$sparse_node_index, "start_index")
         n_verts <- max(x$sparse_node_index)
-        if(length(start_index) == 1 &&
+        if (length(start_index) == 1 &&
            !is.na(start_index) &&
            is.numeric(start_index)) {
           n_verts <- n_verts - start_index + 1
@@ -1177,7 +1177,7 @@ write_surface <- function(
       n_verts <- max(nrow(x$measurements$data_table), n_verts)
 
       meas_data <- x$measurements$data_table[[name]]
-      if(length(meas_data) != n_verts) {
+      if (length(meas_data) != n_verts) {
         stop(sprintf(
           "Number of measurement data points [%d] does not match with the expected number of vertex nodes [%d]",
           length(meas_data), n_verts
@@ -1188,10 +1188,10 @@ write_surface <- function(
     },
     "annotations" = {
       n_verts <- 0
-      if( x$sparse ) {
+      if ( x$sparse ) {
         start_index <- attr(x$sparse_node_index, "start_index")
         n_verts <- max(x$sparse_node_index)
-        if(length(start_index) == 1 &&
+        if (length(start_index) == 1 &&
            !is.na(start_index) &&
            is.numeric(start_index)) {
           n_verts <- n_verts - start_index + 1
@@ -1213,8 +1213,8 @@ write_surface <- function(
 
       color_max <- max(label_table$Red, label_table$Green, label_table$Blue)
       alpha_max <- max(c(label_table$Alpha, 1))
-      if(color_max >= 2) { color_max <- 255 } else { color_max <- 1 }
-      if(alpha_max >= 2) { alpha_max <- 255 } else { alpha_max <- 1 }
+      if (color_max >= 2) { color_max <- 255 } else { color_max <- 1 }
+      if (alpha_max >= 2) { alpha_max <- 255 } else { alpha_max <- 1 }
       colortable <- data.frame(
         struct_name = label_table$Label,
         r = floor(label_table$Red / color_max * 255),

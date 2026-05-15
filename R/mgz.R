@@ -60,7 +60,7 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
     header$internal$c_a <- Pxyz_c[2]
     header$internal$c_s <- Pxyz_c[3]
     D <- diag(delta)
-    Pcrs_c <- c(ndim1/2, ndim2/2, ndim3/2)
+    Pcrs_c <- c(ndim1 / 2, ndim2 / 2, ndim3 / 2)
     Mdc_scaled <- Mdc %*% D
     Pxyz_0 <- Pxyz_c - (Mdc_scaled %*% Pcrs_c)
     M <- matrix(rep(0, 16), nrow = 4)
@@ -78,9 +78,9 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
     header$internal$height <- ndim2
     header$internal$depth <- ndim3
     header$internal$nframes <- nframes
-    x_half_length <- header$internal$width/2 * header$internal$xsize
-    y_half_length <- header$internal$height/2 * header$internal$ysize
-    z_half_length <- header$internal$depth/2 * header$internal$zsize
+    x_half_length <- header$internal$width / 2 * header$internal$xsize
+    y_half_length <- header$internal$height / 2 * header$internal$ysize
+    z_half_length <- header$internal$depth / 2 * header$internal$zsize
     header$internal$xstart <- -x_half_length
     header$internal$xend <- x_half_length
     header$internal$ystart <- -y_half_length
@@ -105,7 +105,7 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 io_read_mgz <- function(file, header_only = FALSE) {
   # DIPSAUS DEBUG START
   # file <- "~/rave_data/raw_dir/AnonSEEG0/rave-imaging/fs/mri/T1.mgz"
-  if( header_only ) {
+  if ( header_only ) {
     header <- impl_read_mgz_header( file )
     data <- NULL
   } else {
@@ -134,7 +134,7 @@ io_read_mgz <- function(file, header_only = FALSE) {
     vox2fsl = vox2fsl
   )
 
-  if(endsWith(tolower(file), "mgz")) {
+  if (endsWith(tolower(file), "mgz")) {
     type <- c("mgz", "mgh")
   } else {
     type <- "mgh"
@@ -153,7 +153,7 @@ io_write_mgz <- function(x, con, ...) {
 #' @rdname imaging-volume
 #' @export
 io_write_mgz.ieegio_volume <- function(x, con, ...) {
-  if(isTRUE(x$header_only)) {
+  if (isTRUE(x$header_only)) {
     stop("`io_write_mgz`: input `x` is header-only. No data is to be written")
   }
   freesurferformats::write.fs.mgh(filepath = con, data = x$data, vox2ras_matrix = x$transforms$vox2ras, ...)
@@ -163,7 +163,7 @@ io_write_mgz.ieegio_volume <- function(x, con, ...) {
 #' @rdname imaging-volume
 #' @export
 io_write_mgz.ieegio_mgh <- function(x, con, ...) {
-  if(isTRUE(x$header_only)) {
+  if (isTRUE(x$header_only)) {
     stop("`io_write_mgz`: input `x` is header-only. No data is to be written")
   }
   freesurferformats::write.fs.mgh(filepath = con, data = x$data, vox2ras_matrix = x$transforms$vox2ras, mr_params = x$header$mr_params, ...)
@@ -173,12 +173,12 @@ io_write_mgz.ieegio_mgh <- function(x, con, ...) {
 #' @rdname imaging-volume
 #' @export
 io_write_mgz.nifti <- function(x, con, ...) {
-  if( oro.nifti::sform_code(x) > 0 ) {
+  if ( oro.nifti::sform_code(x) > 0 ) {
     xform <- oro.nifti::sform(x)
   } else {
     xform <- oro.nifti::qform(x)
   }
-  if(nrow(xform) == 3) {
+  if (nrow(xform) == 3) {
     xform <- rbind(xform, c(0, 0, 0, 1))
   }
   freesurferformats::write.fs.mgh(filepath = con, data = x[drop = FALSE], vox2ras_matrix = xform, ...)
@@ -189,12 +189,12 @@ io_write_mgz.nifti <- function(x, con, ...) {
 #' @export
 io_write_mgz.niftiImage <- function(x, con, ...) {
   header <- RNifti::niftiHeader(x)
-  if(header$sform_code > 0) {
+  if (header$sform_code > 0) {
     xform <- RNifti::xform(image = header, useQuaternionFirst = FALSE)
   } else {
     xform <- RNifti::xform(image = header, useQuaternionFirst = TRUE)
   }
-  if(nrow(xform) == 3) {
+  if (nrow(xform) == 3) {
     xform <- rbind(xform, c(0, 0, 0, 1))
   }
   freesurferformats::write.fs.mgh(filepath = con, data = x[drop = FALSE], vox2ras_matrix = xform, ...)
@@ -218,7 +218,7 @@ io_write_mgz.ants.core.ants_image.ANTsImage <- function(x, con, ...) {
 #' @rdname imaging-volume
 #' @export
 io_write_mgz.array <- function(x, con, vox2ras = NULL, ...) {
-  if(!is.matrix(vox2ras)) {
+  if (!is.matrix(vox2ras)) {
     warning("`io_write_mgz.array`: `vox2ras` is missing, using identity matrix. Please specify voxel-to-RAS transform (4x4 matrix).")
     vox2ras <- diag(1, 4)
   }

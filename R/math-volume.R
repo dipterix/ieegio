@@ -69,14 +69,14 @@ resample_volume_naive <- function(x, new_dim, na_fill = NA) {
   x_shape1[1:3] <- dim1
   x_data <- array(x_data[idx0, ], x_shape1)
 
-  if(!is.na(na_fill)) {
+  if (!is.na(na_fill)) {
     x_data[is.na(x_data)] <- na_fill
   }
 
   re <- as_ieegio_volume.array(x = x_data, vox2ras = vox2ras1)
 
   original_meta <- .subset2(x, "original_meta")
-  if(length(original_meta)) {
+  if (length(original_meta)) {
 
     pixdim <- original_meta$pixdim
     pixdim[2:4] <- re$header$pixdim[2:4]
@@ -124,7 +124,7 @@ resample_volume_ravetools <- function(x, new_dim, na_fill = NA) {
   dim(x_data) <- c(nvox, length(x_data) / nvox)
   x_data <- apply(x_data, 2L, function(slice) {
     re <- slice[x_idx]
-    if(!is.na(na_fill)) {
+    if (!is.na(na_fill)) {
       re[is.na(re)] <- na_fill
     }
     re
@@ -137,7 +137,7 @@ resample_volume_ravetools <- function(x, new_dim, na_fill = NA) {
   re <- as_ieegio_volume.array(x = x_data, vox2ras = vox2ras1)
 
   original_meta <- .subset2(x, "original_meta")
-  if(length(original_meta)) {
+  if (length(original_meta)) {
 
     pixdim <- original_meta$pixdim
     pixdim[2:4] <- re$header$pixdim[2:4]
@@ -244,7 +244,7 @@ resample_volume_ravetools <- function(x, new_dim, na_fill = NA) {
 #' @export
 resample_volume <- function(x, new_dim, na_fill = NA) {
   ravetools <- check_ravetools_flag()
-  if(isFALSE(ravetools) || !is.function(ravetools$resample_3d_volume)) {
+  if (isFALSE(ravetools) || !is.function(ravetools$resample_3d_volume)) {
     re <- resample_volume_naive(x = x, new_dim = new_dim, na_fill = na_fill)
   } else {
     re <- resample_volume_ravetools(x = x, new_dim = new_dim, na_fill = na_fill)
@@ -334,23 +334,23 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
   # reshape = c(20, 20, 20)
   # radius = 0.5
 
-  if(length(ras_position) == 3) {
+  if (length(ras_position) == 3) {
     ras_position <- matrix(ras_position, nrow = 1)
-  } else if(!is.matrix(ras_position)) {
+  } else if (!is.matrix(ras_position)) {
     ras_position <- as.matrix(ras_position)
   }
 
-  if(ncol(ras_position) != 3) {
+  if (ncol(ras_position) != 3) {
     stop("`ras_position` must be a matrix of nx3")
   }
 
   n_contacts <- nrow(ras_position)
-  if(length(radius) < n_contacts) {
+  if (length(radius) < n_contacts) {
     radius <- rep(radius, ceiling(nrow(ras_position) / length(radius)))
   }
   radius <- radius[seq_len(n_contacts)]
 
-  if(length(col) < n_contacts) {
+  if (length(col) < n_contacts) {
     col <- rep(col, ceiling(nrow(ras_position) / length(col)))
   }
   col <- col[seq_len(n_contacts)]
@@ -358,16 +358,16 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
   image <- as_ieegio_volume(image, ...)
   shape <- dim(image)[c(1, 2, 3)]
   vox2ras <- image$transforms$vox2ras
-  if(!isFALSE(reshape)) {
+  if (!isFALSE(reshape)) {
     stopifnot(isTRUE(reshape) || (
       is.numeric(reshape) &&
         length(reshape) %in% c(1, 3) &&
         all(reshape > 0)
     ))
 
-    if(isTRUE(reshape)) {
+    if (isTRUE(reshape)) {
       reshape <- shape * 2
-    } else if(length(reshape) == 1) {
+    } else if (length(reshape) == 1) {
       reshape <- c(reshape, reshape, reshape)
     }
     burn_vox2ras <- resample_vox2ras(vox2ras = vox2ras, old_dim = shape, new_dim = reshape)
@@ -387,17 +387,17 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
   col <- grDevices::adjustcolor(col)
   background <- NA_character_
 
-  if( !alpha ) {
+  if ( !alpha ) {
     col <- grDevices::col2rgb(col, alpha = FALSE)
     col <- grDevices::rgb(col[1, ], col[2, ], col[3, ], maxColorValue = 255)
     background <- "#000000"
   }
 
-  if( blank_underlay ) {
+  if ( blank_underlay ) {
     arr <- array(background, dim = burn_shape)
     arr_dim <- burn_shape
   } else {
-    if(!all(burn_shape == shape)) {
+    if (!all(burn_shape == shape)) {
       # resample_volume shares the same vox2ras so should be safe to use
       arr <- resample_volume(image, new_dim = burn_shape)
       arr_dim <- dim(arr)
@@ -406,11 +406,11 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
       arr_dim <- dim(image)
     }
     arr <- arr[drop = FALSE]
-    if( !inherits(arr, "ieegio_rgba") ) {
+    if ( !inherits(arr, "ieegio_rgba") ) {
       cal_min <- image$header$cal_min
       cal_max <- image$header$cal_max
       arr <- arr[drop = FALSE]
-      if(length(cal_min) != 1 || length(cal_max) != 1 ||
+      if (length(cal_min) != 1 || length(cal_max) != 1 ||
          (cal_min == 0 && cal_max == 0)) {
         rg <- range(arr, na.rm = TRUE)
         cal_min <- rg[[1]]
@@ -421,7 +421,7 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
       arr <- round(arr)
       arr[is.na(arr) | arr < 0] <- 0
       arr[arr > 255] <- 255
-      if( alpha ) {
+      if ( alpha ) {
         pal <- grDevices::gray.colors(256, start = 0, end = 1, alpha = 1)
       } else {
         pal <- grDevices::gray.colors(256, start = 0, end = 1)
@@ -446,11 +446,11 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
   # dist <- sqrt(colSums((vox2scan[1:3, 1:3] %*% search_table)^2))
 
   # burn sphere
-  for(ii in seq_len(n_contacts)) {
+  for (ii in seq_len(n_contacts)) {
     scan_pos <- ras_position[ii, ]
     radius_ii <- radius[[ii]]
 
-    if( isTRUE(radius_ii > 0) && !anyNA(scan_pos) ) {
+    if ( isTRUE(radius_ii > 0) && !anyNA(scan_pos) ) {
 
       # vox_pos is IJK in burning image
       vox_pos <- (burn_ras2vox %*% c(scan_pos, 1))[1:3]
@@ -480,12 +480,12 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
   burnt <- as_ieegio_volume(arr, vox2ras = burn_vox2ras, as_color = TRUE)
 
   preview <- preview[preview %in% seq_len(n_contacts)]
-  if(length(preview)) {
+  if (length(preview)) {
     mfrow <- grDevices::n2mfrow(length(preview))
     oldpar <- graphics::par(mfrow = mfrow, mar = c(0, 0, 0, 0))
     on.exit({ graphics::par(oldpar) })
 
-    if( blank_underlay ) {
+    if ( blank_underlay ) {
       lapply(preview, function(ii) {
         plot(
           image,
