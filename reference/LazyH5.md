@@ -19,7 +19,7 @@ intended for direct-use. Please see
 
 - [`LazyH5$print()`](#method-LazyH5-print)
 
-- [`LazyH5$new()`](#method-LazyH5-new)
+- [`LazyH5$new()`](#method-LazyH5-initialize)
 
 - [`LazyH5$save()`](#method-LazyH5-save)
 
@@ -35,7 +35,7 @@ intended for direct-use. Please see
 
 ------------------------------------------------------------------------
 
-### Method `do_finalize()`
+### `LazyH5$do_finalize()`
 
 garbage collection method
 
@@ -49,7 +49,7 @@ none
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `LazyH5$print()`
 
 overrides print method
 
@@ -63,7 +63,7 @@ self instance
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LazyH5$new()`
 
 constructor
 
@@ -96,7 +96,7 @@ self instance
 
 ------------------------------------------------------------------------
 
-### Method [`save()`](https://rdrr.io/r/base/save.html)
+### `LazyH5$save()`
 
 save data to a 'HDF5' file
 
@@ -157,7 +157,7 @@ save data to a 'HDF5' file
 
 ------------------------------------------------------------------------
 
-### Method [`open()`](https://rdrr.io/r/base/connections.html)
+### `LazyH5$open()`
 
 open connection
 
@@ -181,7 +181,7 @@ open connection
 
 ------------------------------------------------------------------------
 
-### Method [`close()`](https://rdrr.io/r/base/connections.html)
+### `LazyH5$close()`
 
 close connection
 
@@ -199,7 +199,7 @@ close connection
 
 ------------------------------------------------------------------------
 
-### Method [`subset()`](https://rdrr.io/r/base/subset.html)
+### `LazyH5$subset()`
 
 subset data
 
@@ -231,7 +231,7 @@ subset of data
 
 ------------------------------------------------------------------------
 
-### Method `get_dims()`
+### `LazyH5$get_dims()`
 
 get data dimension
 
@@ -251,7 +251,7 @@ dimension of the array
 
 ------------------------------------------------------------------------
 
-### Method `get_type()`
+### `LazyH5$get_type()`
 
 get data type
 

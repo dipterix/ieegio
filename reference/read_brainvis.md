@@ -47,6 +47,7 @@ for class definition.
 ## Examples
 
 ``` r
+
 if( ieegio_sample_data("brainvis.dat", test = TRUE) ) {
   # ensure the header and marker files are downloaded as well
   ieegio_sample_data("brainvis.vhdr")

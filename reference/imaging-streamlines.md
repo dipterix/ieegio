@@ -59,6 +59,7 @@ instance.
 
 ``` r
 
+
 # toy example
 curve <- function(t) {
   x <- sin(4 * t + sample(300, 1) / 100) + t + sample(seq_along(t)) / length(t) / 10

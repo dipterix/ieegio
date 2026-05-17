@@ -65,6 +65,7 @@ for creating surfaces from volumes
 ## Examples
 
 ``` r
+
 library(ieegio)
 
 # geometry

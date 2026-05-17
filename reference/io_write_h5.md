@@ -74,16 +74,17 @@ Absolute path of the file saved
 ## Examples
 
 ``` r
+
 file <- tempfile()
 x <- array(1:120, dim = 2:5)
 
 # save x to file with name /group/dataset/1
 io_write_h5(x, file, '/group/dataset/1', chunk = dim(x))
-#> /tmp/RtmpSrMN9o/file20924f3b7ef0 => /group (Group Created)
-#> /tmp/RtmpSrMN9o/file20924f3b7ef0 => /group/dataset (Group Created)
-#> /tmp/RtmpSrMN9o/file20924f3b7ef0 => 1 (Dataset Created)
-#> /tmp/RtmpSrMN9o/file20924f3b7ef0 => 1 (Dataset Removed)
-#> /tmp/RtmpSrMN9o/file20924f3b7ef0 => 1 (Dataset Created)
+#> /tmp/Rtmp7dbt9G/file1fdb14686eb3 => /group (Group Created)
+#> /tmp/Rtmp7dbt9G/file1fdb14686eb3 => /group/dataset (Group Created)
+#> /tmp/Rtmp7dbt9G/file1fdb14686eb3 => 1 (Dataset Created)
+#> /tmp/Rtmp7dbt9G/file1fdb14686eb3 => 1 (Dataset Removed)
+#> /tmp/Rtmp7dbt9G/file1fdb14686eb3 => 1 (Dataset Created)
 
 # load data
 y <- io_read_h5(file, '/group/dataset/1')

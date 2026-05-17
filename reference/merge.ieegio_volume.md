@@ -44,6 +44,7 @@ Merged volume with dimension `reshape`.
 ## Examples
 
 ``` r
+
 base_array <- array(0, c(15, 15, 15))
 base_array[4:6, 4:6, 4:6] <- runif(27) * 255
 

@@ -133,6 +133,7 @@ or 'Examples'.
 ``` r
 
 
+
 # ---- Simple usage
 # vertices only
 dodecahedron_vert <- matrix(

@@ -114,6 +114,7 @@ writes to the connection and returns nothing
 
 ``` r
 
+
 signal <- sin(seq(0, 10, 0.01))
 
 channels <- list(

@@ -59,6 +59,7 @@ for class definition.
 ## Examples
 
 ``` r
+
 # ---- EDF/BDF(+) ---------------------------------------------------------
 
 # Run `ieegio_sample_data("edfPlusD.edf")` to download sample data

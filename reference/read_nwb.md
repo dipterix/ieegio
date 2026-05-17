@@ -35,6 +35,7 @@ instance
 
 ``` r
 
+
 if(ieegio_sample_data("nwb_sample.nwb", test = TRUE)) {
   file <- ieegio_sample_data("nwb_sample.nwb")
 

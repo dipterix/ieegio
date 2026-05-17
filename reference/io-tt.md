@@ -24,6 +24,7 @@ instance.
 
 ``` r
 
+
 # This example uses sample data, run
 # `ieegio_sample_data("streamlines/CNVII_R.trk")` to download
 

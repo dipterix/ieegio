@@ -48,6 +48,7 @@ for class definition.
 
 ``` r
 
+
 if( ieegio_sample_data("bci2k.dat", test = TRUE) ) {
   file <- ieegio_sample_data("bci2k.dat")
 

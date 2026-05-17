@@ -29,6 +29,7 @@ A new volume with desired shape
 ## Examples
 
 ``` r
+
 # ---- Toy example ----------------------------
 
 dm <- c(6, 6, 6)

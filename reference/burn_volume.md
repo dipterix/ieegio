@@ -76,6 +76,7 @@ Color image that is burnt; see
 ## Examples
 
 ``` r
+
 if(interactive()) {
 
 dim <- c(6, 6, 6)

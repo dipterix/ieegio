@@ -9,7 +9,7 @@ for construction function."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,8 +59,7 @@ for construction function.</p>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-NWBHDF5IO-new"><code>NWBHDF5IO$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-NWBHDF5IO-initialize"><code>NWBHDF5IO$new()</code></a></p></li>
 <li><p><a href="#method-NWBHDF5IO-get_handler"><code>NWBHDF5IO$get_handler()</code></a></p></li>
 <li><p><a href="#method-NWBHDF5IO-open"><code>NWBHDF5IO$open()</code></a></p></li>
 <li><p><a href="#method-NWBHDF5IO-close"><code>NWBHDF5IO$close()</code></a></p></li>
@@ -68,84 +67,73 @@ for construction function.</p>
 <li><p><a href="#method-NWBHDF5IO-read"><code>NWBHDF5IO$read()</code></a></p></li>
 <li><p><a href="#method-NWBHDF5IO-with"><code>NWBHDF5IO$with()</code></a></p></li>
 <li><p><a href="#method-NWBHDF5IO-clone"><code>NWBHDF5IO$clone()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-NWBHDF5IO-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p></p><hr><a id="method-NWBHDF5IO-initialize"></a><div class="section">
+<h3 id="nwbhdf-io-new-"><code>NWBHDF5IO$new()</code><a class="anchor" aria-label="anchor" href="#nwbhdf-io-new-"></a></h3>
 <p>Initialize the class</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/NWBHDF5IO.html">NWBHDF5IO</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>path <span class="op">=</span> <span class="cn">NULL</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r"</span>, <span class="st">"w"</span>, <span class="st">"r+"</span>, <span class="st">"a"</span>, <span class="st">"w-"</span>, <span class="st">"x"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>path</code></dt>
 <dd><p>Path to a <code>'.nwb'</code> file</p></dd>
 
-
-<dt><code>mode</code></dt>
+      <dt><code>mode</code></dt>
 <dd><p>Mode for opening the file</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>Other parameters passed to <code>nwb$NWBHDF5IO</code></p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-NWBHDF5IO-get_handler"></a><div class="section">
-<h3 id="method-get-handler-">Method <code>get_handler()</code><a class="anchor" aria-label="anchor" href="#method-get-handler-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-NWBHDF5IO-get_handler"></a><div class="section">
+<h3 id="nwbhdf-io-get-handler-"><code>NWBHDF5IO$get_handler()</code><a class="anchor" aria-label="anchor" href="#nwbhdf-io-get-handler-"></a></h3>
 <p>Get internal file handler. Please make sure you close the handler
 correctly.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">NWBHDF5IO</span><span class="op">$</span><span class="fu">get_handler</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>File handler, i.e. 'PyNWB' <code>NWBHDF5IO</code> instance.</p>
 </div>
 
-</div><p></p><hr><a id="method-NWBHDF5IO-open"></a><div class="section">
-<h3 id="method-open-">Method <code><a href="https://rdrr.io/r/base/connections.html" class="external-link">open()</a></code><a class="anchor" aria-label="anchor" href="#method-open-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-NWBHDF5IO-open"></a><div class="section">
+<h3 id="nwbhdf-io-open-"><code>NWBHDF5IO$open()</code><a class="anchor" aria-label="anchor" href="#nwbhdf-io-open-"></a></h3>
 <p>Open the connections, must be used together with <code>$close</code> method.
 For high-level method, see <code>$with</code></p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">NWBHDF5IO</span><span class="op">$</span><span class="fu">open</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>container itself</p>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a></h4>
-<p></p><div class="r example copy"><div class="sourceCode"><pre><code>\dontrun{
-
-# low-level method to open NWB file, for safer methods, see
-# `container$with()` below
-
-container$open()
-
-data &lt;- container$read()
-
-# process data...
-
-# Make sure the container is closed!
-container$close()
-
-}
-</code></pre></div><p></p></div>
+<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="co"># low-level method to open NWB file, for safer methods, see</span></span>
+<span><span class="co"># `container$with()` below</span></span>
+<span></span>
+<span><span class="va">container</span><span class="op">$</span><span class="fu">open</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">container</span><span class="op">$</span><span class="fu">read</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># process data...</span></span>
+<span></span>
+<span><span class="co"># Make sure the container is closed!</span></span>
+<span><span class="va">container</span><span class="op">$</span><span class="fu">close</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-NWBHDF5IO-close"></a><div class="section">
-<h3 id="method-close-">Method <code><a href="https://rdrr.io/r/base/connections.html" class="external-link">close()</a></code><a class="anchor" aria-label="anchor" href="#method-close-"></a></h3>
+<p></p><hr><a id="method-NWBHDF5IO-close"></a><div class="section">
+<h3 id="nwbhdf-io-close-"><code>NWBHDF5IO$close()</code><a class="anchor" aria-label="anchor" href="#nwbhdf-io-close-"></a></h3>
 <p>Close the connections (low-level method, see 'with' method below)</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">NWBHDF5IO</span><span class="op">$</span><span class="fu">close</span><span class="op">(</span>close_links <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>close_links</code></dt>
 <dd><p>Whether to close all files linked to from this
@@ -153,14 +141,15 @@ file; default is true</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
 <p>Nothing</p>
 </div>
 
-</div><p></p><hr><a id="method-NWBHDF5IO-close_linked_files"></a><div class="section">
-<h3 id="method-close-linked-files-">Method <code>close_linked_files()</code><a class="anchor" aria-label="anchor" href="#method-close-linked-files-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-NWBHDF5IO-close_linked_files"></a><div class="section">
+<h3 id="nwbhdf-io-close-linked-files-"><code>NWBHDF5IO$close_linked_files()</code><a class="anchor" aria-label="anchor" href="#nwbhdf-io-close-linked-files-"></a></h3>
 <p>Close all opened, linked-to files. <code>'MacOS'</code> and <code>'Linux'</code>
 automatically release the linked-to file after the linking file is
 closed, but <code>'Windows'</code> does not, which prevents the linked-to
@@ -168,76 +157,64 @@ file from being deleted or truncated. Use this method to close all
 opened, linked-to files.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">NWBHDF5IO</span><span class="op">$</span><span class="fu">close_linked_files</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
 <p>Nothing</p>
 </div>
 
-</div><p></p><hr><a id="method-NWBHDF5IO-read"></a><div class="section">
-<h3 id="method-read-">Method <code>read()</code><a class="anchor" aria-label="anchor" href="#method-read-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-NWBHDF5IO-read"></a><div class="section">
+<h3 id="nwbhdf-io-read-"><code>NWBHDF5IO$read()</code><a class="anchor" aria-label="anchor" href="#nwbhdf-io-read-"></a></h3>
 <p>Read the <code>'NWB'</code> file from the 'IO' source. Please use along with
 <code>'$with'</code> method</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">NWBHDF5IO</span><span class="op">$</span><span class="fu">read</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
 <p><code>'NWBFile'</code> container</p>
 </div>
 
-</div><p></p><hr><a id="method-NWBHDF5IO-with"></a><div class="section">
-<h3 id="method-with-">Method <code><a href="https://rdrr.io/r/base/with.html" class="external-link">with()</a></code><a class="anchor" aria-label="anchor" href="#method-with-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-NWBHDF5IO-with"></a><div class="section">
+<h3 id="nwbhdf-io-with-"><code>NWBHDF5IO$with()</code><a class="anchor" aria-label="anchor" href="#nwbhdf-io-with-"></a></h3>
 <p>Safe wrapper for reading and handling <code>'NWB'</code> file. See class examples.</p><div class="section">
 <h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">NWBHDF5IO</span><span class="op">$</span><span class="fu">with</span><span class="op">(</span><span class="va">expr</span>, quoted <span class="op">=</span> <span class="cn">FALSE</span>, envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>expr</code></dt>
 <dd><p>R expression to evaluate</p></dd>
 
-
-<dt><code>quoted</code></dt>
+      <dt><code>quoted</code></dt>
 <dd><p>Whether <code>expr</code> is quoted; default is false</p></dd>
 
-
-<dt><code>envir</code></dt>
+      <dt><code>envir</code></dt>
 <dd><p>environment for <code>expr</code> to evaluate; default is the
 parent frame (see <code>parent.frame</code>)</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
 <p>Whatever results generated by <code>expr</code></p>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="examples-1">Examples<a class="anchor" aria-label="anchor" href="#examples-1"></a></h4>
-<p></p><div class="r example copy"><div class="sourceCode"><pre><code>\dontrun{
-
-container$with({
-  data &lt;- container$read()
-  # process data
-})
-
-}
-</code></pre></div><p></p></div>
+<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="va">container</span><span class="op">$</span><span class="fu">with</span><span class="op">(</span><span class="op">{</span></span>
+<span>  <span class="va">data</span> <span class="op">&lt;-</span> <span class="va">container</span><span class="op">$</span><span class="fu">read</span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="co"># process data</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-NWBHDF5IO-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p></p><hr><a id="method-NWBHDF5IO-clone"></a><div class="section">
+<h3 id="nwbhdf-io-clone-"><code>NWBHDF5IO$clone()</code><a class="anchor" aria-label="anchor" href="#nwbhdf-io-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">NWBHDF5IO</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -247,6 +224,7 @@ container$with({
 </div>
 
 </div>
+
 
     </div>
 
@@ -270,7 +248,7 @@ container$with({
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
-<span class="r-in"><span><span class="co">## Method `NWBHDF5IO$open`</span></span></span>
+<span class="r-in"><span><span class="co">## Method `NWBHDF5IO$open()`</span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
@@ -290,7 +268,7 @@ container$with({
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
-<span class="r-in"><span><span class="co">## Method `NWBHDF5IO$with`</span></span></span>
+<span class="r-in"><span><span class="co">## Method `NWBHDF5IO$with()`</span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>

@@ -80,6 +80,7 @@ A merged surface object
 
 ``` r
 
+
 # Construct example geometry
 dodecahedron_vert <- matrix(
   ncol = 3, byrow = TRUE,

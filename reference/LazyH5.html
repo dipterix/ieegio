@@ -11,7 +11,7 @@ io_write_h5."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,10 +62,9 @@ not intended for direct-use. Please see <code><a href="io_read_h5.html">io_read_
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-LazyH5-do_finalize"><code>LazyH5$do_finalize()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-LazyH5-do_finalize"><code>LazyH5$do_finalize()</code></a></p></li>
 <li><p><a href="#method-LazyH5-print"><code>LazyH5$print()</code></a></p></li>
-<li><p><a href="#method-LazyH5-new"><code>LazyH5$new()</code></a></p></li>
+<li><p><a href="#method-LazyH5-initialize"><code>LazyH5$new()</code></a></p></li>
 <li><p><a href="#method-LazyH5-save"><code>LazyH5$save()</code></a></p></li>
 <li><p><a href="#method-LazyH5-open"><code>LazyH5$open()</code></a></p></li>
 <li><p><a href="#method-LazyH5-close"><code>LazyH5$close()</code></a></p></li>
@@ -73,65 +72,61 @@ not intended for direct-use. Please see <code><a href="io_read_h5.html">io_read_
 <li><p><a href="#method-LazyH5-get_dims"><code>LazyH5$get_dims()</code></a></p></li>
 <li><p><a href="#method-LazyH5-get_type"><code>LazyH5$get_type()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-LazyH5-do_finalize"></a><div class="section">
-<h3 id="method-do-finalize-">Method <code>do_finalize()</code><a class="anchor" aria-label="anchor" href="#method-do-finalize-"></a></h3>
+<h3 id="lazyh-do-finalize-"><code>LazyH5$do_finalize()</code><a class="anchor" aria-label="anchor" href="#lazyh-do-finalize-"></a></h3>
 <p>garbage collection method</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LazyH5</span><span class="op">$</span><span class="fu">do_finalize</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>none</p>
 </div>
 
-</div><p></p><hr><a id="method-LazyH5-print"></a><div class="section">
-<h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-LazyH5-print"></a><div class="section">
+<h3 id="lazyh-print-"><code>LazyH5$print()</code><a class="anchor" aria-label="anchor" href="#lazyh-print-"></a></h3>
 <p>overrides print method</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LazyH5</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>self instance</p>
 </div>
 
-</div><p></p><hr><a id="method-LazyH5-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-LazyH5-initialize"></a><div class="section">
+<h3 id="lazyh-new-"><code>LazyH5$new()</code><a class="anchor" aria-label="anchor" href="#lazyh-new-"></a></h3>
 <p>constructor</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/LazyH5.html">LazyH5</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">file_path</span>, <span class="va">data_name</span>, read_only <span class="op">=</span> <span class="cn">FALSE</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>file_path</code></dt>
 <dd><p>where data is stored in 'HDF5' format</p></dd>
 
-
-<dt><code>data_name</code></dt>
+      <dt><code>data_name</code></dt>
 <dd><p>the data stored in the file</p></dd>
 
-
-<dt><code>read_only</code></dt>
+      <dt><code>read_only</code></dt>
 <dd><p>whether to open the file in read-only mode. It's highly
 recommended to set this to be true, otherwise the file connection is
 exclusive.</p></dd>
 
-
-<dt><code>quiet</code></dt>
+      <dt><code>quiet</code></dt>
 <dd><p>whether to suppress messages, default is false</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
 <p>self instance</p>
 </div>
 
-</div><p></p><hr><a id="method-LazyH5-save"></a><div class="section">
-<h3 id="method-save-">Method <code><a href="https://rdrr.io/r/base/save.html" class="external-link">save()</a></code><a class="anchor" aria-label="anchor" href="#method-save-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-LazyH5-save"></a><div class="section">
+<h3 id="lazyh-save-"><code>LazyH5$save()</code><a class="anchor" aria-label="anchor" href="#lazyh-save-"></a></h3>
 <p>save data to a 'HDF5' file</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LazyH5</span><span class="op">$</span><span class="fu">save</span><span class="op">(</span></span>
@@ -145,85 +140,73 @@ exclusive.</p></dd>
 <span>  size <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>x</code></dt>
 <dd><p>vector, matrix, or array</p></dd>
 
-
-<dt><code>chunk</code></dt>
+      <dt><code>chunk</code></dt>
 <dd><p>chunk size, length should matches with data dimension</p></dd>
 
-
-<dt><code>level</code></dt>
+      <dt><code>level</code></dt>
 <dd><p>compress level, from 1 to 9</p></dd>
 
-
-<dt><code>replace</code></dt>
+      <dt><code>replace</code></dt>
 <dd><p>if the data exists in the file, replace the file or not</p></dd>
 
-
-<dt><code>new_file</code></dt>
+      <dt><code>new_file</code></dt>
 <dd><p>remove the whole file if exists before writing?</p></dd>
 
-
-<dt><code>force</code></dt>
+      <dt><code>force</code></dt>
 <dd><p>if you open the file in read-only mode, then saving
 objects to the file will raise error. Use <code>force=TRUE</code> to force
 write data</p></dd>
 
-
-<dt><code>ctype</code></dt>
+      <dt><code>ctype</code></dt>
 <dd><p>data type, see <code><a href="https://rdrr.io/r/base/mode.html" class="external-link">mode</a></code>, usually the data type
 of <code>x</code>. Try <code>mode(x)</code> or <code>storage.mode(x)</code> as hints.</p></dd>
 
-
-<dt><code>size</code></dt>
+      <dt><code>size</code></dt>
 <dd><p>deprecated, for compatibility issues</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>passed to self <code><a href="https://rdrr.io/r/base/connections.html" class="external-link">open()</a></code> method</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-LazyH5-open"></a><div class="section">
-<h3 id="method-open-">Method <code><a href="https://rdrr.io/r/base/connections.html" class="external-link">open()</a></code><a class="anchor" aria-label="anchor" href="#method-open-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-LazyH5-open"></a><div class="section">
+<h3 id="lazyh-open-"><code>LazyH5$open()</code><a class="anchor" aria-label="anchor" href="#lazyh-open-"></a></h3>
 <p>open connection</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LazyH5</span><span class="op">$</span><span class="fu">open</span><span class="op">(</span>new_dataset <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">robj</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>new_dataset</code></dt>
 <dd><p>only used when the internal pointer is closed, or
 to write the data</p></dd>
 
-
-<dt><code>robj</code></dt>
+      <dt><code>robj</code></dt>
 <dd><p>data array to save</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>passed to <code>createDataSet</code> in <code>hdf5r</code> package</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-LazyH5-close"></a><div class="section">
-<h3 id="method-close-">Method <code><a href="https://rdrr.io/r/base/connections.html" class="external-link">close()</a></code><a class="anchor" aria-label="anchor" href="#method-close-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-LazyH5-close"></a><div class="section">
+<h3 id="lazyh-close-"><code>LazyH5$close()</code><a class="anchor" aria-label="anchor" href="#lazyh-close-"></a></h3>
 <p>close connection</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LazyH5</span><span class="op">$</span><span class="fu">close</span><span class="op">(</span>all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>all</code></dt>
 <dd><p>whether to close all connections associated to the data file.
@@ -234,81 +217,76 @@ will be closed</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-LazyH5-subset"></a><div class="section">
-<h3 id="method-subset-">Method <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code><a class="anchor" aria-label="anchor" href="#method-subset-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-LazyH5-subset"></a><div class="section">
+<h3 id="lazyh-subset-"><code>LazyH5$subset()</code><a class="anchor" aria-label="anchor" href="#lazyh-subset-"></a></h3>
 <p>subset data</p><div class="section">
 <h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LazyH5</span><span class="op">$</span><span class="fu">subset</span><span class="op">(</span><span class="va">...</span>, drop <span class="op">=</span> <span class="cn">FALSE</span>, stream <span class="op">=</span> <span class="cn">FALSE</span>, envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>drop</code></dt>
 <dd><p>whether to apply <code><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></code> the subset</p></dd>
 
-
-<dt><code>stream</code></dt>
+      <dt><code>stream</code></dt>
 <dd><p>whether to read partial data at a time</p></dd>
 
-
-<dt><code>envir</code></dt>
+      <dt><code>envir</code></dt>
 <dd><p>if <code>i,j,...</code> are expressions, where should the
 expression be evaluated</p></dd>
 
-
-<dt><code>i, j, ...</code></dt>
+      <dt><code>i, j, ...</code></dt>
 <dd><p>index along each dimension</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
 <p>subset of data</p>
 </div>
 
-</div><p></p><hr><a id="method-LazyH5-get_dims"></a><div class="section">
-<h3 id="method-get-dims-">Method <code>get_dims()</code><a class="anchor" aria-label="anchor" href="#method-get-dims-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-LazyH5-get_dims"></a><div class="section">
+<h3 id="lazyh-get-dims-"><code>LazyH5$get_dims()</code><a class="anchor" aria-label="anchor" href="#lazyh-get-dims-"></a></h3>
 <p>get data dimension</p><div class="section">
 <h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LazyH5</span><span class="op">$</span><span class="fu">get_dims</span><span class="op">(</span>stay_open <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>stay_open</code></dt>
 <dd><p>whether to leave the connection opened</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
 <p>dimension of the array</p>
 </div>
 
-</div><p></p><hr><a id="method-LazyH5-get_type"></a><div class="section">
-<h3 id="method-get-type-">Method <code>get_type()</code><a class="anchor" aria-label="anchor" href="#method-get-type-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-LazyH5-get_type"></a><div class="section">
+<h3 id="lazyh-get-type-"><code>LazyH5$get_type()</code><a class="anchor" aria-label="anchor" href="#lazyh-get-type-"></a></h3>
 <p>get data type</p><div class="section">
 <h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LazyH5</span><span class="op">$</span><span class="fu">get_type</span><span class="op">(</span>stay_open <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>stay_open</code></dt>
 <dd><p>whether to leave the connection opened</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
 <p>data type, currently only character, integer, raw,
 double, and complex are available, all other types will yield "unknown"</p>
 </div>
 
 </div>
+
 
     </div>
 

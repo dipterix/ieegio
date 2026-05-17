@@ -2,18 +2,6 @@
 
 provides low-level hybrid array loading for 'FST' file; used internally
 
-## Value
-
-none
-
-none
-
-none
-
-vector, dimensions
-
-subset of data
-
 ## Author
 
 Zhengjia Wang
@@ -28,7 +16,7 @@ Zhengjia Wang
 
 - [`LazyFST$save()`](#method-LazyFST-save)
 
-- [`LazyFST$new()`](#method-LazyFST-new)
+- [`LazyFST$new()`](#method-LazyFST-initialize)
 
 - [`LazyFST$get_dims()`](#method-LazyFST-get_dims)
 
@@ -36,7 +24,7 @@ Zhengjia Wang
 
 ------------------------------------------------------------------------
 
-### Method [`open()`](https://rdrr.io/r/base/connections.html)
+### `LazyFST$open()`
 
 to be compatible with
 [`LazyH5`](http://dipterix.org/ieegio/reference/LazyH5.md)
@@ -51,9 +39,13 @@ to be compatible with
 
   ignored
 
+#### Returns
+
+none
+
 ------------------------------------------------------------------------
 
-### Method [`close()`](https://rdrr.io/r/base/connections.html)
+### `LazyFST$close()`
 
 close the connection
 
@@ -71,9 +63,13 @@ close the connection
 
   whether to remove the file when garbage collected
 
+#### Returns
+
+none
+
 ------------------------------------------------------------------------
 
-### Method [`save()`](https://rdrr.io/r/base/save.html)
+### `LazyFST$save()`
 
 to be compatible with
 [`LazyH5`](http://dipterix.org/ieegio/reference/LazyH5.md)
@@ -88,9 +84,13 @@ to be compatible with
 
   ignored
 
+#### Returns
+
+none
+
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LazyFST$new()`
 
 constructor
 
@@ -118,7 +118,7 @@ constructor
 
 ------------------------------------------------------------------------
 
-### Method `get_dims()`
+### `LazyFST$get_dims()`
 
 get data dimension
 
@@ -132,9 +132,13 @@ get data dimension
 
   ignored
 
+#### Returns
+
+vector, dimensions
+
 ------------------------------------------------------------------------
 
-### Method [`subset()`](https://rdrr.io/r/base/subset.html)
+### `LazyFST$subset()`
 
 subset data
 
@@ -152,9 +156,14 @@ subset data
 
   whether to apply [`drop`](https://rdrr.io/r/base/drop.html) the subset
 
+#### Returns
+
+subset of data
+
 ## Examples
 
 ``` r
+
 
 library(ieegio)
 
@@ -176,10 +185,10 @@ range(dat[] - x)
 
 system.time(dat[,1])
 #>    user  system elapsed 
-#>   0.015   0.000   0.015 
+#>   0.013   0.000   0.011 
 
 system.time(dat[1:100,])
 #>    user  system elapsed 
-#>   0.010   0.003   0.006 
+#>   0.010   0.002   0.005 
 
 ```

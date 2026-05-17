@@ -8,6 +8,7 @@ To start, please load `ieegio`. This vignette uses sample data. Please
 feel free to replace the sample path with your own data path.
 
 ``` r
+
 library(ieegio)
 edf_path <- ieegio_sample_data("edfPlusD.edf")
 ```
@@ -17,6 +18,7 @@ a `FileCache` object that stores the signals channel-by-channel for fast
 access:
 
 ``` r
+
 edf <- read_edf(edf_path, verbose = FALSE)
 print(edf)
 #> <ieegio::EBDFCache>
@@ -34,6 +36,7 @@ You can check header, channel table, and annotations via the following
 methods:
 
 ``` r
+
 header <- edf$get_header()
 str(header)
 #> List of 12
@@ -98,6 +101,7 @@ annot
 You can also query a channel by calling the `get_channel` method.
 
 ``` r
+
 # get Channel 1
 channel <- edf$get_channel(1)
 channel
@@ -124,6 +128,7 @@ The `channel` contains the following elements:
 Using such information, it is straightforward to plot the channel data:
 
 ``` r
+
 plot(
   x = channel$time, y = channel$value,
   xlab = "Time", ylab = channel$info$Unit,

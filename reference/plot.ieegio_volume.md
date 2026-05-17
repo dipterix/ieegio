@@ -137,6 +137,7 @@ plot(
 ## Examples
 
 ``` r
+
 library(ieegio)
 
 nifti_file <- "nifti/rnifti_example.nii.gz"

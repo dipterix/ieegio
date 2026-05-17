@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,20 +86,20 @@
 <col width="14%">
 <col width="15%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Name</th>
 <th align="center">Common Extensions</th>
 <th align="center">Read</th>
 <th align="center">Write</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">EDF(+)/BDF(+) (European Data Format)</td>
 <td align="center"><code>*.edf</code></td>
 <td align="center"><code>read_edf</code></td>
 <td align="center"><code>write_edf</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">BrainVision</td>
 <td align="center">
 <code>*.vhdr</code>, <code>*.vmrk</code>, <code>*.eeg</code>, <code>*.dat</code>
@@ -107,13 +107,13 @@
 <td align="center"><code>read_brainvis</code></td>
 <td align="center"></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">BCI2000</td>
 <td align="center"><code>*.dat</code></td>
 <td align="center"><code>read_bci2000</code></td>
 <td align="center"></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">NEV/NSx (BlackRock neural-event/signal)</td>
 <td align="center">
 <code>*.nev</code>, <code>*.ns1</code>, <code>*.ns2</code>, …, <code>*.ns6</code>
@@ -121,13 +121,13 @@
 <td align="center"><code>read_nsx</code></td>
 <td align="center"></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">NWB (Neurodata Without Borders)</td>
 <td align="center"><code>*.nwb</code></td>
 <td align="center"><code>read_nwb</code></td>
 <td align="center">*</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">MEF</td>
 <td align="center"><code>*.mef</code></td>
 <td align="center"></td>
@@ -148,14 +148,14 @@
 <col width="21%">
 <col width="22%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Name</th>
 <th align="center">Common Extensions</th>
 <th align="center">Read</th>
 <th align="center">Write</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">NIfTI (Neuroimaging Informatics Technology Initiative)</td>
 <td align="center"><code>*.nii[.gz]</code></td>
 <td align="center">
@@ -163,7 +163,7 @@
 <td align="center">
 <code>write_volume</code> (<code>io_write_nii</code>)</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">MGH/MGZ (Massachusetts General Hospital format)</td>
 <td align="center">
 <code>*.mgh</code>, <code>*.mgz</code>
@@ -173,7 +173,7 @@
 <td align="center">
 <code>write_volume</code> (<code>io_write_mgz</code>)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">GIfTI (Geometry format under the NIfTI)</td>
 <td align="center"><code>*.gii[.gz]</code></td>
 <td align="center">
@@ -181,7 +181,7 @@
 <td align="center">
 <code>write_surface</code> (<code>io_write_gii</code>)</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">FreeSurfer surface</td>
 <td align="center">e.g. <code>*h.pial</code>, <code>*h.white</code>
 </td>
@@ -189,7 +189,7 @@
 <code>read_surface</code> (<code>io_read_fs(type="geometry")</code>)</td>
 <td align="center"><code>write_surface(format="freesurfer", type="geometry")</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">FreeSurfer node values/weights</td>
 <td align="center">e.g. <code>*h.curv</code>, <code>*h.sulc</code>
 </td>
@@ -197,14 +197,14 @@
 <code>read_surface</code> (<code>io_read_fs(type="measurements")</code>)</td>
 <td align="center"><code>write_surface(format="freesurfer", type="measurements")</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">Surface annotation</td>
 <td align="center"><code>*.annot</code></td>
 <td align="center">
 <code>read_surface</code> (<code>io_read_fs(type="annotations")</code>)</td>
 <td align="center"><code>write_surface(format="freesurfer", type="annotations")</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">
 <code>TRK</code> streamlines</td>
 <td align="center">
@@ -215,7 +215,7 @@
 <td align="center">
 <code>write_streamlines</code> (<code>io_write_trk</code>)</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">
 <code>TCK</code> streamlines</td>
 <td align="center"><code>*.tck</code></td>
@@ -224,7 +224,7 @@
 <td align="center">
 <code>write_streamlines</code> (<code>io_write_tck</code>)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">
 <code>TT</code> (<code>DSI-Studio</code>) streamlines</td>
 <td align="center">
@@ -234,7 +234,7 @@
 <code>read_streamlines</code> (<code>io_read_tt</code>)</td>
 <td align="center"></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">
 <code>VTK</code> poly-data (as streamlines)</td>
 <td align="center">
@@ -252,26 +252,26 @@
 <h2 id="list-3-common-file-formats-used-for-meta-data">List 3: common file formats used for meta data<a class="anchor" aria-label="anchor" href="#list-3-common-file-formats-used-for-meta-data"></a>
 </h2>
 <table class="table">
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Name</th>
 <th align="center">Common Extensions</th>
 <th align="center">Read</th>
 <th align="center">Write</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">Matlab</td>
 <td align="center"><code>*.mat</code></td>
 <td align="center"><code>io_read_mat</code></td>
 <td align="center"><code>io_write_mat</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">HDF5</td>
 <td align="center"><code>*.h5</code></td>
 <td align="center"><code>io_read_h5</code></td>
 <td align="center"><code>io_write_h5</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">YAML</td>
 <td align="center">
 <code>*.yml</code>, <code>*.yaml</code>
@@ -279,19 +279,19 @@
 <td align="center"><code>io_read_yaml</code></td>
 <td align="center"><code>io_write_yaml</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">JSON</td>
 <td align="center"><code>*.json</code></td>
 <td align="center"><code>io_read_json</code></td>
 <td align="center"><code>io_write_json</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">INI</td>
 <td align="center"><code>*.ini</code></td>
 <td align="center"><code>io_read_ini</code></td>
 <td align="center"></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">FST</td>
 <td align="center"><code>*.fst</code></td>
 <td align="center"><code>io_read_fst</code></td>

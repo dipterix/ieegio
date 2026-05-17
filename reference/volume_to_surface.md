@@ -47,6 +47,7 @@ space defined by the volume.
 
 ``` r
 
+
 # toy example; in practice, use tha path to the volume
 volume <- array(0, dim = rep(30, 3))
 volume[11:20, 11:20, 3:28] <- 1

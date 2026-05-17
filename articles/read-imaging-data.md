@@ -11,6 +11,7 @@ To start, please load `ieegio`. This vignette uses sample data which
 requires extra download.
 
 ``` r
+
 library(ieegio)
 
 # volume file
@@ -52,6 +53,7 @@ Each volume data (`NIfTI`, `MGH`, …) contains a `header`, a `data`, and
 a `transforms` list.
 
 ``` r
+
 volume <- read_volume(nifti_file)
 volume
 #> <Image Volume>
@@ -83,19 +85,21 @@ which is a `4x4` matrix mapping the voxels to scanner (usually
 Accessing the image values via `[` operator. For example,
 
 ``` r
+
 volume[128, , ]
 ```
 
 Plotting the anatomical slices:
 
 ``` r
+
 par(mfrow = c(1, 3), mar = c(0, 0, 3.1, 0))
 
 ras_position <- c(-50, -10, 15)
 
 ras_str <- paste(sprintf("%.0f", ras_position), collapse = ",")
 
-for(which in c("coronal", "axial", "sagittal")) {
+for (which in c("coronal", "axial", "sagittal")) {
   plot(x = volume, position = ras_position, crosshair_gap = 10,
        crosshair_lty = 2, zoom = 3, which = which,
        main = sprintf("%s T1RAS=[%s]", which, ras_str))
@@ -109,6 +113,7 @@ for(which in c("coronal", "axial", "sagittal")) {
 Reading surface file using `read_surface` supports multiple data types
 
 ``` r
+
 library(ieegio)
 # geometry
 geometry <- read_surface(geom_file)
@@ -124,6 +129,7 @@ You can merge them to a single object, making an object with multiple
 embedding data-sets:
 
 ``` r
+
 merged <- merge(geometry, measurement, time_series)
 #> Merging geometry attributes, assuming all the surface objects have the same number of vertices.
 print(merged)
@@ -145,6 +151,7 @@ print(merged)
 Plot the surfaces in `3D` viewer, colored by shape measurement
 
 ``` r
+
 # plot the first column in measurements section
 plot(merged, name = list("measurements", 1))
 ```
@@ -152,6 +159,7 @@ plot(merged, name = list("measurements", 1))
 Plot the normalized time-series data
 
 ``` r
+
 ts_demean <- apply(
   merged$time_series$value,
   MARGIN = 1L,
@@ -176,6 +184,7 @@ plot(
 Reading streamlines via universal entry function `read_streamlines`
 
 ``` r
+
 trk <- read_streamlines(trk_file, half_voxel_offset = TRUE)
 tck <- read_streamlines(tck_file)
 tt <- read_streamlines(tt_file)
@@ -184,6 +193,7 @@ tt <- read_streamlines(tt_file)
 To obtain the streamline data
 
 ``` r
+
 message("Total number of streamlines: ", length(trk))
 #> Total number of streamlines: 54
 
@@ -200,6 +210,7 @@ head(trk[[1]]$coords)
 To preview the streamline data
 
 ``` r
+
 pal <- colorRampPalette(c("navy", "grey", "red"))
 plot(trk, col = pal(length(trk)))
 ```
@@ -209,6 +220,7 @@ plot(trk, col = pal(length(trk)))
 To write the streamlines, for example, write `tck` file to `trk` file:
 
 ``` r
+
 # Create a temporary file
 tfile <- tempfile(fileext = ".trk")
 write_streamlines(x = tck, con = tfile)

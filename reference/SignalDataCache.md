@@ -6,25 +6,25 @@ This class is an internal abstract class
 
 ### Public methods
 
-- [`SignalDataCache$get_header()`](#method-FileCache-get_header)
+- [`FileCache$get_header()`](#method-FileCache-get_header)
 
-- [`SignalDataCache$get_annotations()`](#method-FileCache-get_annotations)
+- [`FileCache$get_annotations()`](#method-FileCache-get_annotations)
 
-- [`SignalDataCache$get_channel_table()`](#method-FileCache-get_channel_table)
+- [`FileCache$get_channel_table()`](#method-FileCache-get_channel_table)
 
-- [`SignalDataCache$get_channel()`](#method-FileCache-get_channel)
+- [`FileCache$get_channel()`](#method-FileCache-get_channel)
 
-- [`SignalDataCache$delete()`](#method-FileCache-delete)
+- [`FileCache$delete()`](#method-FileCache-delete)
 
 ------------------------------------------------------------------------
 
-### Method `get_header()`
+### `FileCache$get_header()`
 
 Get header information, often small list object
 
 #### Usage
 
-    SignalDataCache$get_header(...)
+    FileCache$get_header(...)
 
 #### Arguments
 
@@ -34,13 +34,13 @@ Get header information, often small list object
 
 ------------------------------------------------------------------------
 
-### Method `get_annotations()`
+### `FileCache$get_annotations()`
 
 Get annotation information, often a large table
 
 #### Usage
 
-    SignalDataCache$get_annotations(...)
+    FileCache$get_annotations(...)
 
 #### Arguments
 
@@ -50,13 +50,13 @@ Get annotation information, often a large table
 
 ------------------------------------------------------------------------
 
-### Method `get_channel_table()`
+### `FileCache$get_channel_table()`
 
 Get channel table
 
 #### Usage
 
-    SignalDataCache$get_channel_table(...)
+    FileCache$get_channel_table(...)
 
 #### Arguments
 
@@ -66,13 +66,13 @@ Get channel table
 
 ------------------------------------------------------------------------
 
-### Method `get_channel()`
+### `FileCache$get_channel()`
 
 Get channel data
 
 #### Usage
 
-    SignalDataCache$get_channel(x, ...)
+    FileCache$get_channel(x, ...)
 
 #### Arguments
 
@@ -90,13 +90,13 @@ Channel signal with time-stamps inheriting class `'ieegio_get_channel'`
 
 ------------------------------------------------------------------------
 
-### Method `delete()`
+### `FileCache$delete()`
 
 Delete file cache
 
 #### Usage
 
-    SignalDataCache$delete(...)
+    FileCache$delete(...)
 
 #### Arguments
 

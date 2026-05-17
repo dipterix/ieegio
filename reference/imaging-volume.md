@@ -142,6 +142,7 @@ file path to where the file is saved to.
 
 ``` r
 
+
 library(ieegio)
 
 nifti_file <- "brain.demosubject.nii.gz"
