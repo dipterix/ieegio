@@ -142,7 +142,7 @@ ieegio_debug <- function(..., .on = NA) {
 
 
 package_installed <- function(pkg) {
-  return( system.file(package = pkg) != "" )
+  return(system.file(package = pkg) != "")
 }
 
 check_py_flag <- function() {

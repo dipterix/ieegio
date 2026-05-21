@@ -311,7 +311,8 @@ are_transforms_chainable <- function(transform1, transform2, expected_interpreta
   }
 
   if (expected_interpretation != t1_interpretation) {
-    if ( t1_is_affine ) {
+    if (t1_is_affine) {
+
       # switch both interpretation and swap space_from & space_to
       # passive transform from A to B is the active transform from B to A
       t1_interpretation <- expected_interpretation
@@ -327,7 +328,8 @@ are_transforms_chainable <- function(transform1, transform2, expected_interpreta
   }
 
   if (expected_interpretation != t2_interpretation) {
-    if ( t2_is_affine ) {
+    if (t2_is_affine) {
+
       # switch both interpretation and swap space_from & space_to
       # passive transform from A to B is the active transform from B to A
       t2_interpretation <- expected_interpretation
@@ -1073,7 +1075,8 @@ new_transform_chain <- function(..., .list = NULL, interpretation = c("unset", "
     accumulated$interpretation <- interpretation
 
     # Update type: "deformation" if any non-matrix, otherwise "affine"
-    if ( accumulated$type == "affine" && next_transform$type == "affine" ) {
+    if (accumulated$type == "affine" &&
+        next_transform$type == "affine") {
       accumulated$type <- "affine"
     } else {
       accumulated$type <- "deformation"

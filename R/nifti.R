@@ -116,7 +116,8 @@ as_nifti_unit <- function(x, strict = FALSE) {
     }
   } else {
     x <- as.integer(x)
-    if (is.na(x) || ( strict && !isTRUE(x %in% NIFTI_UNITS) )) {
+    if (is.na(x) ||
+        (strict && !isTRUE(x %in% NIFTI_UNITS))) {
       x <- 0L
     }
   }
@@ -429,7 +430,8 @@ as_nifti_intent <- function(x) {
     }
   } else {
     x <- as.integer(x)
-    if (is.na(x) || !isTRUE(x %in% NIFTI_INTENTS) ) {
+    if (is.na(x) ||
+        !isTRUE(x %in% NIFTI_INTENTS)) {
       x <- 0L
     }
   }
@@ -558,12 +560,14 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
       volume <- do.call(oro.nifti::readNIfTI, args)
       shape <- dim(volume@.Data)
 
-      if ( header_only ) {
+      if (header_only) {
         volume@.Data <- array(NA, rep(1, length(shape)))
         data <- NULL
       } else {
         header <- volume
-        data <- quote({ header@.Data })
+        data <- quote({
+          header@.Data
+        })
       }
 
       pixdim <- volume@pixdim[c(2, 3, 4)]
@@ -581,7 +585,7 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
         code = sfcode
       )
 
-      if ( sfcode > 0 ) {
+      if (sfcode > 0) {
         vox2ras <- structure(sform, which_xform = "sform")
       } else {
         vox2ras <- structure(qform, which_xform = "qform")
@@ -633,7 +637,7 @@ io_read_nii <- function(file, method = c("rnifti", "oro", "ants"), header_only =
         code = sfcode
       )
 
-      if ( sfcode > 0 ) {
+      if (sfcode > 0) {
         vox2ras <- structure(sform, which_xform = "sform")
       } else {
         vox2ras <- structure(qform, which_xform = "qform")
@@ -794,7 +798,7 @@ io_write_nii.nifti <- function(x, con, gzipped = NA, ...) {
     gzipped <- TRUE
   }
   if (grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
-    if ( grepl("\\.nii$", con, ignore.case = TRUE) ) {
+    if (grepl("\\.nii$", con, ignore.case = TRUE)) {
       gzipped <- FALSE
     }
     con <- path_ext_remove(con)
@@ -820,17 +824,17 @@ io_write_nii.ieegio_mgh <- function(x, con, ...) {
   data[is.na(data)] <- 0
   rg <- range(data)
   if (all(data - round(data) == 0)) {
-    if ( rg[[1]] >= 0 && rg[[2]] <= 255 ) {
+    if (rg[[1]] >= 0 && rg[[2]] <= 255) {
       # UINT8
       datatype_code <- 2L
       bitpix <- 8L
       storage.mode(data) <- "integer"
-    } else if ( rg[[1]] >= -32768 && rg[[2]] <= 32768 ) {
+    } else if (rg[[1]] >= -32768 && rg[[2]] <= 32768) {
       # INT16
       datatype_code <- 4L
       bitpix <- 16L
       storage.mode(data) <- "integer"
-    } else if ( rg[[1]] >= -2147483648 && rg[[2]] <= 2147483648 ) {
+    } else if (rg[[1]] >= -2147483648 && rg[[2]] <= 2147483648) {
       # INT32
       datatype_code <- 8L
       bitpix <- 32L
@@ -900,7 +904,7 @@ io_write_nii.array <- function(x, con, vox2ras = NULL,
     if (grepl("\\.(nii|nii\\.gz)$", con, ignore.case = TRUE)) {
       con <- path_ext_remove(con)
     }
-    if ( gzipped ) {
+    if (gzipped) {
       con <- sprintf("%s.nii.gz", con)
     } else {
       con <- sprintf("%s.nii", con)

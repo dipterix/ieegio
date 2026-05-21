@@ -387,13 +387,13 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
   col <- grDevices::adjustcolor(col)
   background <- NA_character_
 
-  if ( !alpha ) {
+  if (!alpha) {
     col <- grDevices::col2rgb(col, alpha = FALSE)
     col <- grDevices::rgb(col[1, ], col[2, ], col[3, ], maxColorValue = 255)
     background <- "#000000"
   }
 
-  if ( blank_underlay ) {
+  if (blank_underlay) {
     arr <- array(background, dim = burn_shape)
     arr_dim <- burn_shape
   } else {
@@ -406,7 +406,7 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
       arr_dim <- dim(image)
     }
     arr <- arr[drop = FALSE]
-    if ( !inherits(arr, "ieegio_rgba") ) {
+    if (!inherits(arr, "ieegio_rgba")) {
       cal_min <- image$header$cal_min
       cal_max <- image$header$cal_max
       arr <- arr[drop = FALSE]
@@ -421,7 +421,7 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
       arr <- round(arr)
       arr[is.na(arr) | arr < 0] <- 0
       arr[arr > 255] <- 255
-      if ( alpha ) {
+      if (alpha) {
         pal <- grDevices::gray.colors(256, start = 0, end = 1, alpha = 1)
       } else {
         pal <- grDevices::gray.colors(256, start = 0, end = 1)
@@ -450,7 +450,8 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
     scan_pos <- ras_position[ii, ]
     radius_ii <- radius[[ii]]
 
-    if ( isTRUE(radius_ii > 0) && !anyNA(scan_pos) ) {
+    if (isTRUE(radius_ii > 0) &&
+        !anyNA(scan_pos)) {
 
       # vox_pos is IJK in burning image
       vox_pos <- (burn_ras2vox %*% c(scan_pos, 1))[1:3]
@@ -485,7 +486,8 @@ burn_volume <- function(image, ras_position, col = "red", radius = 1,
     oldpar <- graphics::par(mfrow = mfrow, mar = c(0, 0, 0, 0))
     on.exit({ graphics::par(oldpar) })
 
-    if ( blank_underlay ) {
+    if (blank_underlay) {
+
       lapply(preview, function(ii) {
         plot(
           image,

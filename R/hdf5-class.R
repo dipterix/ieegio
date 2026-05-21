@@ -56,16 +56,14 @@ ensure_hdf5_backend <- local({
       )
     }
 
-    if ( h5py_isnull ) {
-      tryCatch(
-        {
-          message("Trying to use python `h5py` as the HDF5 backend")
-          ensure_py_package("h5py")
-          h5py <<- rpymat$import("h5py")
-        },
-        error = function(e) {
-        }
-      )
+    if (h5py_isnull) {
+      tryCatch({
+        message("Trying to use python `h5py` as the HDF5 backend")
+        ensure_py_package("h5py")
+        h5py <<- rpymat$import("h5py")
+      }, error = function(e) {
+
+      })
     }
 
     h5py
@@ -299,7 +297,7 @@ LazyH5 <- R6::R6Class(
         if (new_dataset || !pointer_valid) {
 
           # check if `file_ptr` is valid
-          if ( !pointer_valid ) {
+          if (!pointer_valid) {
             # if no, create new link
             mode <- ifelse(private$read_only, "r", "a")
 
@@ -489,7 +487,8 @@ LazyH5 <- R6::R6Class(
           if (file.exists(filebase)) {
             unlink(filebase, recursive = TRUE)
           }
-          if ( !missing(robj) ) {
+          if (!missing(robj)) {
+
             # need to create new dataset
             dir.create(dirname(filebase), recursive = TRUE, showWarnings = FALSE)
             dm0 <- dim(robj)
@@ -603,7 +602,7 @@ LazyH5 <- R6::R6Class(
       })
       # dims <- self$get_dims()
 
-      if (inherits(private$data_ptr, "python.builtin.object" )) {
+      if (inherits(private$data_ptr, "python.builtin.object")) {
 
         re <- py_to_r(private$data_ptr[])
         dm <- dim(re)

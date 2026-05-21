@@ -9,7 +9,7 @@ internal_read_nsx <- function(file, extract_path = NULL, header_only = FALSE, ca
   }
   prefix <- file.path(extract_path, "data")
 
-  if ( include_waveform ) {
+  if (include_waveform) {
     exclude_events <- NULL
   } else {
     exclude_events <- "spike"
@@ -22,24 +22,27 @@ internal_read_nsx <- function(file, extract_path = NULL, header_only = FALSE, ca
     tryCatch({
       config <- as.list(io_read_yaml(flag_path))
       use_cache <- FALSE
-      if ( all(config$exclude_events %in% exclude_events) ) {
-        if ( isTRUE(config$header_converted) && isTRUE(config$data_converted) ) {
+      if (all(config$exclude_events %in% exclude_events)) {
+        if (isTRUE(config$header_converted) &&
+            isTRUE(config$data_converted)) {
           use_cache <- TRUE
-        } else if ( header_only && isTRUE(config$header_converted) ) {
+        } else if (header_only &&
+                   isTRUE(config$header_converted)) {
           use_cache <- TRUE
         }
       }
-      if ( use_cache ) {
-        if ( verbose ) {
+      if (use_cache) {
+        if (verbose) {
           cat("Found existing cache. Trying to reuse the cache...\n")
         }
         nsp <- readNSx::get_nsp(prefix)
         return(nsp)
       }
-    }, error = function(e) {})
+    }, error = function(e) {
+    })
   }
 
-  if ( header_only ) {
+  if (header_only) {
     nsp <- readNSx::import_nsp(
       file,
       prefix = prefix,

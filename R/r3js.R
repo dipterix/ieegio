@@ -61,7 +61,7 @@ helper_r3js_render_streamlines <- function(streamlines, col = "grey", r3plot = N
 
   if (is.null(r3plot)) {
     ranges <- sapply(seq_len(n), function(i) {
-      coords <- streamlines[[ i ]]$coords
+      coords <- streamlines[[i]]$coords
       apply(coords, 2, range, na.rm = TRUE)[, 1:3]
     })
 
@@ -88,7 +88,7 @@ helper_r3js_render_streamlines <- function(streamlines, col = "grey", r3plot = N
 
 
   for (i in seq_len(n)) {
-    coords <- streamlines[[ i ]]$coords
+    coords <- streamlines[[i]]$coords
     r3plot <- r3js::lines3js(r3plot, x = coords[, 1], y = coords[, 2], z = coords[, 3], col = col, geometry = FALSE, lwd = 1)
   }
   r3plot

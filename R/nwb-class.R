@@ -107,7 +107,7 @@ NWBHDF5IO <- R6::R6Class(
     #' file; default is true
     #' @return Nothing
     close = function(close_links = TRUE) {
-      if ( close_links ) {
+      if (close_links) {
         close_links <- TRUE
       } else {
         close_links <- FALSE

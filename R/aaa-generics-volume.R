@@ -87,7 +87,7 @@ get_vox2fsl <- function(shape, pixdim, vox2ras) {
   voxToScaledVoxMat <- diag(c(pixdim[1:3], 1))
   isneuro <- det(vox2ras) > 0
 
-  if ( isneuro ) {
+  if (isneuro) {
     flip <- matrix(c(
       -1, 0, 0, (shape[1] - 1) * pixdim[1],
       0, 1, 0, 0,
@@ -400,9 +400,10 @@ read_volume <- function(file, header_only = FALSE,
                         format = c("auto", "nifti", "mgh"), ...) {
   format <- match.arg(format)
 
-  if ( format == "auto" ) {
+  if (format == "auto") {
     fname <- tolower(basename(file))
-    if ( endsWith(fname, "mgh") || endsWith(fname, "mgz") ) {
+    if (endsWith(fname, "mgh") ||
+        endsWith(fname, "mgz")) {
       format <- "mgh"
     } else {
       format <- "nifti"
@@ -584,7 +585,7 @@ plot.ieegio_volume <- function(
   } else {
     is_rgba <- FALSE
     x_data <- .xdata
-    if ( continuous ) {
+    if (continuous) {
       if (length(vlim) == 1) {
         vlim <- c(-1, 1) * abs(vlim)
       } else if (length(vlim) >= 2) {
@@ -628,7 +629,7 @@ plot.ieegio_volume <- function(
   y_axis <- c(-rev(tmp), tmp[-1]) / zoom
 
   # Now get center of the image
-  if ( center_position ) {
+  if (center_position) {
 
     center_ras <- position
 
@@ -719,11 +720,11 @@ plot.ieegio_volume <- function(
     on.exit({ graphics::par(oldpar) })
   }
 
-  if ( is_rgba ) {
+  if (is_rgba) {
     # RGBA raster
     xlim <- range(x_axis, na.rm = TRUE)
     ylim <- range(y_axis, na.rm = TRUE)
-    if ( !add ) {
+    if (!add) {
       plot(
         x = xlim,
         y = ylim,

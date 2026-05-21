@@ -19,31 +19,30 @@ impl_read_bci2000_data <- function(file, extract_path = NULL,
   sig <- digest::digest(file, file = TRUE)
   cache_path <- file_path(extract_path, sprintf("ieegio_bci2000_digest_%s", sig))
 
-  if ( file_exists(cache_path) ) {
-
-    if ( cache_ok ) {
-
-      if ( verbose ) {
+  if (file_exists(cache_path)) {
+    if (cache_ok) {
+      if (verbose) {
         cat("Found existing cache. Trying to reuse the cache...\n")
       }
 
       tryCatch({
-
         re <- filearray::filearray_load(cache_path, mode = "readonly")
 
-        if (isTRUE(re$get_header("ready")) && identical(re$get_header("source_digests"), sig)) {
+        if (isTRUE(re$get_header("ready")) &&
+            identical(re$get_header("source_digests"), sig)) {
           return(re)
         }
 
-      }, error = function(...) {})
+      }, error = function(...) {
+      })
 
-      if ( verbose ) {
+      if (verbose) {
         cat("Existing cache is invalid. Re-generate cache\n")
       }
 
     }
 
-    if ( verbose ) {
+    if (verbose) {
       cat("Removing existing cache...\n")
     }
 
@@ -143,7 +142,7 @@ impl_read_bci2000_data <- function(file, extract_path = NULL,
 read_bci2000 <- function(
     file, extract_path = getOption("ieegio.extract_path", NULL),
     header_only = FALSE, cache_ok = TRUE, verbose = TRUE) {
-  if ( header_only ) {
+  if (header_only) {
     return(impl_read_bci2000_header(file))
   }
 

@@ -2,7 +2,7 @@
 
 # Internals
 rpymat_is_setup <- function() {
-  return( dir.exists(rpymat::env_path()) )
+  return(dir.exists(rpymat::env_path()))
 }
 
 py_capture_output <- function(...) {
@@ -16,7 +16,7 @@ validate_python <- function(verbose = TRUE) {
   check_py_flag()
   verb <- function(expr) {
     if (verbose) {
-      force( expr )
+      force(expr)
     }
   }
   verb(message("Initializing python environment: "))
@@ -56,22 +56,27 @@ validate_python <- function(verbose = TRUE) {
   get_pynwb <- function(force = FALSE, error_if_missing = TRUE) {
     check_py_flag()
     if (!force && inherits(pynwb, "python.builtin.module")) {
-      return( pynwb )
+      return(pynwb)
     }
-    if ( !rpymat_is_setup() ) {
-      if ( error_if_missing ) {
-        stop("Please configure environment first. Run the following command:\n   ieegio::install_pynwb()")
+    if (!rpymat_is_setup()) {
+      if (error_if_missing) {
+        stop(
+          "Please configure environment first. Run the following command:\n   ieegio::install_pynwb()"
+        )
       }
-      return( NULL )
+      return(NULL)
     }
     tryCatch({
       rpymat::ensure_rpymat(verbose = FALSE)
-      m <- rpymat::import("pynwb", convert = FALSE, delay_load = FALSE, as = "pynwb")
+      m <- rpymat::import("pynwb",
+                          convert = FALSE,
+                          delay_load = FALSE,
+                          as = "pynwb")
       class(m) <- c("nwb.proxy", class(m))
       pynwb <<- m
-      return( pynwb )
+      return(pynwb)
     }, error = function(e) {
-      if ( error_if_missing ) {
+      if (error_if_missing) {
         stop(e)
       }
       return(NULL)

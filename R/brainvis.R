@@ -57,7 +57,7 @@ impl_read_brainvis_ini <- function(path, infer_names = FALSE,
   re <- re$as_list()
 
   nms <- names(re)
-  if ( tidy_names ) {
+  if (tidy_names) {
     nms <- stringr::str_replace_all(nms, " ", "")
   }
 
@@ -76,7 +76,8 @@ impl_read_brainvis_ini <- function(path, infer_names = FALSE,
       if (!size) { return(comments) }
 
       data <- data.table::rbindlist(li$data$as_list())
-      if ( infer_names ) {
+      if (infer_names) {
+
         tmp <- paste(comments, collapse = " ")
 
         entry_info <- stringr::str_extract(tmp, "<([^=]+)>=(<[^<>]+>[,; ]+) {0,}")[[1]]
@@ -111,7 +112,7 @@ impl_read_brainvis_ini <- function(path, infer_names = FALSE,
 
             nc <- ncol(values)
 
-            if ( nc < length(value_names) ) {
+            if (nc < length(value_names)) {
               value_names <- value_names[seq_len(nc)]
             } else if (nc > length(value_names)) {
               value_names2 <- sprintf("Unnamed%d", seq_len(nc))
@@ -170,10 +171,8 @@ impl_read_vmrk <- function(file) {
   markers <- data.table::data.table(markers)
 
   for (nm in marker_cnames) {
-    if (
-      all(grepl("^([0-9\\-][0-9]{1,}|[0-9]{1,})$", markers[[nm]]))
-    ) {
-      if ( all(markers[[nm]] <= .Machine$integer.max) ) {
+    if (all(grepl("^([0-9\\-][0-9]{1,}|[0-9]{1,})$", markers[[nm]]))) {
+      if (all(markers[[nm]] <= .Machine$integer.max)) {
         markers[[nm]] <- as.integer(markers[[nm]])
       } else if (all(nchar(markers[[nm]]) < 16)) {
         markers[[nm]] <- as.numeric(markers[[nm]])
@@ -400,31 +399,32 @@ impl_read_brainvis <- function(
 
   cache_path <- file_path(extract_path, sprintf("ieegio_brainvis_digest_%s", sig))
 
-  if ( file_exists(cache_path) ) {
+  if (file_exists(cache_path)) {
 
-    if ( cache_ok ) {
+    if (cache_ok) {
 
-      if ( verbose ) {
+      if (verbose) {
         cat("Found existing cache. Trying to reuse the cache...\n")
       }
 
       tryCatch({
-
         re <- filearray::filearray_load(cache_path, mode = "readonly")
 
-        if (isTRUE(re$get_header("ready")) && identical(re$get_header("source_digests"), sig)) {
+        if (isTRUE(re$get_header("ready")) &&
+            identical(re$get_header("source_digests"), sig)) {
           return(re)
         }
 
-      }, error = function(...) {})
+      }, error = function(...) {
+      })
 
-      if ( verbose ) {
+      if (verbose) {
         cat("Existing cache is invalid. Re-generate cache\n")
       }
 
     }
 
-    if ( verbose ) {
+    if (verbose) {
       cat("Removing existing cache...\n")
     }
 

@@ -178,13 +178,11 @@ io_read_fs <- function(file, type = c("geometry", "annotations", "measurements")
         meas
       })
 
-      if ( is_sparse ) {
+      if (is_sparse) {
         # 1-based
         data_table <- data.table::data.table(V = meas$values)
-        node_index <- list(
-          node_index = meas$vertex_indices,
-          node_index_start = 1L
-        )
+        node_index <- list(node_index = meas$vertex_indices,
+                           node_index_start = 1L)
         meas$header <- list()
       } else {
         data_table <- data.table::data.table(V = meas$data)
@@ -257,7 +255,7 @@ io_write_fs_geometry <- function(con, vertex_coords, faces, transforms = NULL) {
   } else if (is.list(transforms)) {
     if (length(transforms$ScannerAnat) == 16) {
       tkr2ras <- transforms$ScannerAnat
-    } else if ( length(transforms) ) {
+    } else if (length(transforms)) {
       tkr2ras <- transforms[[1]]
     }
   }
@@ -287,7 +285,7 @@ io_write_fs <- function(x, con, type = c("geometry", "annotations", "measurement
 
   type <- match.arg(type)
 
-  if ( type %in% c("color", "time_series") ) {
+  if (type %in% c("color", "time_series")) {
     stop("Saving ", type, " data in FreeSurfer format has not been implemented.")
   }
 
@@ -326,10 +324,11 @@ io_write_fs <- function(x, con, type = c("geometry", "annotations", "measurement
              paste(sQuote(nms), collapse = ", "))
       }
       n_verts <- 0
-      if ( x$sparse ) {
+      if (x$sparse) {
         start_index <- attr(x$sparse_node_index, "start_index")
         n_verts <- max(x$sparse_node_index)
-        if (length(start_index) == 1 && !is.na(start_index) && is.numeric(start_index)) {
+        if (length(start_index) == 1 &&
+            !is.na(start_index) && is.numeric(start_index)) {
           n_verts <- n_verts - start_index + 1
         }
       }

@@ -180,7 +180,7 @@ as_ieegio_streamlines.default <- function(x, vox2ras = NULL, ..., class = NULL) 
 
     if (any(item_headers %in% names(item))) {
       n_streamlines <- length(x)
-    } else if ( is.matrix(item) && ncol(item) %in% c(3, 4) ) {
+    } else if (is.matrix(item) && ncol(item) %in% c(3, 4)) {
       n_streamlines <- length(x)
     } else if (is.list(x$tracks)) {
       if (is.list(x$header)) {
@@ -447,7 +447,7 @@ plot.ieegio_streamlines <- function(x, method = c("basic", "r3js"), col = 2, sam
   n <- length(x$data)
 
   if (length(col) < n) {
-    if ( length(col) == 0 ) {
+    if (length(col) == 0) {
       col <- 2
     }
     col <- rep(col, ceiling(n / length(col)))

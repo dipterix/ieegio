@@ -20,7 +20,9 @@
 print.nwb.proxy <- function(x, max_lines = getOption("rnwb.max_lines", 50), ...) {
 
   max_lines <- as.integer(max_lines)
-  if ( length(max_lines) != 1 || !is.finite(max_lines) || max_lines <= 0 ) {
+  if (length(max_lines) != 1 ||
+      !is.finite(max_lines) ||
+      max_lines <= 0) {
     max_lines <- 50
   }
 
@@ -101,28 +103,30 @@ easy_subset <- function(x, ...) {
       idx_set <- FALSE
       idx <- ...elt(ii)
       if (inherits(idx, "python.builtin.slice")) {
-        idx_call_args[[ ii ]] <- idx
+        idx_call_args[[ii]] <- idx
         idx_set <- TRUE
       } else if (is.null(idx)) {
-        idx_call_args[[ ii ]] <- rpymat::py_slice(NULL)
+        idx_call_args[[ii]] <- rpymat::py_slice(NULL)
         idx_set <- TRUE
       } else if (is.logical(idx)) {
         idx <- which(idx)
       }
       # want to prevent fancy indexing
-      if ( !idx_set && length(idx) == 1 ) {
+      if (!idx_set && length(idx) == 1) {
         idx <- as.integer(idx)
-        idx_call_args[[ ii ]] <- rpymat::py_slice(idx - 1L, idx)
+        idx_call_args[[ii]] <- rpymat::py_slice(idx - 1L, idx)
         idx_set <- TRUE
       }
-      if ( !idx_set ) {
+      if (!idx_set) {
         # check if stride is the same
         stride <- unique(idx[-1] - idx[-length(idx)])
         if (length(stride) == 1) {
-          idx_call_args[[ ii ]] <- rpymat::py_slice(as.integer(idx[[1]] - 1L), as.integer(idx[[length(idx)]]), as.integer(stride))
+          idx_call_args[[ii]] <- rpymat::py_slice(as.integer(idx[[1]] - 1L),
+                                                  as.integer(idx[[length(idx)]]),
+                                                  as.integer(stride))
           idx_set <- TRUE
         } else {
-          idx_call_args[[ ii ]] <- do.call(rpymat::tuple, as.list(as.integer(idx) - 1L))
+          idx_call_args[[ii]] <- do.call(rpymat::tuple, as.list(as.integer(idx) - 1L))
           idx_set <- TRUE
         }
       }
@@ -176,7 +180,7 @@ easy_subset <- function(x, ...) {
 
     }, error = function(e) {
       if (identical(e$message, "argument is missing, with no default")) {
-        idx_call_args[[ ii ]] <<- rpymat::py_slice(NULL)
+        idx_call_args[[ii]] <<- rpymat::py_slice(NULL)
       } else {
         stop(e)
       }
@@ -190,9 +194,9 @@ easy_subset <- function(x, ...) {
 #' @export
 `[.h5py._hl.dataset.Dataset` <- function(x, ..., drop = TRUE, convert = FALSE) {
   re <- easy_subset(x, ...)
-  if ( convert ) {
+  if (convert) {
     re <- rpymat::py_to_r(re)
-    if ( drop ) {
+    if (drop) {
       re <- drop(re)
     }
   }
@@ -210,9 +214,9 @@ easy_subset <- function(x, ...) {
 
   if (identical(data_type, "VectorData")) {
     re <- x$data$dataset[..., drop = drop]
-    if ( convert ) {
+    if (convert) {
       re <- rpymat::py_to_r(re)
-      if ( drop ) {
+      if (drop) {
         re <- drop(re)
       }
     }
@@ -220,9 +224,9 @@ easy_subset <- function(x, ...) {
   }
   if (identical(data_type, "ElementIdentifiers")) {
     re <- x$id$data[..., drop = drop]
-    if ( convert ) {
+    if (convert) {
       re <- rpymat::py_to_r(re)
-      if ( drop ) {
+      if (drop) {
         re <- drop(re)
       }
     }
@@ -246,7 +250,7 @@ easy_subset <- function(x, ...) {
   if (!missing(j) && !is.null(j)) {
     df <- df[, j, drop = drop]
   }
-  if ( !convert ) {
+  if (!convert) {
     df <- rpymat::r_to_py(df)
   }
   return(df)

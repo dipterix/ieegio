@@ -166,7 +166,7 @@ io_read_mat <- function(con, method = c("auto", "R.matlab", "pymatreader", "mat7
       } else {
         args$only_include <- NULL
       }
-      if ( verbose ) {
+      if (verbose) {
         args$verbose <- TRUE
       } else {
         args$verbose <- FALSE
@@ -223,7 +223,7 @@ io_write_mat <- function(x, con, method = c("R.matlab", "scipy"), ...) {
   switch(
     method,
     "R.matlab" = {
-      args <- c( list( con = con ), x )
+      args <- c(list(con = con), x)
 
       do.call(R.matlab::writeMat, args)
     },

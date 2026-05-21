@@ -25,14 +25,14 @@ path_to_nearest_file <- function(filename, start, root = NA, ignore_cases = FALS
   # filename <- "rave"
   # start = "."
 
-  if ( ignore_cases ) {
+  if (ignore_cases) {
     filename <- tolower(filename)
     start <- tolower(start)
   }
 
   if (file_exists(start)) {
     if (fs::is_file(start)) {
-      if ( basename(start) == filename ) {
+      if (basename(start) == filename) {
         # start is a file and is the filename
         return(start)
       }
@@ -40,7 +40,7 @@ path_to_nearest_file <- function(filename, start, root = NA, ignore_cases = FALS
     }
     # now start is a folder
     tmp <- fs::path(start, filename)
-    if ( file_exists(tmp) ) {
+    if (file_exists(tmp)) {
       return(tmp)
     }
     # folder does not have this file
@@ -106,12 +106,12 @@ file_assert <- function(path, dir_ok = FALSE, follow = TRUE) {
   if (length(path) != 1 || is.na(path)) {
     stop("File path must be length of 1 and cannot be N/A")
   }
-  if ( dir_ok ) {
+  if (dir_ok) {
     if (!fs::file_exists(path)) {
       stop("File or directory `", path, "` is missing.")
     }
   } else {
-    if ( !fs::is_file(path, follow = follow) ) {
+    if (!fs::is_file(path, follow = follow)) {
       stop("File `", path, "` is missing.")
     }
   }
@@ -139,8 +139,8 @@ is_absolute_path <- function(path) {
 }
 
 file_delete <- function(path, use_base_r = FALSE, ...) {
-  if ( use_base_r ) {
-    if ( dir_exists(path) ) {
+  if (use_base_r) {
+    if (dir_exists(path)) {
       unlink(x = path, recursive = TRUE, ...)
     } else if (file_exists(path)) {
       unlink(path, recursive = FALSE, ...)

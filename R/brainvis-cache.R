@@ -19,7 +19,8 @@ BrainVisionCache <- R6::R6Class(
   active = list(
     valid = function() {
       arr <- private$.filearray
-      if ( dir_exists(arr$.filebase) && isTRUE(arr$get_header("ready")) ) {
+      if (dir_exists(arr$.filebase) &&
+          isTRUE(arr$get_header("ready"))) {
         return(TRUE)
       }
       FALSE

@@ -1,4 +1,5 @@
-impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
+impl_read_mgz_header <- function(filepath, is_gzipped = "AUTO") {
+
   if (!is.character(filepath)) {
     stop("Parameter 'filepath' msut be a character string.")
   }
@@ -8,7 +9,7 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
     is_gz <- is_gzipped
   } else if (typeof(is_gzipped) == "character") {
     if (toupper(is_gzipped) == "AUTO") {
-      is_gz <- grepl( "mgz$", filepath, ignore.case = TRUE)
+      is_gz <- grepl("mgz$", filepath, ignore.case = TRUE)
     } else {
       stop("Argument 'is_gzipped' must be 'AUTO' if it is a string.\n")
     }
@@ -97,7 +98,7 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
   } else {
     header$internal$slice_direction_name <- "unknown"
   }
-  return( header )
+  return(header)
 }
 
 #' @rdname imaging-volume
@@ -105,8 +106,8 @@ impl_read_mgz_header <- function( filepath, is_gzipped = "AUTO" ) {
 io_read_mgz <- function(file, header_only = FALSE) {
   # DIPSAUS DEBUG START
   # file <- "~/rave_data/raw_dir/AnonSEEG0/rave-imaging/fs/mri/T1.mgz"
-  if ( header_only ) {
-    header <- impl_read_mgz_header( file )
+  if (header_only) {
+    header <- impl_read_mgz_header(file)
     data <- NULL
   } else {
     volume <- freesurferformats::read.fs.mgh(filepath = file, with_header = TRUE)
@@ -173,7 +174,7 @@ io_write_mgz.ieegio_mgh <- function(x, con, ...) {
 #' @rdname imaging-volume
 #' @export
 io_write_mgz.nifti <- function(x, con, ...) {
-  if ( oro.nifti::sform_code(x) > 0 ) {
+  if (oro.nifti::sform_code(x) > 0) {
     xform <- oro.nifti::sform(x)
   } else {
     xform <- oro.nifti::qform(x)
@@ -181,8 +182,12 @@ io_write_mgz.nifti <- function(x, con, ...) {
   if (nrow(xform) == 3) {
     xform <- rbind(xform, c(0, 0, 0, 1))
   }
-  freesurferformats::write.fs.mgh(filepath = con, data = x[drop = FALSE], vox2ras_matrix = xform, ...)
-  normalizePath(con)
+  freesurferformats::write.fs.mgh(filepath = con,
+                                  data = x[drop = FALSE],
+                                  vox2ras_matrix = xform,
+                                  ...)
+  normalizePath(con
+  )
 }
 
 #' @rdname imaging-volume

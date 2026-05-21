@@ -133,7 +133,7 @@ io_write_h5 <- function(x, file, name, chunk = "auto", level = 4, replace = TRUE
     f$close()
     f
   }, error = function(e) {
-    if ( !quiet ) {
+    if (!quiet) {
       cat("Saving failed. Attempt to unlink the file and retry...\n")
     }
     if (file.exists(file)) {
@@ -262,12 +262,14 @@ io_h5_names <- function(file) {
         item <- x[[2]]
       }
 
-      if ( py_isinstance(item, h5backend$Dataset) ) {
+      if (py_isinstance(item, h5backend$Dataset)) {
         return(name)
       }
 
-      if ( py_isinstance(item, group_classes )  ) {
-        re <- rpymat$run_package_function("reticulate", "iterate", item$items(), iter_func, simplify = FALSE)
+      if (py_isinstance(item, group_classes)) {
+        re <- rpymat$run_package_function(
+          "reticulate", "iterate", item$items(), iter_func,
+          simplify = FALSE)
         return(unique(sprintf("%s/%s", name, unlist(re))))
       }
       return(character())

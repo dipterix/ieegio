@@ -179,13 +179,14 @@ io_write_vtk_streamlines <- function(x, con, binary = TRUE) {
   polydata$SetPoints(vtk_points)
   polydata$SetLines(vtk_lines)
 
-  if ( endsWith(tolower(con), "vtp") ) {
+  if (endsWith(tolower(con), "vtp")) {
     writer <- vtk$vtkXMLPolyDataWriter()
-  } else if ( endsWith(tolower(con), "h5") || endsWith(tolower(con), "vtpb") ) {
+  } else if (endsWith(tolower(con), "h5") ||
+             endsWith(tolower(con), "vtpb")) {
     writer <- vtk$vtkHDFWriter()
   } else {
     writer <- vtk$vtkPolyDataWriter()
-    if ( binary ) {
+    if (binary) {
       writer$SetFileTypeToBinary()
     } else {
       writer$SetFileTypeToASCII()

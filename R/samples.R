@@ -44,7 +44,7 @@ ieegio_sample_data <- function(file, test = FALSE, cache_ok = TRUE) {
   }
 
   if (!isTRUE(file %in% file_list)) {
-    if ( test ) {
+    if (test) {
       return(FALSE)
     }
     stop("Sample file not exists: ", sQuote(file), ". Available options are: ", paste(sQuote(file_list), collapse = ", "))
@@ -65,7 +65,7 @@ ieegio_sample_data <- function(file, test = FALSE, cache_ok = TRUE) {
   backup_file <- paste0(sample_file, ".backup")
 
   timeout <- getOption("timeout", 60)
-  if ( timeout < 3600 ) {
+  if (timeout < 3600) {
     options("timeout" = 3600)
     on.exit({
       options("timeout" = timeout)
@@ -73,7 +73,7 @@ ieegio_sample_data <- function(file, test = FALSE, cache_ok = TRUE) {
   }
 
   on.exit({
-    if ( file_exists(backup_file) ) {
+    if (file_exists(backup_file)) {
       if (!file_exists(sample_file)) {
         # download failed
         file_move(backup_file, sample_file)
@@ -83,18 +83,21 @@ ieegio_sample_data <- function(file, test = FALSE, cache_ok = TRUE) {
     }
   }, add = TRUE)
 
-  if ( file_exists(sample_file) ) {
-    if ( cache_ok ) {
+  if (file_exists(sample_file)) {
+    if (cache_ok) {
       return(path_abs(sample_file))
     }
     file_move(sample_file, backup_file)
   }
 
   if (!file_exists(sample_file) || !cache_ok) {
-    url <- sprintf("https://github.com/dipterix/ieegio/raw/main/inst/sample_data/%s", file)
+    url <- sprintf("https://github.com/dipterix/ieegio/raw/main/inst/sample_data/%s",
+                   file)
 
     dir_create(dirname(sample_file))
-    utils::download.file(url = url, destfile = sample_file, cacheOK = cache_ok)
+    utils::download.file(url = url,
+                         destfile = sample_file,
+                         cacheOK = cache_ok)
   }
 
   path_abs(sample_file)

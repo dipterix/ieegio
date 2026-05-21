@@ -22,7 +22,10 @@ new_surface <- function(
   n_vert_values <- NA # if sparse, what's the expected number of node values
 
   validate_n <- function(n) {
-    if ( is.na(n_vert_values) && is.na(n_vertex) ) { return(TRUE) }
+    if (is.na(n_vert_values) &&
+        is.na(n_vertex)) {
+      return(TRUE)
+    }
     if (is.na(n_vert_values)) {
       return(isTRUE(n_vertex == n))
     }
@@ -32,7 +35,7 @@ new_surface <- function(
     isTRUE(n_vert_values == n) || isTRUE(n_vertex == n)
   }
 
-  if ( has_sparse_node_index ) {
+  if (has_sparse_node_index) {
     node_start <- sparse_node_index$node_index_start
     node_index <- as.integer(sparse_node_index$node_index - node_start + 1L)
 
@@ -61,13 +64,15 @@ new_surface <- function(
 
 
 
-  if ( has_color ) {
+  if (has_color) {
     if (validate_n(nrow(color))) {
       re$color <- color
       contains <- c(contains, "color")
     } else {
-      warning("Vertex `color` attribute has inconsistent length with the ",
-              "expected vertex length. The `color` attribute is discarded.")
+      warning(
+        "Vertex `color` attribute has inconsistent length with the ",
+        "expected vertex length. The `color` attribute is discarded."
+      )
     }
   }
 
@@ -77,13 +82,15 @@ new_surface <- function(
     #   data_table = data.table::data.table(),
     #   meta = list()
     # )
-    if (validate_n( nrow(annotations$data_table) )) {
+    if (validate_n(nrow(annotations$data_table))) {
       re$annotations <- annotations
       contains <- c(contains, "annotations")
     } else {
-      warning("Vertex `annotations` attribute has inconsistent length with ",
-              "the expected vertex length. ",
-              "The `annotations` attribute is discarded.")
+      warning(
+        "Vertex `annotations` attribute has inconsistent length with ",
+        "the expected vertex length. ",
+        "The `annotations` attribute is discarded."
+      )
     }
   }
 
@@ -92,13 +99,15 @@ new_surface <- function(
     #   data_table = data.table::data.table(),
     #   meta = list()
     # )
-    if (validate_n( nrow(measurements$data_table) )) {
+    if (validate_n(nrow(measurements$data_table))) {
       re$measurements <- measurements
       contains <- c(contains, "measurements")
     } else {
-      warning("Vertex `measurements` attribute has inconsistent length with ",
-              "the expected vertex length. The `measurements` attribute is ",
-              "discarded.")
+      warning(
+        "Vertex `measurements` attribute has inconsistent length with ",
+        "the expected vertex length. The `measurements` attribute is ",
+        "discarded."
+      )
     }
   }
 
@@ -108,13 +117,15 @@ new_surface <- function(
     #   slice_duration = numeric(0L),
     #   value = NULL
     # )
-    if (validate_n( nrow(time_series$value) )) {
+    if (validate_n(nrow(time_series$value))) {
       re$time_series <- time_series
       contains <- c(contains, "time_series")
     } else {
-      warning("Vertex `time_series` attribute has inconsistent length with ",
-              "the expected vertex length. The `time_series` attribute ",
-              "is discarded.")
+      warning(
+        "Vertex `time_series` attribute has inconsistent length with ",
+        "the expected vertex length. The `time_series` attribute ",
+        "is discarded."
+      )
     }
   }
 
@@ -446,7 +457,7 @@ merge.ieegio_surface <- function(
   n_verts <- ncol(x$geometry$vertices)
 
   # if x is sparse, expand
-  if ( x$sparse ) {
+  if (x$sparse) {
     node_index <- x$sparse_node_index
   } else {
     node_index <- seq_len(n_verts)
@@ -455,7 +466,8 @@ merge.ieegio_surface <- function(
 
 
 
-  if ( merge_type == "geometry" ) {
+  if (merge_type == "geometry") {
+
     # throw all the attributes: they will no longer be valid
     x$annotations <- NULL
     x$measurements <- NULL
@@ -493,7 +505,8 @@ merge.ieegio_surface <- function(
     if (is.na(idx) || !length(transforms)) {
       return(diag(1, 4))
     }
-    if ( idx <= 0 || idx > length(transforms) ) {
+    if (idx <= 0 ||
+        idx > length(transforms)) {
       stop(sprintf("Surface has no transform index %s.", idx))
     }
     transforms[[idx]]
@@ -512,20 +525,22 @@ merge.ieegio_surface <- function(
       # update x data in case y contains geometry
       n_verts <- ncol(x$geometry$vertices)
 
-      y <- additional_surfaces[[ kk ]]
+      y <- additional_surfaces[[kk]]
 
       switch(
         merge_type,
         "geometry" = {
-          if ( is.null(y$geometry) ) { return(x) }
+          if (is.null(y$geometry)) {
+            return(x)
+          }
           y$annotations <- NULL
           y$measurements <- NULL
           y$color <- NULL
           y$time_series <- NULL
           y <- sparse_to_dense_geometry(y)
 
-          if ( merge_space == "world" ) {
-            t_idx <- transform_index[[ kk + 1 ]]
+          if (merge_space == "world") {
+            t_idx <- transform_index[[kk + 1]]
             y_local2world <- get_transform(y, t_idx)
             transform_y2x <- x_world2local %*% y_local2world
 
@@ -543,7 +558,8 @@ merge.ieegio_surface <- function(
         {
           y <- sparse_to_dense_geometry(y)
 
-          if ( !is.null(y$geometry) && n_verts != ncol(y$geometry$vertices) ) {
+          if (!is.null(y$geometry) &&
+              n_verts != ncol(y$geometry$vertices)) {
             stop(
               "You are trying to merge attributes. ",
               "One of the surface object contains geometry that has ",
@@ -553,13 +569,13 @@ merge.ieegio_surface <- function(
           }
 
           # color
-          if ( !is.null(y$color) ) {
+          if (!is.null(y$color)) {
             x$color <- y$color
           }
 
           # annot
           if (length(y$annotations)) {
-            if ( length(x$annotations) ) {
+            if (length(x$annotations)) {
               label_table_x <- x$annotations$label_table[, c("Key", "Label")]
               label_table_y <- y$annotations$label_table[, c("Key", "Label")]
               merged <- merge(
@@ -594,7 +610,7 @@ merge.ieegio_surface <- function(
 
           # measurements
           if (length(y$measurements)) {
-            if ( length(x$measurements) ) {
+            if (length(x$measurements)) {
               x$measurements$data_table <- cbind(
                 x$measurements$data_table,
                 y$measurements$data_table
@@ -899,7 +915,7 @@ plot.ieegio_surface <- function(
     }
   )
 
-  if ( vert_color ) {
+  if (vert_color) {
     mesh$meshColor <- "vertices"
     mesh$col <- col
   } else {
@@ -911,7 +927,8 @@ plot.ieegio_surface <- function(
   if (name[[1]] == "time") {
     n_slices <- length(slice_index)
 
-    if ( package_installed("r3js") ) {
+    if (package_installed("r3js")) {
+
       main <- sprintf("Slice %d", slice_index[[1]])
       r3plot <- helper_r3js_render_mesh(mesh, col = col[1, ])
       r3plot <- r3js::legend3js(r3plot, legend = main, fill = NA)
@@ -1121,7 +1138,8 @@ write_surface <- function(
 
   type <- match.arg(type)
 
-  if ( type %in% c("color", "time_series") ) {
+  if (type %in% c("color", "time_series")) {
+
     stop("Saving ", type,
          " data in FreeSurfer format has not been implemented.")
   }
@@ -1165,7 +1183,7 @@ write_surface <- function(
     },
     "measurements" = {
       n_verts <- 0
-      if ( x$sparse ) {
+      if (x$sparse) {
         start_index <- attr(x$sparse_node_index, "start_index")
         n_verts <- max(x$sparse_node_index)
         if (length(start_index) == 1 &&
@@ -1188,7 +1206,7 @@ write_surface <- function(
     },
     "annotations" = {
       n_verts <- 0
-      if ( x$sparse ) {
+      if (x$sparse) {
         start_index <- attr(x$sparse_node_index, "start_index")
         n_verts <- max(x$sparse_node_index)
         if (length(start_index) == 1 &&

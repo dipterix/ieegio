@@ -340,11 +340,12 @@ io_write_gii.ieegio_surface <- function(
   intents <- c()
   transform_matrix <- list()
 
-  if ( x$sparse ) {
+  if (x$sparse) {
     node_index <- x$sparse_node_index
     node_index_start <- attr(node_index, "start_index")
     if (length(node_index)) {
-      if (length(node_index_start) == 1 && !is.na(node_index_start) && is.numeric(node_index_start)) {
+      if (length(node_index_start) == 1 &&
+          !is.na(node_index_start) && is.numeric(node_index_start)) {
         node_index <- node_index - node_index_start
       } else {
         node_index <- node_index - 1L

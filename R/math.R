@@ -3,7 +3,7 @@ mat_to_quaternion <- function(m, fix_qfac = TRUE) {
   m <- m[1:3, 1:3]
   m <- apply(m, 2, function(x) {
     l2 <- sum(x^2)
-    if ( l2 > 0 ) {
+    if (l2 > 0) {
       x <- x / sqrt(l2)
     }
     x
@@ -13,7 +13,7 @@ mat_to_quaternion <- function(m, fix_qfac = TRUE) {
   # left-handed (det < 0), negate the z-column before extracting the
   # quaternion. qfac = -1 is stored in pixdim[0] by the caller and used
   # during reconstruction to undo the flip (zd *= qfac).
-  if ( fix_qfac && det(m) < 0 ) {
+  if (fix_qfac && det(m) < 0) {
     m[, 3] <- -m[, 3]
   }
 
@@ -31,7 +31,7 @@ mat_to_quaternion <- function(m, fix_qfac = TRUE) {
 
   trace <- m11 + m22 + m33
 
-  if ( trace > 0 ) {
+  if (trace > 0) {
     s <- 0.5 / sqrt(trace + 1)
     w <- 0.25 / s
     x <- (m32 - m23) * s

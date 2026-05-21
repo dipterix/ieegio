@@ -129,7 +129,8 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
   pixdim <- as.double(pixdim)
 
   # Drop frames if necessary
-  if ( nframes == 1 && length(shape) == 4 ) {
+  if (nframes == 1 &&
+      length(shape) == 4) {
     pixdim[[5]] <- 0
     shape <- shape[1:3]
     x <- array(x[seq_len(prod(shape))], dim = shape)
@@ -156,15 +157,15 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
     rg <- range(x)
 
     if (all(x - round(x) == 0)) {
-      if ( rg[[1]] >= 0 && rg[[2]] <= 255 ) {
+      if (rg[[1]] >= 0 && rg[[2]] <= 255) {
         # UINT8
         datatype_code <- 2L
         storage.mode(x) <- "integer"
-      } else if ( rg[[1]] >= -32768 && rg[[2]] <= 32768 ) {
+      } else if (rg[[1]] >= -32768 && rg[[2]] <= 32768) {
         # INT16
         datatype_code <- 4L
         storage.mode(x) <- "integer"
-      } else if ( rg[[1]] >= -2147483648 && rg[[2]] <= 2147483648 ) {
+      } else if (rg[[1]] >= -2147483648 && rg[[2]] <= 2147483648) {
         # INT32
         datatype_code <- 8L
         storage.mode(x) <- "integer"
@@ -260,14 +261,16 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
     vox2fsl = vox2fsl
   )
 
-  if ( use_oro ) {
+  if (use_oro) {
     new_volume(
       type = c("oro", "nifti"),
       header = header,
       meta = meta,
       transforms = transforms,
       shape = shape,
-      data = quote({ header@.Data })
+      data = quote({
+        header@.Data
+      })
     )
   } else {
     new_volume(
@@ -306,7 +309,7 @@ as_ieegio_volume.niftiImage <- function(x, ...) {
     code = sfcode
   )
 
-  if ( sfcode > 0 ) {
+  if (sfcode > 0) {
     vox2ras <- structure(sform, which_xform = "sform")
   } else {
     vox2ras <- structure(qform, which_xform = "qform")

@@ -106,7 +106,7 @@ io_read_tck <- function(file) {
   datatype_text <- header_text[grepl("datatype:", header_text, ignore.case = TRUE)]
   datatype <- trimws(gsub("datatype:", "", datatype_text, ignore.case = TRUE))
 
-  if ( !isTRUE(toupper(datatype) %in% toupper(valid_datatypes) )) {
+  if (!isTRUE(toupper(datatype) %in% toupper(valid_datatypes))) {
     warning("Invalid datatype in TCK file header... Assuming little endian - Float32LE")
     datatype <- "Float32LE"
   } else {

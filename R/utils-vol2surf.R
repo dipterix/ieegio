@@ -81,7 +81,7 @@ volume_to_surface <- function(
   }
 
   # smooth
-  if ( isTRUE( lambda > 0 ) ) {
+  if (isTRUE(lambda > 0)) {
     mesh <- ravetools::vcg_smooth_implicit(
       mesh,
       lambda = lambda,
