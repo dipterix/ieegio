@@ -11,7 +11,13 @@ test_that("mat_to_quaternion", {
     )
   )
   # dput(ravetools::new_quaternion()$set_from_rotation_matrix(m1)[])
-  expect_equal(mat_to_quaternion(m1), c(0, 0, 0, 0.707106781186548),
+  expect_equal(mat_to_quaternion(m1, FALSE), c(0, 0, 0, 0.707106781186548),
+               tolerance = 1e-5, ignore_attr = TRUE)
+
+  # m1 is left-handed (det = -1); NIfTI spec negates z-column before Shepperd's
+  # method, yielding the quaternion for the equivalent proper 90-deg X rotation.
+  # c(x=0.707, y=0, z=0, w=0.707) == 90-deg rotation around X axis
+  expect_equal(mat_to_quaternion(m1), c(0.707106781186548, 0, 0, 0.707106781186548),
                tolerance = 1e-5, ignore_attr = TRUE)
 
   # m11 > m22 && m11 > m33
