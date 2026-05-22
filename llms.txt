@@ -107,6 +107,9 @@ Please see examples with
 - [`as_nifti_header()`](http://dipterix.org/ieegio/reference/as_nifti_header.md)
   : Internal method to extract header information from a 'NIfTI' file
 
+- [`burn_curve()`](http://dipterix.org/ieegio/reference/burn_curve.md) :
+  Burn a curve trajectory into a volume
+
 - [`burn_volume()`](http://dipterix.org/ieegio/reference/burn_volume.md)
   : Burn image at given positions
 
