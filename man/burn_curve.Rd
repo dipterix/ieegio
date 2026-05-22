@@ -75,6 +75,7 @@ volume. The curve is sampled at sub-voxel resolution and voxels within
 }
 \examples{
 
+if (interactive()) {
 
 dm <- c(50, 50, 50)
 image <- as_ieegio_volume(
@@ -104,7 +105,7 @@ burned2 <- burn_curve(
 )
 plot(burned2, zoom = 3, position = c(0, 0, 0), which = "axial")
 
-
+}
 
 
 }
