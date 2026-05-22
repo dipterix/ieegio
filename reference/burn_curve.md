@@ -14,6 +14,7 @@ burn_curve(
   density = 1,
   reshape = FALSE,
   antialias_type = c("reduced", "ignore", "fill", "threshold"),
+  merge = c("mean", "max", "min"),
   n_samples = NULL,
   ...
 )
@@ -78,6 +79,12 @@ burn_curve(
   :   Density is scaled proportionally by the fraction of the voxel
       (8-corner approximation) that lies within `thickness`.
 
+- merge:
+
+  how to combine density values when multiple curve samples illuminate
+  the same voxel. One of `"mean"` (default, average of all contributing
+  samples), `"max"` (maximum value), or `"min"` (minimum value).
+
 - n_samples:
 
   number of points to sample along the curve. Default `NULL` computes
@@ -94,7 +101,8 @@ burn_curve(
 
 A numeric `ieegio_volume` with the same spatial extent as `image` (or
 the reshaped extent). Background voxels contain `0`. When multiple curve
-samples illuminate the same voxel the maximum value wins.
+samples illuminate the same voxel, values are combined according to
+`merge`.
 
 ## Examples
 
