@@ -11,6 +11,7 @@ burn_curve(
   density = 1,
   reshape = FALSE,
   antialias_type = c("reduced", "ignore", "fill", "threshold"),
+  merge = c("mean", "max", "min"),
   n_samples = NULL,
   ...
 )
@@ -55,6 +56,11 @@ of the voxel (8-corner approximation) that lies within
 \code{thickness}.}
 }}
 
+\item{merge}{how to combine density values when multiple curve samples
+illuminate the same voxel. One of \code{"mean"} (default, average of
+all contributing samples), \code{"max"} (maximum value), or
+\code{"min"} (minimum value).}
+
 \item{n_samples}{number of points to sample along the curve. Default
 \code{NULL} computes \code{ceiling(arc_length / min_voxel_size * 3)}
 (3x oversampling), with a minimum of 10.}
@@ -65,8 +71,8 @@ of the voxel (8-corner approximation) that lies within
 \value{
 A numeric \code{ieegio_volume} with the same spatial extent as
 \code{image} (or the reshaped extent). Background voxels contain \code{0}.
-When multiple curve samples illuminate the same voxel the maximum value
-wins.
+When multiple curve samples illuminate the same voxel, values are combined
+according to \code{merge}.
 }
 \description{
 Burn density values along a \verb{Catmull-Rom} spline trajectory into a numeric

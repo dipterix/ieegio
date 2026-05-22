@@ -41,12 +41,16 @@
 #' @param n_samples number of points to sample along the curve. Default
 #'   \code{NULL} computes \code{ceiling(arc_length / min_voxel_size * 3)}
 #'   (3x oversampling), with a minimum of 10.
+#' @param merge how to combine density values when multiple curve samples
+#'   illuminate the same voxel. One of \code{"mean"} (default, average of
+#'   all contributing samples), \code{"max"} (maximum value), or
+#'   \code{"min"} (minimum value).
 #' @param ... passed to \code{\link{as_ieegio_volume}}, useful when
 #'   \code{image} is an array.
 #' @returns A numeric \code{ieegio_volume} with the same spatial extent as
 #'   \code{image} (or the reshaped extent). Background voxels contain \code{0}.
-#'   When multiple curve samples illuminate the same voxel the maximum value
-#'   wins.
+#'   When multiple curve samples illuminate the same voxel, values are combined
+#'   according to \code{merge}.
 #'
 #' @examples
 #'
@@ -87,6 +91,7 @@
 burn_curve <- function(image, curve, thickness = 1, density = 1,
                        reshape = FALSE,
                        antialias_type = c("reduced", "ignore", "fill", "threshold"),
+                       merge = c("mean", "max", "min"),
                        n_samples = NULL, ...) {
 
   # DIPSAUS DEBUG START
@@ -105,6 +110,7 @@ burn_curve <- function(image, curve, thickness = 1, density = 1,
   # n_samples <- NULL
 
   antialias_type <- match.arg(antialias_type)
+  merge          <- match.arg(merge)
 
   # ------------------------------------------------------------------
   # 1.  Coerce curve to ravetools_curve
@@ -185,7 +191,7 @@ burn_curve <- function(image, curve, thickness = 1, density = 1,
   arc_length <- sum(curve$segment_lengths)
 
   if (is.null(n_samples)) {
-    n_samples <- max(10L, ceiling(arc_length / min(burn_voxel_sizes) * 3))
+    n_samples <- max(10L, ceiling(arc_length / min(burn_voxel_sizes) * 5))
   }
   n_samples <- as.integer(n_samples)
 
@@ -223,9 +229,12 @@ burn_curve <- function(image, curve, thickness = 1, density = 1,
   dimnames(corners_ijk_offsets) <- NULL
 
   # ------------------------------------------------------------------
-  # 7.  Initialise output array (all zeros)
+  # 7.  Initialise output array
   # ------------------------------------------------------------------
-  arr <- array(0, dim = burn_shape)
+  arr <- array(if (merge == "min") Inf else 0, dim = burn_shape)
+  if (merge == "mean") {
+    cnt <- array(0L, dim = burn_shape)
+  }
 
   # ------------------------------------------------------------------
   # 8.  Main burn loop over curve samples
@@ -297,9 +306,26 @@ burn_curve <- function(image, curve, thickness = 1, density = 1,
     cands0 <- cands0[, valid, drop = FALSE]
     values <- values[valid]
 
-    # ---- linear indices and max-density update ----
+    # ---- linear indices and merge-density update ----
     burn_idx <- colSums(cands0 * burn_cum_shape[1:3]) + 1L
-    arr[burn_idx] <- pmax(arr[burn_idx], values)
+    if (merge == "mean") {
+      arr[burn_idx] <- arr[burn_idx] + values
+      cnt[burn_idx] <- cnt[burn_idx] + 1L
+    } else if (merge == "max") {
+      arr[burn_idx] <- pmax(arr[burn_idx], values)
+    } else {
+      arr[burn_idx] <- pmin(arr[burn_idx], values)
+    }
+  }
+
+  # ------------------------------------------------------------------
+  # 8b. Post-loop: finalise merge
+  # ------------------------------------------------------------------
+  if (merge == "mean") {
+    burned <- cnt > 0L
+    arr[burned] <- arr[burned] / cnt[burned]
+  } else if (merge == "min") {
+    arr[is.infinite(arr)] <- 0
   }
 
   # ------------------------------------------------------------------
