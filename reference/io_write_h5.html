@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Save objects to 'HDF5' file without trivial checks</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ieegio/blob/main/R/hdf5.R" class="external-link"><code>R/hdf5.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ieegio/blob/v0.1.0/R/hdf5.R" class="external-link"><code>R/hdf5.R</code></a></small>
       <div class="d-none name"><code>io_write_h5.Rd</code></div>
     </div>
 
@@ -121,11 +121,11 @@ please store separately the real and imaginary parts.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># save x to file with name /group/dataset/1</span></span></span>
 <span class="r-in"><span><span class="fu">io_write_h5</span><span class="op">(</span><span class="va">x</span>, <span class="va">file</span>, <span class="st">'/group/dataset/1'</span>, chunk <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmp2t3zsf/file1f8d136780ab =&gt; /group (Group Created)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmp2t3zsf/file1f8d136780ab =&gt; /group/dataset (Group Created)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmp2t3zsf/file1f8d136780ab =&gt; 1 (Dataset Created)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmp2t3zsf/file1f8d136780ab =&gt; 1 (Dataset Removed)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmp2t3zsf/file1f8d136780ab =&gt; 1 (Dataset Created)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/RtmpbaAmLd/file1f8d6a6e0423 =&gt; /group (Group Created)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/RtmpbaAmLd/file1f8d6a6e0423 =&gt; /group/dataset (Group Created)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/RtmpbaAmLd/file1f8d6a6e0423 =&gt; 1 (Dataset Created)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/RtmpbaAmLd/file1f8d6a6e0423 =&gt; 1 (Dataset Removed)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/RtmpbaAmLd/file1f8d6a6e0423 =&gt; 1 (Dataset Created)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># load data</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="io_read_h5.html">io_read_h5</a></span><span class="op">(</span><span class="va">file</span>, <span class="st">'/group/dataset/1'</span><span class="op">)</span></span></span>
