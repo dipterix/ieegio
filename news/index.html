@@ -38,6 +38,17 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.0" id="ieegio-010">ieegio 0.1.0<a class="anchor" aria-label="anchor" href="#ieegio-010"></a></h2>
+<ul><li>Added <code>burn_curve</code> to burn electrode trajectories (e.g. depth/<code>sEEG</code> leads or <code>DBS</code> shafts) into a volume given start and end positions in image native <code>RAS</code> coordinates, with configurable radius and per-segment colors</li>
+<li>Added a <code>merge</code> mode to <code>burn_curve</code> so newly burned trajectories can be composted onto an existing volume instead of overwriting it</li>
+<li>Added a base <code>R</code> graphics <code>plot</code> method for <code>ieegio_surface</code> objects as an alternative to the default <code>r3js</code> rendering, useful for static figures and environments without <code>WebGL</code>
+</li>
+<li>Fixed <code>get_channel</code> so channels can be looked up by label (in addition to index) for <code>BCI2000</code> and <code>BrainVision</code> formats</li>
+<li>Fixed <code>mat_to_quaternion</code> to correctly handle handedness changes, aligning the <code>quaternion</code> sign convention with <code>FreeSurfer</code>
+</li>
+<li>Code style and lint cleanup across the package; rebuilt documentation</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.9" id="ieegio-009">ieegio 0.0.9<a class="anchor" aria-label="anchor" href="#ieegio-009"></a></h2><p class="text-muted">CRAN release: 2026-01-27</p>
 <ul><li>Fixed <code>CRAN</code> check issues</li>
 <li>Added volume and surface related functions as <code>MCP</code> tools (can be loaded via package <code>ravepipeline</code> and <code>ellmer</code>)</li>

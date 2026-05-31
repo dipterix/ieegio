@@ -1,5 +1,22 @@
 # Changelog
 
+## ieegio 0.1.0
+
+- Added `burn_curve` to burn electrode trajectories (e.g. depth/`sEEG`
+  leads or `DBS` shafts) into a volume given start and end positions in
+  image native `RAS` coordinates, with configurable radius and
+  per-segment colors
+- Added a `merge` mode to `burn_curve` so newly burned trajectories can
+  be composted onto an existing volume instead of overwriting it
+- Added a base `R` graphics `plot` method for `ieegio_surface` objects
+  as an alternative to the default `r3js` rendering, useful for static
+  figures and environments without `WebGL`
+- Fixed `get_channel` so channels can be looked up by label (in addition
+  to index) for `BCI2000` and `BrainVision` formats
+- Fixed `mat_to_quaternion` to correctly handle handedness changes,
+  aligning the `quaternion` sign convention with `FreeSurfer`
+- Code style and lint cleanup across the package; rebuilt documentation
+
 ## ieegio 0.0.9
 
 CRAN release: 2026-01-27
