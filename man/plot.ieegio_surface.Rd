@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{ieegio_surface}(
   x,
-  method = c("auto", "r3js", "rgl_basic", "rgl_full"),
+  method = c("auto", "base", "r3js", "rgl_basic", "rgl_full"),
   transform = 1L,
   name = "auto",
   vlim = NULL,

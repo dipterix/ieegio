@@ -649,8 +649,10 @@ merge.ieegio_surface <- function(
 
 #' @title Plot '3D' surface objects
 #' @param x \code{'ieegio_surface'} object, see \code{\link{read_surface}}
-#' @param method plot method; \code{'basic'} for just rendering the surfaces;
-#' \code{'full'} for rendering with axes and title
+#' @param method plot method; \code{'base'} for using base-R to plot (requiring
+#' package \pkg{ravetools}); \code{'r3js'} for rendering a surface viewer using
+#' package \pkg{r3js}; For \pkg{rgl} users, \code{'basic'} for just rendering
+#' the surfaces, \code{'full'} for rendering with axes and title
 #' @param transform which transform to use, can be a 4-by-4 matrix; if
 #' the surface contains transform matrix, then this argument can be
 #' an integer index of the transform embedded, or the target
@@ -691,9 +693,10 @@ merge.ieegio_surface <- function(
 #' # time series
 #' ts_file <- "gifti/GzipBase64/fmri_sujet01_Lwhite_projection.time.gii"
 #'
-#' if(ieegio_sample_data(geom_file, test = TRUE)) {
+#' if (ieegio_sample_data(geom_file, test = TRUE)) {
 #'
 #'   geometry <- read_surface(ieegio_sample_data(geom_file))
+#'   geometry$geometry$transforms[[1]] <- diag(c(1, -1, -1, 1))
 #'   measurement <- read_surface(ieegio_sample_data(shape_file))
 #'   time_series <- read_surface(ieegio_sample_data(ts_file))
 #'   ts_demean <- apply(
@@ -737,11 +740,17 @@ merge.ieegio_surface <- function(
 #'     merged,
 #'     name = "time_series",
 #'     vlim = c(-25, 25),
-#'     slice_index = 64,
+#'     slice_index = seq(1, 128, by = 11),
 #'     col = c("#053061", "#2166ac", "#4393c3",
 #'             "#92c5de", "#d1e5f0", "#ffffff",
 #'             "#fddbc7", "#f4a582", "#d6604d",
-#'             "#b2182b", "#67001f")
+#'             "#b2182b", "#67001f"),
+#'     method = "base",
+#'     eye = c(1000, 0, 0),
+#'     up = c(0, 0, 1),
+#'     side = "front",
+#'     mesh_clipping = 0.3,
+#'     ambient_intensity = 0.7
 #'   )
 #'
 #'
@@ -751,17 +760,17 @@ merge.ieegio_surface <- function(
 #'
 #' @export
 plot.ieegio_surface <- function(
-    x, method = c("auto", "r3js", "rgl_basic", "rgl_full"), transform = 1L,
+    x, method = c("auto", "base", "r3js", "rgl_basic", "rgl_full"), transform = 1L,
     name = "auto", vlim = NULL, col = c("black", "white"),
     slice_index = NULL, ...) {
   method <- match.arg(method)
 
   # DIPSAUS DEBUG START
-  # file <- "/Users/dipterix/rave_data/raw_dir/PAV044/rave-imaging/fs/label/lh.aparc.annot"
-  # annot <- read_surface(file)
-  # file <- "/Users/dipterix/rave_data/raw_dir/PAV044/rave-imaging/fs/surf/lh.pial"
+  # file <- "/Users/dipterix/rave_data/raw_dir/cvsMNI152/rave-imaging/fs/label/lh.aparc.annot"
+  # annot <- as_ieegio_surface(file)
+  # file <- "/Users/dipterix/rave_data/raw_dir/cvsMNI152/rave-imaging/fs/surf/lh.pial"
   # x <- merge(read_surface(file), annot)
-  # method <- "fancy"
+  # method <- "base"
   # transform <- 1
   # vlim <- NULL
   # name <- c("annot", names(annot$annotations$data_table)[[1]])
@@ -927,7 +936,37 @@ plot.ieegio_surface <- function(
   if (name[[1]] == "time") {
     n_slices <- length(slice_index)
 
-    if (package_installed("r3js")) {
+    if (package_installed("ravetools", min_version = "0.2.5.2")) {
+      mfr <- grDevices::n2mfrow(n_slices, asp = 1)
+
+      oldpar <- graphics::par(mfrow = mfr, mar = c(0, 0, 0, 0))
+      on.exit({ graphics::par(oldpar) }, add = TRUE)
+
+      ravetools <- asNamespace("ravetools")
+      plot_mesh_polygon <- ravetools$plot_mesh_polygon
+
+      for (ii in seq_len(n_slices)) {
+
+        plot_range <- plot_mesh_polygon(
+          mesh = mesh,
+          col = col[ii, ],
+          axes = FALSE,
+          xlab = "",
+          ylab = "",
+          add = FALSE,
+          asp = 1,
+          ...
+        )
+
+        graphics::text(
+          x = plot_range$xlim[[1]],
+          y = plot_range$ylim[[2]],
+          labels = sprintf("Slice %d", slice_index[[ii]])
+        )
+
+      }
+
+    } else if (package_installed("r3js")) {
 
       main <- sprintf("Slice %d", slice_index[[1]])
       r3plot <- helper_r3js_render_mesh(mesh, col = col[1, ])
@@ -971,9 +1010,13 @@ plot.ieegio_surface <- function(
     }
   } else {
     if (identical(method, "auto")) {
-      method <- "r3js"
-      if (!package_installed("r3js") && package_installed("rgl")) {
-        method <- "rgl_basic"
+      if (package_installed("ravetools", min_version = "0.2.5.2")) {
+        method <- "base"
+      } else {
+        method <- "r3js"
+        if (!package_installed("r3js") && package_installed("rgl")) {
+          method <- "rgl_basic"
+        }
       }
     }
 
@@ -1007,7 +1050,76 @@ plot.ieegio_surface <- function(
         r3plot <- helper_r3js_render_mesh(mesh, col = col)
         helper_r3js_plot(r3plot, zoom = 3, title = main)
       }, {
-        # TODO: add RAVE and NiiVue 3D viewers
+        # Use plot_mesh_polygon
+        ravetools <- asNamespace("ravetools")
+        plot_mesh_polygon <- ravetools$plot_mesh_polygon
+
+        args <- list(mesh = mesh, col = col, axes = FALSE, add = FALSE, asp = 1, main = "", ...)
+
+        range_3d <- apply(mesh$vb, 1, range, na.rm = TRUE)
+        dist_lr <- range_3d[2, 1] - range_3d[1, 1]
+        dist_ap <- range_3d[2, 2] - range_3d[1, 2]
+        dist_si <- range_3d[2, 3] - range_3d[1, 3]
+
+        graphics::layout(matrix(c(1, 1, 1, 2, 3, 4), nrow = 2, byrow = TRUE),
+                         widths = c(dist_lr, dist_lr, dist_ap),
+                         heights = c(graphics::lcm(1), 1))
+
+        oldpar <- graphics::par("mfrow", mar = c(0.0, 3.1, 0.0, 0.5))
+        on.exit({ graphics::par(oldpar) })
+
+        graphics::plot.new()
+        graphics::plot.window(c(0, 1), c(0, 1))
+        graphics::title(main = main, outer = FALSE, line = -1.5)
+
+        graphics::par(mar = c(3.1, 3.1, 0.5, 0.5))
+
+
+        args$eye <- c(0, 0, 1000)
+        args$up <- c(0, 1, 0)
+        plot_range <- do.call(plot_mesh_polygon, args)
+        graphics::axis(1L, at = plot_range$xlim, labels = c("Left", "Right"))
+        graphics::axis(2L, at = plot_range$ylim, labels = c("Posterior", "Anterior"))
+
+
+        args$eye <- c(0, -1000, 0)
+        args$up <- c(0, 0, 1)
+        args$main <- main
+        plot_range <- do.call(plot_mesh_polygon, args)
+        graphics::axis(1L, at = plot_range$xlim, labels = c("Left", "Right"))
+        graphics::axis(2L, at = plot_range$ylim, labels = c("Inferior", "Superior"))
+
+
+        args$eye <- c(1000, 0, 0)
+        args$up <- c(0, 0, 1)
+        args$main <- ""
+        plot_range <- do.call(plot_mesh_polygon, args)
+        graphics::axis(1L, at = plot_range$xlim, labels = c("Posterior", "Anterior"))
+        graphics::axis(2L, at = plot_range$ylim, labels = c("Inferior", "Superior"))
+
+
+        #
+        # args$eye <- c(0, 0, -1000)
+        # args$up <- c(0, 1, 0)
+        # plot_range <- do.call(plot_mesh_polygon, args)
+        # graphics::axis(1L, at = plot_range$xlim, labels = c("Right", "Left"))
+        # graphics::axis(2L, at = plot_range$ylim, labels = c("Posterior", "Anterior"))
+        #
+        #
+        # args$eye <- c(0, 1000, 0)
+        # args$up <- c(0, 0, 1)
+        # plot_range <- do.call(plot_mesh_polygon, args)
+        # graphics::axis(1L, at = plot_range$xlim, labels = c("Right", "Left"))
+        # graphics::axis(2L, at = plot_range$ylim, labels = c("Inferior", "Superior"))
+        #
+        #
+        # args$eye <- c(-1000, 0, 0)
+        # args$up <- c(0, 0, 1)
+        # plot_range <- do.call(plot_mesh_polygon, args)
+        # graphics::axis(1L, at = plot_range$xlim, labels = c("Anterior", "Posterior"))
+        # graphics::axis(2L, at = plot_range$ylim, labels = c("Inferior", "Superior"))
+
+
       }
     )
   }

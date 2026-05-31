@@ -141,8 +141,15 @@ ieegio_debug <- function(..., .on = NA) {
 }
 
 
-package_installed <- function(pkg) {
-  return(system.file(package = pkg) != "")
+package_installed <- function(pkg, min_version = NA) {
+  installed <- system.file(package = pkg) != ""
+  if (installed && !is.na(min_version)) {
+    current_version <- as.character(utils::packageVersion(pkg))
+    if (utils::compareVersion(current_version, min_version) < 0) {
+      return(FALSE)
+    }
+  }
+  return(installed)
 }
 
 check_py_flag <- function() {
