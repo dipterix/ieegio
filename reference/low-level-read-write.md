@@ -158,7 +158,7 @@ io_write_fst(x, con = f)
 # default reads in proxy
 io_read_fst(f)
 #> <fst file>
-#> 10 rows, 3 columns (file1f503954d101.fst)
+#> 10 rows, 3 columns (file1f8d4132433d.fst)
 #> 
 #>            a          b           c
 #>    <integer>   <double> <character>
@@ -205,7 +205,7 @@ io_read_fst(f, "data_frame")
 # get header
 io_read_fst(f, "header_only")
 #> <fst file>
-#> 10 rows, 3 columns (file1f503954d101.fst)
+#> 10 rows, 3 columns (file1f8d4132433d.fst)
 #> 
 #> * 'a': integer
 #> * 'b': double
