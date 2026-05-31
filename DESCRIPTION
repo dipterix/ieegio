@@ -12,7 +12,7 @@ Authors@R:
 Description: 
     Integrated toolbox supporting common file formats used for intracranial 
     Electroencephalography (iEEG) and deep-brain stimulation (DBS) study.
-URL: http://dipterix.org/ieegio/
+URL: http://dipterix.org/ieegio/, https://github.com/dipterix/ieegio
 BugReports: https://github.com/dipterix/ieegio/issues
 License: MIT + file LICENSE
 Roxygen: list(markdown = TRUE)
