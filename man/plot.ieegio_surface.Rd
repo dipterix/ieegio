@@ -18,8 +18,10 @@
 \arguments{
 \item{x}{\code{'ieegio_surface'} object, see \code{\link{read_surface}}}
 
-\item{method}{plot method; \code{'basic'} for just rendering the surfaces;
-\code{'full'} for rendering with axes and title}
+\item{method}{plot method; \code{'base'} for using base-R to plot (requiring
+package \pkg{ravetools}); \code{'r3js'} for rendering a surface viewer using
+package \pkg{r3js}; For \pkg{rgl} users, \code{'basic'} for just rendering
+the surfaces, \code{'full'} for rendering with axes and title}
 
 \item{transform}{which transform to use, can be a 4-by-4 matrix; if
 the surface contains transform matrix, then this argument can be
@@ -69,9 +71,10 @@ shape_file <- "gifti/GzipBase64/sujet01_Lwhite.shape.gii"
 # time series
 ts_file <- "gifti/GzipBase64/fmri_sujet01_Lwhite_projection.time.gii"
 
-if(ieegio_sample_data(geom_file, test = TRUE)) {
+if (ieegio_sample_data(geom_file, test = TRUE)) {
 
   geometry <- read_surface(ieegio_sample_data(geom_file))
+  geometry$geometry$transforms[[1]] <- diag(c(1, -1, -1, 1))
   measurement <- read_surface(ieegio_sample_data(shape_file))
   time_series <- read_surface(ieegio_sample_data(ts_file))
   ts_demean <- apply(
@@ -115,11 +118,17 @@ if(ieegio_sample_data(geom_file, test = TRUE)) {
     merged,
     name = "time_series",
     vlim = c(-25, 25),
-    slice_index = 64,
+    slice_index = seq(1, 128, by = 11),
     col = c("#053061", "#2166ac", "#4393c3",
             "#92c5de", "#d1e5f0", "#ffffff",
             "#fddbc7", "#f4a582", "#d6604d",
-            "#b2182b", "#67001f")
+            "#b2182b", "#67001f"),
+    method = "base",
+    eye = c(1000, 0, 0),
+    up = c(0, 0, 1),
+    side = "front",
+    mesh_clipping = 0.3,
+    ambient_intensity = 0.7
   )
 
 
