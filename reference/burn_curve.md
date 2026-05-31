@@ -29,10 +29,12 @@ burn_curve(
 
 - curve:
 
-  a `ravetools_curve` object (see `catmull_rom_3d`), or an \\n \times
-  3\\ numeric matrix of key points in 'RAS' world coordinates. If a
-  matrix is supplied, `catmull_rom_3d` is called automatically (requires
-  the ravetools package).
+  a `ravetools_curve` object (see
+  [`catmull_rom_3d`](https://dipterix.org/ravetools/reference/catmull_rom_3d.html)),
+  or an \\n \times 3\\ numeric matrix of key points in 'RAS' world
+  coordinates. If a matrix is supplied,
+  [`catmull_rom_3d`](https://dipterix.org/ravetools/reference/catmull_rom_3d.html)
+  is called automatically (requires the ravetools package).
 
 - thickness:
 

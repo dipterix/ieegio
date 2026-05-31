@@ -8,7 +8,7 @@ Plot '3D' surface objects
 # S3 method for class 'ieegio_surface'
 plot(
   x,
-  method = c("auto", "r3js", "rgl_basic", "rgl_full"),
+  method = c("auto", "base", "r3js", "rgl_basic", "rgl_full"),
   transform = 1L,
   name = "auto",
   vlim = NULL,

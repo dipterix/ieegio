@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/dipterix/ieegio/blob/main/DESCRIPTION)
 
 Wang Z (2026). *ieegio: File IO for Intracranial
-Electroencephalography*. R package version 0.0.9.5,
+Electroencephalography*. R package version 0.0.9.6,
 <http://dipterix.org/ieegio/>.
 
     @Manual{,
       title = {ieegio: File IO for Intracranial Electroencephalography},
       author = {Zhengjia Wang},
       year = {2026},
-      note = {R package version 0.0.9.5},
+      note = {R package version 0.0.9.6},
       url = {http://dipterix.org/ieegio/},
     }

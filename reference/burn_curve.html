@@ -11,7 +11,7 @@ thickness of the trajectory are assigned density values."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,9 +74,9 @@ volume. The curve is sampled at sub-voxel resolution and voxels within
 
 <dt id="arg-curve">curve<a class="anchor" aria-label="anchor" href="#arg-curve"></a></dt>
 <dd><p>a <code>ravetools_curve</code> object (see
-<code>catmull_rom_3d</code>), or an \(n \times 3\) numeric matrix
+<code><a href="https://dipterix.org/ravetools/reference/catmull_rom_3d.html" class="external-link">catmull_rom_3d</a></code>), or an \(n \times 3\) numeric matrix
 of key points in 'RAS' world coordinates. If a matrix is supplied,
-<code>catmull_rom_3d</code> is called automatically (requires
+<code><a href="https://dipterix.org/ravetools/reference/catmull_rom_3d.html" class="external-link">catmull_rom_3d</a></code> is called automatically (requires
 the <span class="pkg">ravetools</span> package).</p></dd>
 
 
@@ -166,7 +166,7 @@ according to <code>merge</code>.</p>
 <span class="r-in"><span><span class="co"># Three-point trajectory (Catmull-Rom from matrix)</span></span></span>
 <span class="r-in"><span><span class="va">key_pts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">50</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">10</span>, <span class="fl">0</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">curve</span> <span class="op">&lt;-</span> <span class="fu">ravetools</span><span class="fu">::</span><span class="fu">catmull_rom_3d</span><span class="op">(</span><span class="va">key_pts</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">curve</span> <span class="op">&lt;-</span> <span class="fu">ravetools</span><span class="fu">::</span><span class="fu"><a href="https://dipterix.org/ravetools/reference/catmull_rom_3d.html" class="external-link">catmull_rom_3d</a></span><span class="op">(</span><span class="va">key_pts</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">curve</span>, use_rgl <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
