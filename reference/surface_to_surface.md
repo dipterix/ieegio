@@ -108,5 +108,8 @@ range(surf_stretch$geometry$vertices - stretch_verts)
 
 
 }
+
+
+
 #> [1] 0 0
 ```

@@ -156,6 +156,8 @@ Plot the surfaces in `3D` viewer, colored by shape measurement
 plot(merged, name = list("measurements", 1))
 ```
 
+![](read-imaging-data_files/figure-html/plot_surface-1.png)
+
 Plot the normalized time-series data
 
 ``` r
@@ -178,6 +180,8 @@ plot(
   )
 )
 ```
+
+![](read-imaging-data_files/figure-html/time_series-1.png)
 
 ## Streamline files
 

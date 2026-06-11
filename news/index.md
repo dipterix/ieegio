@@ -2,6 +2,8 @@
 
 ## ieegio 0.1.0
 
+CRAN release: 2026-05-31
+
 - Added `burn_curve` to burn electrode trajectories (e.g. depth/`sEEG`
   leads or `DBS` shafts) into a volume given start and end positions in
   image native `RAS` coordinates, with configurable radius and

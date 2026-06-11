@@ -12,12 +12,17 @@
 <url><loc>http://dipterix.org/ieegio/reference/LazyH5.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/NWBHDF5IO.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/SignalDataCache.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/as_ieegio_colormap.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/as_ieegio_colortable.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/as_ieegio_lookup.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/as_ieegio_surface.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/as_ieegio_transform.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/as_ieegio_volume.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/as_nifti_header.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/burn_curve.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/burn_volume.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/calculate_color.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/colorspace_from_rgb.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/convert-fst.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/ieegio_sample_data.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/imaging-streamlines.html</loc></url>
@@ -39,9 +44,11 @@
 <url><loc>http://dipterix.org/ieegio/reference/new_space.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/plot.ieegio_surface.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/plot.ieegio_volume.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/plot_ieegio_colormap.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/pynwb_module.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/read_bci2000.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/read_brainvis.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/read_colormap.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/read_edf.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/read_nsx.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/read_nwb.html</loc></url>
@@ -50,6 +57,7 @@
 <url><loc>http://dipterix.org/ieegio/reference/transform_flirt2ras.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/transform_orientation.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/volume_to_surface.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/write_colormap.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/write_edf.html</loc></url>
 </urlset>
 

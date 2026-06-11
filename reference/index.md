@@ -15,6 +15,17 @@
 - [`SignalDataCache`](http://dipterix.org/ieegio/reference/SignalDataCache.md)
   : Class definition for signal cache
 
+- [`as_ieegio_colormap()`](http://dipterix.org/ieegio/reference/as_ieegio_colormap.md)
+  :
+
+  Convert to `ieegio_colormap`
+
+- [`as_ieegio_colortable()`](http://dipterix.org/ieegio/reference/as_ieegio_colortable.md)
+  : Convert to ieegio color table
+
+- [`as_ieegio_lookup()`](http://dipterix.org/ieegio/reference/as_ieegio_lookup.md)
+  : Convert to ieegio lookup table
+
 - [`as_ieegio_surface()`](http://dipterix.org/ieegio/reference/as_ieegio_surface.md)
   :
 
@@ -36,6 +47,13 @@
 
 - [`burn_volume()`](http://dipterix.org/ieegio/reference/burn_volume.md)
   : Burn image at given positions
+
+- [`calculate_color()`](http://dipterix.org/ieegio/reference/calculate_color.md)
+  : Map data values or atlas keys to hex colors
+
+- [`colorspace_from_rgb()`](http://dipterix.org/ieegio/reference/colorspace_from_rgb.md)
+  [`colorspace_to_rgb()`](http://dipterix.org/ieegio/reference/colorspace_from_rgb.md)
+  : Color space conversion helpers
 
 - [`convert_fst_to_hdf5()`](http://dipterix.org/ieegio/reference/convert-fst.md)
   [`convert_fst_to_csv()`](http://dipterix.org/ieegio/reference/convert-fst.md)
@@ -134,6 +152,10 @@
 - [`plot(`*`<ieegio_volume>`*`)`](http://dipterix.org/ieegio/reference/plot.ieegio_volume.md)
   : Plot '3D' volume in anatomical slices
 
+- [`plot(`*`<ieegio_colormap_continuous>`*`)`](http://dipterix.org/ieegio/reference/plot_ieegio_colormap.md)
+  [`plot(`*`<ieegio_colormap_discrete>`*`)`](http://dipterix.org/ieegio/reference/plot_ieegio_colormap.md)
+  : Plot a color map legend
+
 - [`install_pynwb()`](http://dipterix.org/ieegio/reference/pynwb_module.md)
   [`pynwb_module()`](http://dipterix.org/ieegio/reference/pynwb_module.md)
   :
@@ -145,6 +167,9 @@
 
 - [`read_brainvis()`](http://dipterix.org/ieegio/reference/read_brainvis.md)
   : Read 'BrainVision' data
+
+- [`read_colormap()`](http://dipterix.org/ieegio/reference/read_colormap.md)
+  : Read a color map file
 
 - [`read_edf()`](http://dipterix.org/ieegio/reference/read_edf.md) :
   Read 'EDF' or 'BDF' data file
@@ -169,6 +194,9 @@
 
 - [`volume_to_surface()`](http://dipterix.org/ieegio/reference/volume_to_surface.md)
   : Create smooth surface from volume mask or data
+
+- [`write_colormap()`](http://dipterix.org/ieegio/reference/write_colormap.md)
+  : Write a color map to file
 
 - [`as_edf_channel()`](http://dipterix.org/ieegio/reference/write_edf.md)
   [`write_edf()`](http://dipterix.org/ieegio/reference/write_edf.md) :
