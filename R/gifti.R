@@ -107,7 +107,7 @@ io_read_gii <- function(file) {
     } else {
       lut$Label <- lut$Key
     }
-    # Key – This required attribute contains a non-negative integer value.
+    # Key - This required attribute contains a non-negative integer value.
     lut$Key <- as.integer(lut$Key)
     # Red, Green, Blue: This optional, but recommended, attribute contains
     # a floating-point value ranging from zero to one.
@@ -204,7 +204,7 @@ io_read_gii <- function(file) {
         map$set("geometry", geometry)
       },
       "NIFTI_INTENT_LABEL" = {
-        # The data consists of indices into the file’s LabelTable.
+        # The data consists of indices into the file's LabelTable.
 
         # ii <- 1
         # intent <- gii$data_info$Intent[[ii]]

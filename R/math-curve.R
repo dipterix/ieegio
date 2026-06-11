@@ -32,7 +32,7 @@
 #'     \item{\code{"fill"}}{Any voxel that overlaps the tube (center within
 #'       \code{thickness + half_voxel_diagonal}) is fully burned.}
 #'     \item{\code{"threshold"}}{Voxels are burned at full density if more than
-#'       50\% of their volume (approximated by 8 corners at ±0.5 voxel) is
+#'       50\% of their volume (approximated by 8 corners at +/-0.5 voxel) is
 #'       within \code{thickness}; otherwise skipped.}
 #'     \item{\code{"reduced"}}{Density is scaled proportionally by the fraction
 #'       of the voxel (8-corner approximation) that lies within
@@ -196,7 +196,7 @@ burn_curve <- function(image, curve, thickness = 1, density = 1,
   n_samples <- as.integer(n_samples)
 
   t_vals <- seq(0, 1, length.out = n_samples)
-  pts    <- curve$get_points(n_samples)           # n_samples × 3 (x, y, z)
+  pts    <- curve$get_points(n_samples)           # n_samples x 3 (x, y, z)
 
   r_vals <- vapply(t_vals, thickness_fn, numeric(1L))
   d_vals <- vapply(t_vals, density_fn,   numeric(1L))
@@ -220,7 +220,7 @@ burn_curve <- function(image, curve, thickness = 1, density = 1,
   # ------------------------------------------------------------------
   # 6.  Sub-voxel 8-corner table for "threshold" / "reduced"
   # ------------------------------------------------------------------
-  # corners_ijk_offsets: 3×8, each column is a (di, dj, dk) corner offset
+  # corners_ijk_offsets: 3x8, each column is a (di, dj, dk) corner offset
   corners_ijk_offsets <- t(as.matrix(expand.grid(
     di = c(-0.5, 0.5),
     dj = c(-0.5, 0.5),
@@ -249,12 +249,12 @@ burn_curve <- function(image, curve, thickness = 1, density = 1,
     vox_pos  <- (burn_ras2vox %*% c(pos_ii, 1))[1:3]     # fractional IJK
     vox_pos0 <- round(vox_pos)                             # nearest voxel IJK
 
-    # IJK of all candidate voxels: 0-based, 3 × n_search
+    # IJK of all candidate voxels: 0-based, 3 x n_search
     cands0 <- search_table + vox_pos0
 
     # RAS displacement from each candidate voxel *center* to pos_ii
     # (reuse burn_vox2ras rotation: RAS_disp = R * (IJK_cand - IJK_frac))
-    cand_ras_disp <- burn_vox2ras[1:3, 1:3] %*% (cands0 - vox_pos)  # 3 × n_search
+    cand_ras_disp <- burn_vox2ras[1:3, 1:3] %*% (cands0 - vox_pos)  # 3 x n_search
     dist_center   <- sqrt(colSums(cand_ras_disp^2))
 
     # ---- filter candidates and compute per-voxel values ----
@@ -286,7 +286,7 @@ burn_curve <- function(image, curve, thickness = 1, density = 1,
       corners_rep <- corners_ijk_offsets[, rep(seq_len(8L), times = n_cand), drop = FALSE]
 
       # Convert combined IJK offsets to RAS and compute distances
-      combined_ras  <- burn_vox2ras[1:3, 1:3] %*% (offsets_rep + corners_rep)  # 3 × (8*n_cand)
+      combined_ras  <- burn_vox2ras[1:3, 1:3] %*% (offsets_rep + corners_rep)  # 3 x (8*n_cand)
       dist_corners  <- sqrt(colSums(combined_ras^2))           # 8*n_cand
 
       # Fraction of corners within radius: collapse 8 rows per candidate

@@ -49,7 +49,7 @@ One of \code{"reduced"} (default), \code{"ignore"}, \code{"fill"}, or
 \item{\code{"fill"}}{Any voxel that overlaps the tube (center within
 \code{thickness + half_voxel_diagonal}) is fully burned.}
 \item{\code{"threshold"}}{Voxels are burned at full density if more than
-50\\% of their volume (approximated by 8 corners at ±0.5 voxel) is
+50\\% of their volume (approximated by 8 corners at +/-0.5 voxel) is
 within \code{thickness}; otherwise skipped.}
 \item{\code{"reduced"}}{Density is scaled proportionally by the fraction
 of the voxel (8-corner approximation) that lies within

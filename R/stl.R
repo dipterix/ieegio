@@ -9,8 +9,8 @@ write_binary_stl <- function(surf, file) {
   }
 
   # Extract vertices (first 3 rows of vb) and triangle indices
-  verts <- surf$geometry$vertices[1:3, , drop = FALSE]            # 3 × Nverts
-  tris  <- surf$geometry$faces + (1L - surf$geometry$face_start)  # 3 × Ntris (1-based indices into verts)
+  verts <- surf$geometry$vertices[1:3, , drop = FALSE]            # 3 x Nverts
+  tris  <- surf$geometry$faces + (1L - surf$geometry$face_start)  # 3 x Ntris (1-based indices into verts)
   n_tris <- ncol(tris)
 
   # Gather triangle corners
@@ -48,7 +48,7 @@ write_binary_stl <- function(surf, file) {
   writeBin(hdr_raw, con, useBytes = TRUE)
   # 2) number of triangles (uint32 little-endian)
   writeBin(as.integer(n_tris), con, size = 4, endian = "little")
-  # 3) for each triangle: normal (3 × float32), v1/v2/v3 (9 × float32)
+  # 3) for each triangle: normal (3 x float32), v1/v2/v3 (9 x float32)
   all_floats <- rbind(nx, ny, nz, v1, v2, v3)
 
   apply(all_floats, 2, function(x) {
