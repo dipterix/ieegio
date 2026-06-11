@@ -152,43 +152,93 @@ io_read_cmap_fsl <- function(file, ...) {
 io_read_cmap_threebrain <- function(file, ...) {
   obj <- io_read_json(file)
 
-  # ieegio-native format: has "colortable" field
+  # Legacy ieegio-native format: top-level "colortable" field
   if (!is.null(obj$colortable)) {
     return(cmap_parse_threebrain_native(obj, file))
   }
 
-  # Original threeBrain format
-  type <- tolower(obj$type %||% "continuous")
-
-  if (type == "discrete") {
-    vals   <- as.integer(obj$mapValues)
-    labels <- as.character(obj$mapLabels)
-    colors <- obj$mapColors
-
-    rgba <- cmap_hex_to_rgba(colors)
-    ct   <- new_colortable(data.frame(
-      Key = vals, R = rgba[, 1L], G = rgba[, 2L], B = rgba[, 3L], A = rgba[, 4L]
-    ))
-    lut  <- new_lookup_discrete(data.frame(Key = vals, Label = labels))
-    new_colormap(ct, lookup = lut, colorspace = obj$colorspace %||% "RGB",
-                 meta = list(name = obj$alias %||% basename(file), source = "threeBrain"))
-  } else {
-    keys   <- as.double(obj$colorKeys)
-    colors <- obj$colorValues
-    dr     <- cmap_parse_data_range_json(obj$dataRange)
-
-    rgba <- cmap_hex_to_rgba(colors)
-    # Rescale 0-1 keys to integer range 0..length-1 for storage
-    n    <- length(keys)
-    idx  <- as.integer(round(keys * (n - 1L)))
-    ct   <- new_colortable(data.frame(
-      Key = idx, R = rgba[, 1L], G = rgba[, 2L], B = rgba[, 3L], A = rgba[, 4L]
-    ))
-    lut  <- new_lookup_continuous(data.frame(Value = c(0, 1), Scaled = c(0, 1)))
-    new_colormap(ct, lookup = lut, colorspace = obj$colorspace %||% "RGB",
-                 data_range = dr,
-                 meta = list(name = obj$alias %||% basename(file), source = "threeBrain"))
+  # Real threeBrain format: top-level key __global_data__.*LUT
+  inner <- obj[["__global_data__.VolumeColorLUT"]] %||%
+           obj[["__global_data__.SurfaceColorLUT"]]
+  if (!is.null(inner)) {
+    return(cmap_parse_threebrain_lut(inner, file))
   }
+
+  stop("Unrecognised threeBrain colormap format in file: ", file)
+}
+
+cmap_parse_threebrain_lut <- function(inner, file = "") {
+  map       <- inner$map
+  dtype     <- tolower(inner$mapDataType %||% "discrete")
+  has_alpha <- isTRUE(inner$mapAlpha)
+
+  n     <- length(map)
+  keys  <- integer(n)
+  R_vec <- integer(n)
+  G_vec <- integer(n)
+  B_vec <- integer(n)
+  A_vec <- rep(255L, n)
+  labels <- vector("list", n)
+
+  for (i in seq_len(n)) {
+    e        <- map[[i]]
+    keys[i]  <- as.integer(e$ColorID)
+    R_vec[i] <- as.integer(e$R)
+    G_vec[i] <- as.integer(e$G)
+    B_vec[i] <- as.integer(e$B)
+    if (has_alpha && !is.null(e$A)) { A_vec[i] <- as.integer(e$A) }
+    labels[[i]] <- e$Label
+  }
+
+  ct <- new_colortable(data.frame(
+    Key = keys, R = R_vec, G = G_vec, B = B_vec, A = A_vec
+  ))
+
+  # ieegio extra metadata embedded by write_cmap_threebrain (ignored by threeBrain)
+  extra <- inner$ieegio
+  cs    <- extra$colorspace %||% "RGB"
+
+  if (identical(dtype, "discrete")) {
+    lut <- new_lookup_discrete(data.frame(
+      Key   = keys,
+      Label = as.character(unlist(labels))
+    ))
+    new_colormap(ct, lookup = lut, colorspace = cs)
+  } else {
+    dr <- NULL
+    if (!is.null(extra$dataRange)) {
+      dr <- cmap_validate_data_range(as.double(extra$dataRange))
+    } else if (!is.null(inner$mapValueRange)) {
+      dr <- tryCatch(
+        cmap_validate_data_range(as.double(inner$mapValueRange)),
+        error = function(e) { NULL }, warning = function(e) { NULL }
+      )
+    }
+    if (!is.null(extra$lookup)) {
+      lt_data <- extra$lookup
+      lut <- new_lookup_continuous(data.frame(
+        Value  = as.double(lt_data$Value),
+        Scaled = as.double(lt_data$Scaled)
+      ))
+    } else {
+      lut <- new_lookup_continuous(data.frame(Value = c(0, 1), Scaled = c(0, 1)))
+    }
+    new_colormap(ct, lookup = lut, colorspace = cs, data_range = dr)
+  }
+}
+
+#' @rdname as_ieegio_colormap
+#' @export
+as_ieegio_colormap.threeBrain_colormap <- function(x, lookup = NULL,
+                                                    colorspace = "RGB",
+                                                    data_range = NULL,
+                                                    type = c("auto", "discrete", "continuous"),
+                                                    ...) {
+  # In-memory threeBrain colormap has the same field layout as the inner LUT
+  # JSON object parsed by cmap_parse_threebrain_lut, so pass it directly.
+  cm <- cmap_parse_threebrain_lut(x)
+  as_ieegio_colormap.ieegio_colormap(cm, lookup = lookup, colorspace = colorspace,
+                                      data_range = data_range, type = type, ...)
 }
 
 cmap_parse_threebrain_native <- function(obj, file = "") {
@@ -333,6 +383,10 @@ cmap_detect_type <- function(file) {
 #' @param con file path to write
 #' @param format output format; currently only \code{"threebrain"} (default)
 #'   and \code{"fs_lut"} are supported
+#' @param gtype geometry type for the \pkg{threeBrain} format: \code{"auto"}
+#'   (default; discrete maps use \code{"volume"}, continuous maps use
+#'   \code{"surface"}), \code{"surface"}, or \code{"volume"}; ignored for
+#'   other formats
 #' @param ... additional arguments
 #' @examples
 #' # Build a discrete colormap with region labels
@@ -357,10 +411,11 @@ cmap_detect_type <- function(file) {
 #'
 #' unlink(c(tmp_json, tmp_lut))
 #' @export
-write_colormap <- function(x, con, format = "threebrain", ...) {
+write_colormap <- function(x, con, format = "threebrain",
+                           gtype = c("auto", "surface", "volume"), ...) {
   format <- match.arg(format, c("threebrain", "fs_lut"))
+  gtype  <- match.arg(gtype)
   if (inherits(x, "ieegio_colortable")) {
-    # Wrap bare colortable into a continuous colormap
     x <- as_ieegio_colormap(x)
   }
   if (!inherits(x, "ieegio_colormap")) {
@@ -368,54 +423,115 @@ write_colormap <- function(x, con, format = "threebrain", ...) {
   }
 
   switch(format,
-    threebrain = write_cmap_threebrain(x, con),
+    threebrain = write_cmap_threebrain(x, con, gtype = gtype),
     fs_lut     = write_cmap_fs_lut(x, con),
     stop("Unknown format: ", format)
   )
   invisible(con)
 }
 
-write_cmap_threebrain <- function(x, con) {
-  ct <- x$colors$color_table
+write_cmap_threebrain <- function(x, con, gtype = "auto") {
+  ct          <- x$colors$color_table
+  is_discrete <- inherits(x, "ieegio_colormap_discrete")
+  has_alpha   <- any(ct$A != 255L)
 
-  ct_list <- list(
-    Key = as.list(ct$Key),
-    R   = as.list(ct$R),
-    G   = as.list(ct$G),
-    B   = as.list(ct$B),
-    A   = as.list(ct$A)
+  # "auto": discrete -> volume (atlas labels), continuous -> surface (scalar maps)
+  if (identical(gtype, "auto")) {
+    gtype <- if (is_discrete) "volume" else "surface"
+  }
+
+  key_min <- min(ct$Key)
+  key_max <- max(ct$Key)
+  key_rng <- key_max - key_min
+  if (key_rng == 0L) { key_rng <- 1L }
+
+  # Labels: strings for discrete, data values for continuous
+  if (is_discrete) {
+    if (!is.null(x$lookup) && inherits(x$lookup, "ieegio_lookup_discrete")) {
+      lt     <- x$lookup$lookup_table
+      m      <- match(ct$Key, lt$Key)
+      labels <- ifelse(is.na(m), as.character(ct$Key), lt$Label[m])
+    } else {
+      labels <- as.character(ct$Key)
+    }
+  } else {
+    dr     <- x$data_range
+    if (is.null(dr) || !all(is.finite(dr))) { dr <- c(0, 1) }
+    labels <- dr[1L] + (ct$Key - key_min) / key_rng * (dr[2L] - dr[1L])
+  }
+
+  # Build map keyed by string ColorID
+  n_keys          <- nrow(ct)
+  map_list        <- vector("list", n_keys)
+  names(map_list) <- as.character(ct$Key)
+  for (i in seq_len(n_keys)) {
+    entry <- list(
+      ColorID = as.integer(ct$Key[i]),
+      Label   = labels[[i]],
+      R       = as.integer(ct$R[i]),
+      G       = as.integer(ct$G[i]),
+      B       = as.integer(ct$B[i])
+    )
+    if (has_alpha) { entry$A <- as.integer(ct$A[i]) }
+    map_list[[i]] <- entry
+  }
+
+  # Discrete: Key=0 "Unknown" (black) must always be present.
+  # threeBrain uses Key=0 as the "no label" sentinel; missing it causes
+  # unlabelled voxels to display incorrectly.
+  if (is_discrete && !(0L %in% ct$Key)) {
+    key0 <- list(ColorID = 0L, Label = "Unknown", R = 0L, G = 0L, B = 0L)
+    if (has_alpha) { key0$A <- 255L }
+    map_list <- c(list("0" = key0), map_list)
+    key_min  <- 0L
+  }
+
+  if (is_discrete) {
+    all_labels <- vapply(map_list, function(e) { as.character(e$Label) }, "")
+    sl  <- sort(all_labels)
+    mvr <- list(sl[1L], sl[length(sl)])
+  } else {
+    dr  <- x$data_range
+    if (is.null(dr) || !all(is.finite(dr))) { dr <- c(0, 1) }
+    mvr <- list(dr[1L], dr[2L])
+  }
+
+  # Embed ieegio-specific metadata so round-trips are lossless.
+  # threeBrain ignores unknown fields, so this is safe.
+  ieegio_meta <- list(colorspace = x$colorspace)
+  if (!is.null(x$lookup) && inherits(x$lookup, "ieegio_lookup_continuous")) {
+    lt <- x$lookup$lookup_table
+    ieegio_meta$lookup <- list(type   = "continuous",
+                                Value  = as.list(lt$Value),
+                                Scaled = as.list(lt$Scaled))
+  }
+  if (!is.null(x$data_range) && all(is.finite(x$data_range))) {
+    ieegio_meta$dataRange <- as.list(x$data_range)
+  }
+
+  inner <- list(
+    map                = map_list,
+    mapAlpha           = has_alpha,
+    mapMinColorID      = as.integer(key_min),
+    # threeBrain bug: max key must be max+1 or the last color entry is invisible
+    mapMaxColorID      = as.integer(key_max + 1L),
+    mapValueRange      = mvr,
+    mapDataType        = if (is_discrete) "discrete" else "continuous",
+    mapGeomType        = gtype,
+    colorIDAutoRescale = FALSE,
+    mapVersion         = 1.1,
+    ieegio             = ieegio_meta
   )
 
-  lut_list <- NULL
-  if (!is.null(x$lookup)) {
-    lt <- x$lookup$lookup_table
-    if (inherits(x$lookup, "ieegio_lookup_discrete")) {
-      lut_list <- list(type = "discrete",
-                       Key   = as.list(lt$Key),
-                       Label = as.list(lt$Label))
-    } else {
-      lut_list <- list(type = "continuous",
-                       Value  = as.list(lt$Value),
-                       Scaled = as.list(lt$Scaled))
-    }
+  top_key <- if (identical(gtype, "volume")) {
+    "__global_data__.VolumeColorLUT"
+  } else {
+    "__global_data__.SurfaceColorLUT"
   }
+  obj            <- list(inner)
+  names(obj)     <- top_key
 
-  dr <- NULL
-  if (!is.null(x$data_range)) {
-    dr <- lapply(x$data_range, function(v) { if (is.finite(v)) v else NULL })
-  }
-
-  type_str <- if (inherits(x, "ieegio_colormap_discrete")) "discrete" else "continuous"
-
-  obj <- drop_nulls(list(
-    type       = type_str,
-    colorspace = x$colorspace,
-    dataRange  = dr,
-    colortable = ct_list,
-    lookup     = lut_list
-  ))
-
-  io_write_json(obj, con = con, serialize = FALSE)
+  io_write_json(obj, con = con, serialize = FALSE, auto_unbox = TRUE)
 }
 
 write_cmap_fs_lut <- function(x, con) {
