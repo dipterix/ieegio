@@ -4,7 +4,13 @@
 \alias{write_colormap}
 \title{Write a color map to file}
 \usage{
-write_colormap(x, con, format = "threebrain", ...)
+write_colormap(
+  x,
+  con,
+  format = "threebrain",
+  gtype = c("auto", "surface", "volume"),
+  ...
+)
 }
 \arguments{
 \item{x}{an \code{ieegio_colormap} or \code{ieegio_colortable}}
@@ -13,6 +19,11 @@ write_colormap(x, con, format = "threebrain", ...)
 
 \item{format}{output format; currently only \code{"threebrain"} (default)
 and \code{"fs_lut"} are supported}
+
+\item{gtype}{geometry type for the \pkg{threeBrain} format: \code{"auto"}
+(default; discrete maps use \code{"volume"}, continuous maps use
+\code{"surface"}), \code{"surface"}, or \code{"volume"}; ignored for
+other formats}
 
 \item{...}{additional arguments}
 }
