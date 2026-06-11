@@ -932,6 +932,7 @@ plot.ieegio_surface <- function(
     col <- col[[length(col)]]
   }
 
+  cpar <- graphics::par("mfrow", "mar", "cex")
 
   if (name[[1]] == "time") {
     n_slices <- length(slice_index)
@@ -941,6 +942,8 @@ plot.ieegio_surface <- function(
 
       oldpar <- graphics::par(mfrow = mfr, mar = c(0, 0, 0, 0))
       on.exit({ graphics::par(oldpar) }, add = TRUE)
+
+      oldpar <- cpar
 
       ravetools <- asNamespace("ravetools")
       plot_mesh_polygon <- ravetools$plot_mesh_polygon
@@ -1066,7 +1069,9 @@ plot.ieegio_surface <- function(
                          heights = c(graphics::lcm(1), 1))
 
         oldpar <- graphics::par("mfrow", mar = c(0.0, 3.1, 0.0, 0.5))
-        on.exit({ graphics::par(oldpar) })
+        on.exit({ graphics::par(oldpar) }, add = TRUE)
+
+        oldpar <- cpar
 
         graphics::plot.new()
         graphics::plot.window(c(0, 1), c(0, 1))
@@ -1084,7 +1089,6 @@ plot.ieegio_surface <- function(
 
         args$eye <- c(0, -1000, 0)
         args$up <- c(0, 0, 1)
-        args$main <- main
         plot_range <- do.call(plot_mesh_polygon, args)
         graphics::axis(1L, at = plot_range$xlim, labels = c("Left", "Right"))
         graphics::axis(2L, at = plot_range$ylim, labels = c("Inferior", "Superior"))
