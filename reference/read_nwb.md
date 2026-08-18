@@ -66,6 +66,8 @@ if(ieegio_sample_data("nwb_sample.nwb", test = TRUE)) {
 
 }
 #> + /home/runner/.local/share/r-rpymat/miniconda/bin/conda install --yes --prefix /home/runner/.local/share/r-rpymat/miniconda/envs/rpymat-conda-env -c conda-forge pynwb
+#> Error in py_module_import(module, convert = convert): ImportError: /usr/lib/x86_64-linux-gnu/libcrypto.so.3: version `OPENSSL_3.4.0' not found (required by /home/runner/.local/share/r-rpymat/miniconda/envs/rpymat-conda-env/lib/python3.12/site-packages/h5py/../../.././libs2n.so.1)
+#> Run `reticulate::py_last_error()` for details.
 
 
 # Requires setting up Python environment

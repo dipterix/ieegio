@@ -12,7 +12,7 @@ read_surface(file, format = "auto", type = NULL, ...)
 write_surface(
   x,
   con,
-  format = c("gifti", "freesurfer"),
+  format = c("gifti", "freesurfer", "vtk"),
   type = c("geometry", "annotations", "measurements", "color", "time_series"),
   ...,
   name = 1
@@ -39,8 +39,9 @@ io_write_gii(x, con, ...)
 
 - format:
 
-  format of the file, for `write_surface`, this is either `'gifti'` or
-  `'freesurfer'`; for `read_surface`, see 'Arguments' section in
+  format of the file, for `write_surface`, this is `'gifti'`,
+  `'freesurfer'`, or `'vtk'`; for `read_surface`, see 'Arguments'
+  section in
   [`read.fs.surface`](https://rdrr.io/pkg/freesurferformats/man/read.fs.surface.html)
   (when file type is `'geometry'`) and
   [`read.fs.curv`](https://rdrr.io/pkg/freesurferformats/man/read.fs.curv.html)
@@ -71,7 +72,9 @@ io_write_gii(x, con, ...)
 - ...:
 
   for `read_surface`, the arguments will be passed to `io_read_fs` if
-  the file is a 'FreeSurfer' file.
+  the file is a 'FreeSurfer' file, or to
+  [`io_read_vtk_polys`](http://dipterix.org/ieegio/reference/io-vtk-polys.md)
+  if the file is a `'VTK'` mesh.
 
 - x:
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## ieegio 0.1.1
+
+- Added `io_read_vtk_polys` and `io_write_vtk_polys` to read and write
+  surface meshes stored in `VTK` polygon formats (legacy `.vtk`,
+  `XML`-based `.vtp`, `.pvtp`, `.vtu`, and `HDF5`-based `.vtpb`),
+  including vertex colors and vertex-wise measurements; `read_surface`
+  and `write_surface` now recognize these formats
+
 ## ieegio 0.1.0
 
 CRAN release: 2026-05-31

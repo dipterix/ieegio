@@ -93,6 +93,12 @@
 
   Read `'TT'` streamline file
 
+- [`io_read_vtk_polys()`](http://dipterix.org/ieegio/reference/io-vtk-polys.md)
+  [`io_write_vtk_polys()`](http://dipterix.org/ieegio/reference/io-vtk-polys.md)
+  :
+
+  Read or write surface mesh data in `'VTK'` format
+
 - [`io_read_vtk_streamlines()`](http://dipterix.org/ieegio/reference/io-vtk-streamlines.md)
   [`io_write_vtk_streamlines()`](http://dipterix.org/ieegio/reference/io-vtk-streamlines.md)
   :

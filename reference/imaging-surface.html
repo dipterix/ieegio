@@ -13,7 +13,7 @@ other low-level functions internally."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@ other low-level functions internally.</p>
 <span><span class="fu">write_surface</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">con</span>,</span>
-<span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gifti"</span>, <span class="st">"freesurfer"</span><span class="op">)</span>,</span>
+<span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gifti"</span>, <span class="st">"freesurfer"</span>, <span class="st">"vtk"</span><span class="op">)</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"geometry"</span>, <span class="st">"annotations"</span>, <span class="st">"measurements"</span>, <span class="st">"color"</span>, <span class="st">"time_series"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  name <span class="op">=</span> <span class="fl">1</span></span>
@@ -86,8 +86,9 @@ other low-level functions internally.</p>
 
 
 <dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
-<dd><p>format of the file, for <code>write_surface</code>, this is either
-<code>'gifti'</code> or <code>'freesurfer'</code>; for <code>read_surface</code>, see
+<dd><p>format of the file, for <code>write_surface</code>, this is
+<code>'gifti'</code>, <code>'freesurfer'</code>, or <code>'vtk'</code>; for
+<code>read_surface</code>, see
 'Arguments' section in <code><a href="https://rdrr.io/pkg/freesurferformats/man/read.fs.surface.html" class="external-link">read.fs.surface</a></code>
 (when file type is <code>'geometry'</code>) and
 <code><a href="https://rdrr.io/pkg/freesurferformats/man/read.fs.curv.html" class="external-link">read.fs.curv</a></code>
@@ -117,7 +118,8 @@ domain) for each vertex node</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>for <code>read_surface</code>, the arguments will be passed to
-<code>io_read_fs</code> if the file is a 'FreeSurfer' file.</p></dd>
+<code>io_read_fs</code> if the file is a 'FreeSurfer' file, or to
+<code><a href="io-vtk-polys.html">io_read_vtk_polys</a></code> if the file is a <code>'VTK'</code> mesh.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>

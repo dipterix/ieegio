@@ -31,6 +31,7 @@
 <url><loc>http://dipterix.org/ieegio/reference/index.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io-trk.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io-tt.html</loc></url>
+<url><loc>http://dipterix.org/ieegio/reference/io-vtk-polys.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io-vtk-streamlines.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_h5_valid.html</loc></url>
 <url><loc>http://dipterix.org/ieegio/reference/io_read_ants_transform.html</loc></url>
