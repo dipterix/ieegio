@@ -1,3 +1,7 @@
+# ieegio 0.1.1
+
+* Added `io_read_vtk_polys` and `io_write_vtk_polys` to read and write surface meshes stored in `VTK` polygon formats (legacy `.vtk`, `XML`-based `.vtp`, `.pvtp`, `.vtu`, and `HDF5`-based `.vtpb`), including vertex colors and vertex-wise measurements; `read_surface` and `write_surface` now recognize these formats
+
 # ieegio 0.1.0
 
 * Added `burn_curve` to burn electrode trajectories (e.g. depth/`sEEG` leads or `DBS` shafts) into a volume given start and end positions in image native `RAS` coordinates, with configurable radius and per-segment colors

@@ -1156,8 +1156,9 @@ plot.ieegio_surface <- function(
 #' \code{'curv'} files, containing numerical values (often with continuous
 #' domain) for each vertex node}
 #' }
-#' @param format format of the file, for \code{write_surface}, this is either
-#' \code{'gifti'} or \code{'freesurfer'}; for \code{read_surface}, see
+#' @param format format of the file, for \code{write_surface}, this is
+#' \code{'gifti'}, \code{'freesurfer'}, or \code{'vtk'}; for
+#' \code{read_surface}, see
 #' 'Arguments' section in \code{\link[freesurferformats]{read.fs.surface}}
 #' (when file type is \code{'geometry'}) and
 #' \code{\link[freesurferformats]{read.fs.curv}}
@@ -1167,7 +1168,8 @@ plot.ieegio_surface <- function(
 #' argument can be an integer or a character, representing the
 #' index or name of the corresponding measurement or annotation column.
 #' @param ... for \code{read_surface}, the arguments will be passed to
-#' \code{io_read_fs} if the file is a 'FreeSurfer' file.
+#' \code{io_read_fs} if the file is a 'FreeSurfer' file, or to
+#' \code{\link{io_read_vtk_polys}} if the file is a \code{'VTK'} mesh.
 #' @returns A surface object container for \code{read_surface}, and
 #' the file path for \code{write_surface}
 #' @examples
@@ -1216,6 +1218,14 @@ read_surface <- function(file, format = "auto", type = NULL, ...) {
     # GIfTI
     return(io_read_gii(file))
   }
+  vtk_formats <- c("vtk", "vtp", "pvtp", "vtu")
+  if (tolower(format) %in% vtk_formats ||
+     (tolower(format) %in% c("auto", "") &&
+      tolower(path_ext(fname)) %in% vtk_formats)) {
+    # VTK polygon mesh; explicitly specified `format` takes precedence over
+    # the file extension
+    return(io_read_vtk_polys(file, ...))
+  }
   if (!length(type)) {
     # Guess the type
     ext <- tolower(path_ext(fname))
@@ -1238,17 +1248,27 @@ read_surface <- function(file, format = "auto", type = NULL, ...) {
 #' @rdname imaging-surface
 #' @export
 write_surface <- function(
-    x, con, format = c("gifti", "freesurfer"),
+    x, con, format = c("gifti", "freesurfer", "vtk"),
     type = c("geometry", "annotations", "measurements", "color",
              "time_series"),
     ..., name = 1) {
 
+  # infer VTK format from the file name when `format` is not explicitly given
+  if (missing(format) &&
+     grepl("\\.(vtk|vtp|pvtp|vtpb)$", tolower(con))) {
+    format <- "vtk"
+  }
   format <- match.arg(format)
   x <- as_ieegio_surface(x)
 
 
   if (format == "gifti") {
     re <- io_write_gii(x = x, con = con, ...)
+    return(invisible(re))
+  }
+
+  if (format == "vtk") {
+    re <- io_write_vtk_polys(x = x, con = con, ...)
     return(invisible(re))
   }
 

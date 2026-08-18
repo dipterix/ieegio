@@ -15,7 +15,7 @@ read_surface(file, format = "auto", type = NULL, ...)
 write_surface(
   x,
   con,
-  format = c("gifti", "freesurfer"),
+  format = c("gifti", "freesurfer", "vtk"),
   type = c("geometry", "annotations", "measurements", "color", "time_series"),
   ...,
   name = 1
@@ -36,8 +36,9 @@ io_write_gii(x, con, ...)
 \arguments{
 \item{file, con}{path the file}
 
-\item{format}{format of the file, for \code{write_surface}, this is either
-\code{'gifti'} or \code{'freesurfer'}; for \code{read_surface}, see
+\item{format}{format of the file, for \code{write_surface}, this is
+\code{'gifti'}, \code{'freesurfer'}, or \code{'vtk'}; for
+\code{read_surface}, see
 'Arguments' section in \code{\link[freesurferformats]{read.fs.surface}}
 (when file type is \code{'geometry'}) and
 \code{\link[freesurferformats]{read.fs.curv}}
@@ -58,7 +59,8 @@ domain) for each vertex node}
 }}
 
 \item{...}{for \code{read_surface}, the arguments will be passed to
-\code{io_read_fs} if the file is a 'FreeSurfer' file.}
+\code{io_read_fs} if the file is a 'FreeSurfer' file, or to
+\code{\link{io_read_vtk_polys}} if the file is a \code{'VTK'} mesh.}
 
 \item{x}{surface (geometry, annotation, measurement) data}
 
