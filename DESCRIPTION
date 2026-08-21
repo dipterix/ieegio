@@ -26,7 +26,6 @@ Imports:
     fst (>= 0.9.0),
     gifti (>= 0.8.0),
     grDevices,
-    hdf5r,
     jsonlite,
     oro.nifti,
     R.matlab (>= 3.7.0),
@@ -37,6 +36,7 @@ Imports:
     utils,
     yaml
 Suggests: 
+    hdf5r,
     reticulate,
     ravetools,
     rgl,
