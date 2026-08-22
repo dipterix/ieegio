@@ -40,6 +40,10 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1" id="ieegio-011">ieegio 0.1.1<a class="anchor" aria-label="anchor" href="#ieegio-011"></a></h2>
 <ul><li>Added <code>io_read_vtk_polys</code> and <code>io_write_vtk_polys</code> to read and write surface meshes stored in <code>VTK</code> polygon formats (legacy <code>.vtk</code>, <code>XML</code>-based <code>.vtp</code>, <code>.pvtp</code>, <code>.vtu</code>, and <code>HDF5</code>-based <code>.vtpb</code>), including vertex colors and vertex-wise measurements; <code>read_surface</code> and <code>write_surface</code> now recognize these formats</li>
+<li>Added read and write functions for color-map files</li>
+<li>Fixed a graphics bug that causes <code>par</code> not reset after showing surfaces</li>
+<li>Added a helper function to convert volume atlases to surface with proper smoothing</li>
+<li>Added <code>YBA696</code> atlas to example data</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="ieegio-010">ieegio 0.1.0<a class="anchor" aria-label="anchor" href="#ieegio-010"></a></h2><p class="text-muted">CRAN release: 2026-05-31</p>
