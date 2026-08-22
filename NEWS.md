@@ -1,6 +1,10 @@
 # ieegio 0.1.1
 
 * Added `io_read_vtk_polys` and `io_write_vtk_polys` to read and write surface meshes stored in `VTK` polygon formats (legacy `.vtk`, `XML`-based `.vtp`, `.pvtp`, `.vtu`, and `HDF5`-based `.vtpb`), including vertex colors and vertex-wise measurements; `read_surface` and `write_surface` now recognize these formats
+* Added read and write functions for color-map files
+* Fixed a graphics bug that causes `par` not reset after showing surfaces
+* Added a helper function to convert volume atlases to surface with proper smoothing
+* Added `YBA696` atlas to example data
 
 # ieegio 0.1.0
 
