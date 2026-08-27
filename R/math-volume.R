@@ -159,6 +159,48 @@ resample_volume_ravetools <- function(x, new_dim, na_fill = NA) {
 }
 
 
+# Resample a plain 3D array onto an arbitrary target grid. Unlike
+# `resample_volume`, the target `vox2ras` is given rather than derived from the
+# new shape, so the two grids may differ in orientation and origin as well as in
+# resolution. Uses `ravetools` when available and otherwise falls back to the
+# same nearest-neighbor index mapping as `resample_volume_naive`.
+resample_volume_vox2ras <- function(x, new_dim, vox2ras_old, vox2ras_new,
+                                    na_fill = NA, interpolation = "nearest") {
+  dim0 <- dim(x)[c(1, 2, 3)]
+  dim1 <- new_dim[c(1, 2, 3)]
+
+  ravetools <- check_ravetools_flag()
+  if (!isFALSE(ravetools) && is.function(ravetools$resample_3d_volume)) {
+    return(ravetools$resample_3d_volume(
+      x = x,
+      new_dim = dim1,
+      vox2ras_old = vox2ras_old,
+      vox2ras_new = vox2ras_new,
+      na_fill = na_fill,
+      interpolation = interpolation
+    ))
+  }
+
+  # CRS/IJK in the new image
+  vox1 <- t(cbind(arrayInd(seq_len(prod(dim1)), dim1) - 1L, 1L))
+  # CRS/IJK in the old image
+  vox0 <- round(solve(vox2ras_old) %*% vox2ras_new %*% vox1)
+
+  vox0[1, vox0[1, ] >= dim0[[1]]] <- NA
+  vox0[2, vox0[2, ] >= dim0[[2]]] <- NA
+  vox0[3, vox0[3, ] >= dim0[[3]]] <- NA
+  vox0[vox0 < 0] <- NA
+
+  idx0 <- colSums(vox0[1:3, , drop = FALSE] * c(1, cumprod(dim0))[c(1, 2, 3)]) + 1
+
+  re <- array(x[idx0], dim = dim1)
+  if (!is.na(na_fill)) {
+    re[is.na(re)] <- na_fill
+  }
+  re
+}
+
+
 #' Down-sample or super-sample volume
 #' @description
 #' Using nearest-neighbor.
