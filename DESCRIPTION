@@ -1,6 +1,6 @@
 Package: ieegio
 Title: File IO for Intracranial Electroencephalography
-Version: 0.1.1
+Version: 0.1.1.1
 Language: en-US
 Encoding: UTF-8
 Authors@R: 
@@ -32,6 +32,7 @@ Imports:
     R6,
     readNSx (>= 0.0.5),
     rpyANTs (>= 0.0.3),
+    stats,
     stringr,
     utils,
     yaml
@@ -50,4 +51,4 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0

@@ -6,6 +6,7 @@
 \alias{write_streamlines}
 \alias{as_ieegio_streamlines}
 \alias{as_ieegio_streamlines.default}
+\alias{as_ieegio_streamlines.character}
 \title{Read and write streamlines}
 \usage{
 read_streamlines(file, ...)
@@ -20,6 +21,8 @@ write_streamlines(
 as_ieegio_streamlines(x, ...)
 
 \method{as_ieegio_streamlines}{default}(x, vox2ras = NULL, ..., class = NULL)
+
+\method{as_ieegio_streamlines}{character}(x, sanitize = TRUE, ...)
 }
 \arguments{
 \item{file, con}{path to the streamline data}
@@ -36,6 +39,13 @@ with the format}
 default is identity matrix and used by \code{'TRK'} format}
 
 \item{class}{additional class to be added to the instance}
+
+\item{sanitize}{whether to discard the tracts in a file that are not lines;
+default is \code{TRUE}. A tract needs at least two points to have any
+segment, so points with missing coordinates are dropped, and a tract left
+with fewer than two points is dropped entirely. Reading a file may therefore
+return fewer tracts than it stores. Set to \code{FALSE} to read the file
+exactly as written}
 }
 \value{
 \code{read_streamlines} and \code{as_ieegio_streamlines} returns
