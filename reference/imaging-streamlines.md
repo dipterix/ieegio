@@ -20,6 +20,9 @@ as_ieegio_streamlines(x, ...)
 
 # Default S3 method
 as_ieegio_streamlines(x, vox2ras = NULL, ..., class = NULL)
+
+# S3 method for class 'character'
+as_ieegio_streamlines(x, sanitize = TRUE, ...)
 ```
 
 ## Arguments
@@ -49,6 +52,15 @@ as_ieegio_streamlines(x, vox2ras = NULL, ..., class = NULL)
 - class:
 
   additional class to be added to the instance
+
+- sanitize:
+
+  whether to discard the tracts in a file that are not lines; default is
+  `TRUE`. A tract needs at least two points to have any segment, so
+  points with missing coordinates are dropped, and a tract left with
+  fewer than two points is dropped entirely. Reading a file may
+  therefore return fewer tracts than it stores. Set to `FALSE` to read
+  the file exactly as written
 
 ## Value
 
@@ -98,13 +110,13 @@ if(system.file(package = "r3js") != '') {
 # Subset the first line (transformed)
 coords <- x[[1]]$coords
 head(coords)
-#>           [,1]     [,2] [,3]
-#> [1,] 1.0070199 1.042201 0.03
-#> [2,] 0.9619597 1.002809 0.06
-#> [3,] 0.9544134 1.071844 0.09
-#> [4,] 0.9514057 1.040341 0.12
-#> [5,] 0.9939641 1.012343 0.15
-#> [6,] 0.9511178 1.020910 0.18
+#>          [,1]      [,2] [,3]
+#> [1,] 1.065450 1.0102005 0.03
+#> [2,] 1.024458 0.9948088 0.06
+#> [3,] 1.030881 1.0278445 0.09
+#> [4,] 1.101710 1.0213405 0.12
+#> [5,] 1.079942 1.0203426 0.15
+#> [6,] 1.144574 0.9679095 0.18
 
 # Save different formats
 tdir <- tempfile()

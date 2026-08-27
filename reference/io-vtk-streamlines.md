@@ -67,13 +67,14 @@ if( ieegio_sample_data("streamlines/CNVII_R.tck", test = TRUE) ) {
 }
 #> * Installing Miniconda -- please wait a moment ...
 #> * Downloading 'https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh' ...
-#> + /usr/bin/bash /tmp/Rtmp7f26gh/Miniforge3-Linux-x86_64.sh -b -p '/home/runner/.local/share/r-rpymat/miniconda'
+#> + /usr/bin/bash /tmp/RtmpJJsgyE/Miniforge3-Linux-x86_64.sh -b -p '/home/runner/.local/share/r-rpymat/miniconda'
 #> + /home/runner/.local/share/r-rpymat/miniconda/bin/conda create --yes --name r-reticulate 'python=3.12' numpy --quiet -c conda-forge
 #> * Miniconda has been successfully installed at "~/.local/share/r-rpymat/miniconda".
 #> + /home/runner/.local/share/r-rpymat/miniconda/bin/conda create --yes --prefix /home/runner/.local/share/r-rpymat/miniconda/envs/rpymat-conda-env 'python=3.12' --quiet -c conda-forge
 #> + /home/runner/.local/share/r-rpymat/miniconda/bin/conda install --yes --prefix /home/runner/.local/share/r-rpymat/miniconda/envs/rpymat-conda-env -c conda-forge pip numpy
 #> + /home/runner/.local/share/r-rpymat/miniconda/bin/conda install --yes --prefix /home/runner/.local/share/r-rpymat/miniconda/envs/rpymat-conda-env -c conda-forge vtk
-#> Error in py_module_import(module, convert = convert): ImportError: /usr/lib/x86_64-linux-gnu/libcrypto.so.3: version `OPENSSL_3.4.0' not found (required by /home/runner/.local/share/r-rpymat/miniconda/envs/rpymat-conda-env/lib/python3.12/site-packages/vtkmodules/../../.././libs2n.so.1)
-#> Run `reticulate::py_last_error()` for details.
+
+
+#> [1] 0 0
 
 ```

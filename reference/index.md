@@ -26,6 +26,12 @@
 - [`as_ieegio_lookup()`](http://dipterix.org/ieegio/reference/as_ieegio_lookup.md)
   : Convert to ieegio lookup table
 
+- [`as_ieegio_roi()`](http://dipterix.org/ieegio/reference/as_ieegio_roi.md)
+  [`print(`*`<ieegio_roi>`*`)`](http://dipterix.org/ieegio/reference/as_ieegio_roi.md)
+  :
+
+  Convert objects to `'ieegio'` region of interest
+
 - [`as_ieegio_surface()`](http://dipterix.org/ieegio/reference/as_ieegio_surface.md)
   :
 
@@ -58,6 +64,10 @@
 - [`convert_fst_to_hdf5()`](http://dipterix.org/ieegio/reference/convert-fst.md)
   [`convert_fst_to_csv()`](http://dipterix.org/ieegio/reference/convert-fst.md)
   : Convert 'FST' files to other formats
+
+- [`detect_roi_overlap()`](http://dipterix.org/ieegio/reference/detect_roi_overlap.md)
+  [`print(`*`<ieegio_roi_overlap_result>`*`)`](http://dipterix.org/ieegio/reference/detect_roi_overlap.md)
+  : Detect whether two regions of interest overlap
 
 - [`ieegio_sample_data()`](http://dipterix.org/ieegio/reference/ieegio_sample_data.md)
   : Download sample files
@@ -188,6 +198,9 @@
 
 - [`resample_volume()`](http://dipterix.org/ieegio/reference/resample_volume.md)
   : Down-sample or super-sample volume
+
+- [`resolve_roi_as()`](http://dipterix.org/ieegio/reference/resolve_roi_as.md)
+  : Resolve a region of interest into a chosen representation
 
 - [`surface_to_surface()`](http://dipterix.org/ieegio/reference/surface_to_surface.md)
   : Transform surface between coordinate spaces

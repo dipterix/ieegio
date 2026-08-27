@@ -11,7 +11,7 @@ legacy '.vtk', 'XML'-based '.vtp', 'HDF5'-based '.vtpb')"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,10 @@ legacy <code>'.vtk'</code>, 'XML'-based <code>'.vtp'</code>, 'HDF5'-based <code>
 <span><span class="fu">as_ieegio_streamlines</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Default S3 method</span></span>
-<span><span class="fu">as_ieegio_streamlines</span><span class="op">(</span><span class="va">x</span>, vox2ras <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span>, class <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">as_ieegio_streamlines</span><span class="op">(</span><span class="va">x</span>, vox2ras <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span>, class <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'character'</span></span>
+<span><span class="fu">as_ieegio_streamlines</span><span class="op">(</span><span class="va">x</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -94,6 +97,15 @@ default is identity matrix and used by <code>'TRK'</code> format</p></dd>
 
 <dt id="arg-class">class<a class="anchor" aria-label="anchor" href="#arg-class"></a></dt>
 <dd><p>additional class to be added to the instance</p></dd>
+
+
+<dt id="arg-sanitize">sanitize<a class="anchor" aria-label="anchor" href="#arg-sanitize"></a></dt>
+<dd><p>whether to discard the tracts in a file that are not lines;
+default is <code>TRUE</code>. A tract needs at least two points to have any
+segment, so points with missing coordinates are dropped, and a tract left
+with fewer than two points is dropped entirely. Reading a file may therefore
+return fewer tracts than it stores. Set to <code>FALSE</code> to read the file
+exactly as written</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -144,13 +156,13 @@ a streamlines instance.</p>
 <span class="r-in"><span><span class="co"># Subset the first line (transformed)</span></span></span>
 <span class="r-in"><span><span class="va">coords</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">coords</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">coords</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           [,1]     [,2] [,3]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 1.0070199 1.042201 0.03</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.9619597 1.002809 0.06</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.9544134 1.071844 0.09</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.9514057 1.040341 0.12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.9939641 1.012343 0.15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 0.9511178 1.020910 0.18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          [,1]      [,2] [,3]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 1.065450 1.0102005 0.03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 1.024458 0.9948088 0.06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 1.030881 1.0278445 0.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 1.101710 1.0213405 0.12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 1.079942 1.0203426 0.15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 1.144574 0.9679095 0.18</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Save different formats</span></span></span>
 <span class="r-in"><span><span class="va">tdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span></span>

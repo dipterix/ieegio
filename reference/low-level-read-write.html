@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -191,54 +191,54 @@ conversion might fail. In this case, the result might partially contain
 <span class="r-in"><span><span class="co"># default reads in proxy</span></span></span>
 <span class="r-in"><span><span class="fu">io_read_fst</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;fst file&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file1f6d722ecee1.fst)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file203772246eb7.fst)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">  </span>         a          b           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8; font-style: italic;">   &lt;integer&gt;   &lt;double&gt; &lt;character&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">1 </span>         1 -0.3235122           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">2 </span>         2  0.3667289           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">3 </span>         3 -0.3448114           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">4 </span>         4  2.1457684           d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">5 </span>         5 -1.3757830           e</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">6 </span>         6  2.1187680           f</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">7 </span>         7  0.2055192           g</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">8 </span>         8  0.5353128           h</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">9 </span>         9  0.1295923           i</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">10</span>        10  1.5324613           j</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">1 </span>         1 -1.3852027           a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">2 </span>         2 -2.0444491           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">3 </span>         3  0.3152449           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">4 </span>         4 -1.4311197           d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">5 </span>         5 -0.4013212           e</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">6 </span>         6 -0.5392057           f</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">7 </span>         7 -0.2201675           g</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">8 </span>         8 -0.7166470           h</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">9 </span>         9  0.9724129           i</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #A8A8A8;">10</span>        10  0.7693336           j</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># load as data.table</span></span></span>
 <span class="r-in"><span><span class="fu">io_read_fst</span><span class="op">(</span><span class="va">f</span>, <span class="st">"data_table"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         a          b      c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;int&gt;      &lt;num&gt; &lt;char&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:     1 -0.3235122      a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:     2  0.3667289      b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:     3 -0.3448114      c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:     4  2.1457684      d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:     5 -1.3757830      e</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:     6  2.1187680      f</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:     7  0.2055192      g</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:     8  0.5353128      h</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:     9  0.1295923      i</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:    10  1.5324613      j</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:     1 -1.3852027      a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:     2 -2.0444491      b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:     3  0.3152449      c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:     4 -1.4311197      d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:     5 -0.4013212      e</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:     6 -0.5392057      f</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:     7 -0.2201675      g</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:     8 -0.7166470      h</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:     9  0.9724129      i</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:    10  0.7693336      j</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># load as data.frame</span></span></span>
 <span class="r-in"><span><span class="fu">io_read_fst</span><span class="op">(</span><span class="va">f</span>, <span class="st">"data_frame"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     a          b c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   1 -0.3235122 a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   2  0.3667289 b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   3 -0.3448114 c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   4  2.1457684 d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   5 -1.3757830 e</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6   6  2.1187680 f</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7   7  0.2055192 g</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8   8  0.5353128 h</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   9  0.1295923 i</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 10  1.5324613 j</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   1 -1.3852027 a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   2 -2.0444491 b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   3  0.3152449 c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   4 -1.4311197 d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   5 -0.4013212 e</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   6 -0.5392057 f</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7   7 -0.2201675 g</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   8 -0.7166470 h</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   9  0.9724129 i</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 10  0.7693336 j</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get header</span></span></span>
 <span class="r-in"><span><span class="fu">io_read_fst</span><span class="op">(</span><span class="va">f</span>, <span class="st">"header_only"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;fst file&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file1f6d722ecee1.fst)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 rows, 3 columns (file203772246eb7.fst)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * 'a': integer</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * 'b': double</span>
