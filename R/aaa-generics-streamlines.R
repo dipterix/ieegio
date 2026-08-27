@@ -231,8 +231,22 @@ as_ieegio_streamlines.default <- function(x, vox2ras = NULL, ..., class = NULL) 
   }
 
   # correct the scalars and properties
-  n_scalars <- length(item$scalars)
+  # `scalars` is a `num_points x n_scalars` matrix (see the `TRK` reader), so
+  # its length counts the values, not the number of scalars; `properties` holds
+  # one value per property and is a plain vector
+  if (is.matrix(item$scalars)) {
+    n_scalars <- ncol(item$scalars)
+  } else {
+    n_scalars <- length(item$scalars)
+  }
   n_properties <- length(item$properties)
+
+  # a scalar matrix that carries its own column names is self-describing; an
+  # explicit override still wins over them
+  if (n_scalars != length(scalar_names) &&
+      length(colnames(item$scalars)) == n_scalars) {
+    scalar_names <- colnames(item$scalars)
+  }
 
   if ("scalar_names" %in% names(headers)) {
     # explicit override
@@ -241,7 +255,7 @@ as_ieegio_streamlines.default <- function(x, vox2ras = NULL, ..., class = NULL) 
     }
   }
   if (n_scalars != length(scalar_names)) {
-    scalar_names <- sprintf("Scalar%d", seq_len(n_scalars))
+    scalar_names <- sprintf("Scalar%03d", seq_len(n_scalars))
   } else {
     blank_names <- scalar_names == ""
     if (any(blank_names)) {
@@ -257,7 +271,7 @@ as_ieegio_streamlines.default <- function(x, vox2ras = NULL, ..., class = NULL) 
     }
   }
   if (n_properties != length(property_names)) {
-    property_names <- sprintf("Scalar%d", seq_len(n_properties))
+    property_names <- sprintf("Property%03d", seq_len(n_properties))
   } else {
     blank_names <- property_names == ""
     if (any(blank_names)) {
