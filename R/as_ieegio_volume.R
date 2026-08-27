@@ -154,9 +154,17 @@ as_ieegio_volume.array <- function(x, vox2ras = NULL, as_color = is.character(x)
   } else {
     # check if we should use oro.nifti (when RNifti is not available)
     x[is.na(x)] <- 0
-    rg <- range(x)
+    finite <- is.finite(x)
+    if (any(finite)) {
+      rg <- range(x[finite])
+    } else {
+      rg <- c(0, 0)
+    }
 
-    if (all(x - round(x) == 0)) {
+    # An integer storage type cannot hold `Inf`, and the test below is undefined
+    # for one anyway (`Inf - round(Inf)` is `NaN`, and `all()` over that returns
+    # `NA`), so any non-finite value forces a floating-point type
+    if (all(finite) && all(x - round(x) == 0)) {
       if (rg[[1]] >= 0 && rg[[2]] <= 255) {
         # UINT8
         datatype_code <- 2L
