@@ -11,6 +11,12 @@
 #' with the format
 #' @param vox2ras volume index to 'RAS' coordinate transform matrix;
 #' default is identity matrix and used by \code{'TRK'} format
+#' @param sanitize whether to discard the tracts in a file that are not lines;
+#' default is \code{TRUE}. A tract needs at least two points to have any
+#' segment, so points with missing coordinates are dropped, and a tract left
+#' with fewer than two points is dropped entirely. Reading a file may therefore
+#' return fewer tracts than it stores. Set to \code{FALSE} to read the file
+#' exactly as written
 #' @param class additional class to be added to the instance
 #' @param ... passed to low-level functions accordingly
 #' @returns \code{read_streamlines} and \code{as_ieegio_streamlines} returns
@@ -305,8 +311,9 @@ as_ieegio_streamlines.default <- function(x, vox2ras = NULL, ..., class = NULL) 
   )
 }
 
+#' @rdname imaging-streamlines
 #' @export
-as_ieegio_streamlines.character <- function(x, ...) {
+as_ieegio_streamlines.character <- function(x, sanitize = TRUE, ...) {
   file <- tolower(x)
   split_str <- strsplit(file[[1]], "\\.")[[1]]
   if (split_str[[length(split_str)]] == "gz") {
@@ -343,6 +350,18 @@ as_ieegio_streamlines.character <- function(x, ...) {
       stop("Unsupported streamline format. Supported formats: trk, trk.gz, tck, tt, tt.gz, vtk, vtp.")
     }
   )
+
+  if (isTRUE(as.logical(sanitize))) {
+    # the low-level readers above stay verbatim; the trimming belongs here, so
+    # that a caller who needs the file exactly as written can still ask for it
+    re$data <- sanitize_streamlines(re$data)
+
+    # `TRK` records the tract count in its header, and it is read but never
+    # written, so keep it agreeing with the data beside it
+    if (length(re$header$n_count)) {
+      re$header$n_count <- length(re$data)
+    }
+  }
   re
 }
 

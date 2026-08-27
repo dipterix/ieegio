@@ -807,10 +807,54 @@ subset_surface_geometry <- function(vertices, faces, sel) {
   list(vertices = vertices, faces = faces)
 }
 
+# Keep only the tracts that are actually lines, and only the points that are
+# actually coordinates. Takes and returns the item list that
+# `[.ieegio_streamlines` produces, in three steps:
+#
+#   1. a tract with fewer than two points is dropped - it has no segment;
+#   2. rows that are not fully finite are removed, along with the per-point
+#      `scalars` sitting on them, so the two stay aligned;
+#   3. a tract left with fewer than two points is dropped as well.
+#
+# The third step is the one that matters: removing rows can leave one point, or
+# none, and such a tract is no more a line than it was before the removal.
+#
+# A gap is closed over rather than split around: a streamline with a missing
+# sample stays one streamline. That is the opposite of what a non-finite row
+# means to `ravetools`, where it separates two chains, which is exactly why
+# these rows must not survive downstream.
+sanitize_streamlines <- function(items) {
+  items <- lapply(items, function(item) {
+    coords <- item$coords
+
+    # nothing that cannot be read as a line survives at all
+    if (!is.matrix(coords) || ncol(coords) < 3 || nrow(coords) < 2) {
+      return(NULL)
+    }
+
+    keep <- rowSums(!is.finite(coords[, seq_len(3), drop = FALSE])) == 0
+    if (!all(keep)) {
+      if (sum(keep) < 2) {
+        return(NULL)
+      }
+      item$coords <- coords[keep, , drop = FALSE]
+      if (is.matrix(item$scalars)) {
+        item$scalars <- item$scalars[keep, , drop = FALSE]
+      }
+      item$num_points <- nrow(item$coords)
+    }
+    item
+  })
+
+  drop_nulls(items)
+}
+
 # Streamlines that pass the arc-length filter. `[.ieegio_streamlines` applies
 # `header$vox2ras`, so the coordinates come back in world space already.
 roi_streamline_items <- function(x, roi_info) {
-  items <- x[]
+  # Gaps are not geometry, and they poison the arc length below - one missing
+  # coordinate makes a whole tract's length `NA`, which then fails every bound.
+  items <- sanitize_streamlines(x[])
 
   # `as_ieegio_roi.ieegio_roi` stores whatever it is handed, so a bound may well
   # arrive as `NA`; comparing against it would select `NA` tracts rather than
@@ -1103,7 +1147,8 @@ resolve_roi_as_streamlines <- function(x, ...) {
   }
 
   # The filters keep or drop whole tracts, so the per-point scalars and the
-  # per-tract properties still line up and are carried over
+  # per-tract properties still line up and are carried over. `sanitize_streamlines`
+  # has already dropped anything that is not a line.
   items <- roi_streamline_items(x, roi_info)
 
   # `roi_streamline_items` returns world coordinates, hence the identity
