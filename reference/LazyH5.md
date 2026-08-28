@@ -177,7 +177,8 @@ open connection
 
 - `...`:
 
-  passed to `createDataSet` in `hdf5r` package
+  backend-specific arguments; for example, passed to `createDataSet` in
+  hdf5r
 
 ------------------------------------------------------------------------
 

@@ -1,8 +1,10 @@
-# Lazy Load 'HDF5' File via [`hdf5r-package`](http://hhoeflin.github.io/hdf5r/reference/hdf5r-package.md)
+# Lazy Load 'HDF5' File
 
 Wrapper for class
 [`LazyH5`](http://dipterix.org/ieegio/reference/LazyH5.md), which load
-data with "lazy" mode - only read part of dataset when needed.
+data with "lazy" mode - only read part of dataset when needed. The
+underlying 'HDF5' backend is resolved at run-time; see
+[`LazyH5`](http://dipterix.org/ieegio/reference/LazyH5.md).
 
 ## Usage
 

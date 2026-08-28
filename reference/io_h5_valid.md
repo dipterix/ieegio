@@ -24,7 +24,8 @@ io_h5_names(file)
 
   whether to close all connections or just close current connection;
   default is false. Set this to `TRUE` if you want to close all other
-  connections to the file
+  connections to the file. This only applies to the `'hdf5r'` backend;
+  `'h5lite'` never holds the file open
 
 ## Value
 
@@ -44,29 +45,33 @@ io_h5_valid(f, 'r')
 #> [1] FALSE
 
 io_write_h5(x, f, 'dset')
-#> /tmp/RtmpJQwBj4/file1f7150f73de1 => dset (Dataset Created)
-#> /tmp/RtmpJQwBj4/file1f7150f73de1 => dset (Dataset Removed)
-#> /tmp/RtmpJQwBj4/file1f7150f73de1 => dset (Dataset Created)
+#> /tmp/Rtmpjei90z/file1f6f2ddec920 => dset (Dataset Created)
+#> /tmp/Rtmpjei90z/file1f6f2ddec920 => dset (Dataset Removed)
+#> /tmp/Rtmpjei90z/file1f6f2ddec920 => dset (Dataset Created)
 io_h5_valid(f, 'w')
 #> [1] TRUE
 
-# Open the file and hold a connection
-ptr <- hdf5r::H5File$new(filename = f, mode = 'w')
+# `close_all` applies to the `hdf5r` backend, the only one that holds
+# file connections open
+if (nzchar(system.file(package = "hdf5r"))) {
 
-# Can read, but cannot write
-io_h5_valid(f, 'r')  # TRUE
+  # Open the file and hold a connection
+  ptr <- hdf5r::H5File$new(filename = f, mode = 'w')
+
+  # Can read, but cannot write while the connection is held
+  print(io_h5_valid(f, 'r'))
+  print(io_h5_valid(f, 'w'))
+
+  # However, this can be reset via `close_all=TRUE`
+  io_h5_valid(f, 'r', close_all = TRUE)
+
+  # Now the connection is no longer valid
+  print(ptr)
+
+  try({ ptr$close_all() }, silent = TRUE)
+}
 #> [1] TRUE
-io_h5_valid(f, 'w')  # FALSE
 #> [1] FALSE
-
-# However, this can be reset via `close_all=TRUE`
-io_h5_valid(f, 'r', close_all = TRUE)
-#> [1] TRUE
-io_h5_valid(f, 'w')  # TRUE
-#> [1] TRUE
-
-# Now the connection is no longer valid
-ptr
 #> Class: H5File
 #> ID: Object invalid
 

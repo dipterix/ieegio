@@ -131,9 +131,7 @@
   : Function try to load 'FST' arrays, if not found, read 'HDF5' arrays
 
 - [`io_read_h5()`](http://dipterix.org/ieegio/reference/io_read_h5.md) :
-
-  Lazy Load 'HDF5' File via
-  [`hdf5r-package`](http://hhoeflin.github.io/hdf5r/reference/hdf5r-package.md)
+  Lazy Load 'HDF5' File
 
 - [`io_write_h5()`](http://dipterix.org/ieegio/reference/io_write_h5.md)
   : Save objects to 'HDF5' file without trivial checks
