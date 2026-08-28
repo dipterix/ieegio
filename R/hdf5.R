@@ -7,10 +7,11 @@ alternative_h5_fname <- function(file) {
   file_path(dir, fname)
 }
 
-#' Lazy Load 'HDF5' File via \code{\link[hdf5r]{hdf5r-package}}
+#' Lazy Load 'HDF5' File
 #'
 #' @description Wrapper for class \code{\link{LazyH5}}, which load data with
-#' "lazy" mode - only read part of dataset when needed.
+#' "lazy" mode - only read part of dataset when needed. The underlying
+#' 'HDF5' backend is resolved at run-time; see \code{\link{LazyH5}}.
 #'
 #' @param file 'HDF5' file
 #' @param name \code{group/data_name} path to dataset (\code{H5D} data)
@@ -85,7 +86,8 @@ io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE)
 #' @param x an array, a matrix, or a vector
 #' @param file path to 'HDF5' file
 #' @param name path/name of the data; for example, \code{"group/data_name"}
-#' @param chunk chunk size
+#' @param chunk chunk size; only honored by the \code{'hdf5r'} backend, as
+#' \code{'h5lite'} has no per-dimension chunking
 #' @param level compress level from 0 - no compression to 10 - max compression
 #' @param replace should data be replaced if exists
 #' @param new_file should removing the file if old one exists
@@ -162,7 +164,8 @@ io_write_h5 <- function(x, file, name, chunk = "auto", level = 4, replace = TRUE
 #' @param mode \code{'r'} for read access and \code{'w'} for write access
 #' @param close_all whether to close all connections or just close current
 #' connection; default is false. Set this to \code{TRUE} if you want to
-#' close all other connections to the file
+#' close all other connections to the file. This only applies to the
+#' \code{'hdf5r'} backend; \code{'h5lite'} never holds the file open
 #' @returns \code{io_h5_valid} returns a logical value indicating whether the
 #' file can be opened. \code{io_h5_names} returns a character vector of
 #' dataset names.
@@ -179,19 +182,25 @@ io_write_h5 <- function(x, file, name, chunk = "auto", level = 4, replace = TRUE
 #' io_write_h5(x, f, 'dset')
 #' io_h5_valid(f, 'w')
 #'
-#' # Open the file and hold a connection
-#' ptr <- hdf5r::H5File$new(filename = f, mode = 'w')
+#' # `close_all` applies to the `hdf5r` backend, the only one that holds
+#' # file connections open
+#' if (nzchar(system.file(package = "hdf5r"))) {
 #'
-#' # Can read, but cannot write
-#' io_h5_valid(f, 'r')  # TRUE
-#' io_h5_valid(f, 'w')  # FALSE
+#'   # Open the file and hold a connection
+#'   ptr <- hdf5r::H5File$new(filename = f, mode = 'w')
 #'
-#' # However, this can be reset via `close_all=TRUE`
-#' io_h5_valid(f, 'r', close_all = TRUE)
-#' io_h5_valid(f, 'w')  # TRUE
+#'   # Can read, but cannot write while the connection is held
+#'   print(io_h5_valid(f, 'r'))
+#'   print(io_h5_valid(f, 'w'))
 #'
-#' # Now the connection is no longer valid
-#' ptr
+#'   # However, this can be reset via `close_all=TRUE`
+#'   io_h5_valid(f, 'r', close_all = TRUE)
+#'
+#'   # Now the connection is no longer valid
+#'   print(ptr)
+#'
+#'   try({ ptr$close_all() }, silent = TRUE)
+#' }
 #'
 #' # clean up
 #' unlink(f)
@@ -207,7 +216,10 @@ io_h5_valid <- function(file, mode = c("r", "w"), close_all = FALSE) {
 
   tryCatch({
 
-    file <- normalizePath(file, mustWork = TRUE)
+    # `filearray` stores the data in `<file>.farr/`, the plain path never exists
+    if (backend_type != "filearray") {
+      file <- normalizePath(file, mustWork = TRUE)
+    }
 
     switch(
       backend_type,
@@ -232,6 +244,16 @@ io_h5_valid <- function(file, mode = c("r", "w"), close_all = FALSE) {
       },
       "h5lite" = {
         h5backend$h5_exists(file = file, name = "/", assert = TRUE)
+        if (mode == "w") {
+          # `h5_open` creates the root group, hence it fails when the file
+          # cannot be written to
+          ptr <- h5backend$h5_open(file)
+          ptr$close()
+        }
+        # `close_all` is a no-op here: h5lite does not hold the file open
+      },
+      {
+        stop("Invalid HDF5 backend: ", backend_type)
       }
     )
     TRUE
@@ -248,10 +270,14 @@ io_h5_valid <- function(file, mode = c("r", "w"), close_all = FALSE) {
 io_h5_names <- function(file) {
   # make sure the file is valid
   if (!io_h5_valid(file, "r")) { return(FALSE) }
-  file <- normalizePath(file, mustWork = TRUE)
 
   h5backend <- ensure_hdf5_backend()
   backend_type <- hdf5_backend_type(h5backend)
+
+  # `filearray` stores the data in `<file>.farr/`, the plain path never exists
+  if (backend_type != "filearray") {
+    file <- normalizePath(file, mustWork = TRUE)
+  }
 
   switch(
     backend_type,

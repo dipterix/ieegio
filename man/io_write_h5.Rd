@@ -24,7 +24,8 @@ io_write_h5(
 
 \item{name}{path/name of the data; for example, \code{"group/data_name"}}
 
-\item{chunk}{chunk size}
+\item{chunk}{chunk size; only honored by the \code{'hdf5r'} backend, as
+\code{'h5lite'} has no per-dimension chunking}
 
 \item{level}{compress level from 0 - no compression to 10 - max compression}
 

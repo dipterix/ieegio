@@ -142,7 +142,8 @@ of \code{x}. Try \code{mode(x)} or \code{storage.mode(x)} as hints.}
       \item{\code{new_dataset}}{only used when the internal pointer is closed, or
 to write the data}
       \item{\code{robj}}{data array to save}
-      \item{\code{...}}{passed to \code{createDataSet} in \code{hdf5r} package}
+      \item{\code{...}}{backend-specific arguments; for example, passed to
+\code{createDataSet} in \pkg{hdf5r}}
     }
     \if{html}{\out{</div>}}
   }

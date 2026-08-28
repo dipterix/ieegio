@@ -2,7 +2,7 @@
 % Please edit documentation in R/hdf5.R
 \name{io_read_h5}
 \alias{io_read_h5}
-\title{Lazy Load 'HDF5' File via \code{\link[hdf5r]{hdf5r-package}}}
+\title{Lazy Load 'HDF5' File}
 \usage{
 io_read_h5(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE)
 }
@@ -24,7 +24,8 @@ a \code{\link{LazyH5}} instance.
 }
 \description{
 Wrapper for class \code{\link{LazyH5}}, which load data with
-"lazy" mode - only read part of dataset when needed.
+"lazy" mode - only read part of dataset when needed. The underlying
+'HDF5' backend is resolved at run-time; see \code{\link{LazyH5}}.
 }
 \examples{
 file <- tempfile()

@@ -33,14 +33,18 @@ ensure_hdf5_backend <- local({
     }
 
     # Resolve system flag
-    sys_flag <- Sys.getenv("IEEGIO_USE_H5", unset = "hdf5r")
+    sys_flag <- Sys.getenv("IEEGIO_USE_H5", unset = "")
     if (!nzchar(sys_flag) && nzchar(Sys.getenv("IEEGIO_USE_H5PY"))) {
       # backward compatible
       sys_flag <- "h5py"
     }
+    if (!nzchar(sys_flag)) {
+      # Resolved default; change this line to move the default to `h5lite`
+      sys_flag <- "hdf5r"
+    }
 
-    # default order is h5lite, hdf5r, then h5py
-    # if hdf5r specified, hdf5r, then h5py
+    # if h5lite specified, h5lite, then hdf5r, then h5py
+    # if hdf5r specified (also the default), hdf5r, then h5py
     # if h5py, then h5py
     if (sys_flag != "h5py") {
       if (sys_flag == "h5lite" && nzchar(system.file(package = "h5lite"))) {
@@ -336,7 +340,8 @@ LazyH5 <- R6::R6Class(
     #' @param new_dataset only used when the internal pointer is closed, or
     #' to write the data
     #' @param robj data array to save
-    #' @param ... passed to \code{createDataSet} in \code{hdf5r} package
+    #' @param ... backend-specific arguments; for example, passed to
+    #' \code{createDataSet} in \pkg{hdf5r}
     open = function(new_dataset = FALSE, robj, ...) {
 
       h5backend <- ensure_hdf5_backend()
@@ -461,6 +466,7 @@ LazyH5 <- R6::R6Class(
           )
         },
         "hdf5r" = {
+          # Use R backend
           # check data pointer
           # if valid, no need to do anything, otherwise, enter if clause
           if (new_dataset || is.null(private$data_ptr) || !private$data_ptr$is_valid) {
@@ -486,8 +492,11 @@ LazyH5 <- R6::R6Class(
                 private$file_ptr <- hdf5r::H5File$new(private$file, mode)
               })
 
-              has_data <- private$file_ptr$path_valid(private$name)
             }
+
+            # Must stay outside of the `file_ptr` check above: the file pointer
+            # can still be valid while the dataset pointer has been closed
+            has_data <- private$file_ptr$path_valid(private$name)
 
             if (!private$read_only && (new_dataset || !has_data)) {
               # need to create new dataset
@@ -691,7 +700,13 @@ LazyH5 <- R6::R6Class(
               dtype <- switch(
                 ctype,
                 "character" = "utf8",
-                "integer" = "float64",
+                "integer" = {
+                  # `int32` round-trips as R integer without relying on the
+                  # `R_type` attribute, but h5lite rejects NA in integer types
+                  if (anyNA(robj)) { "float64" } else { "int32" }
+                },
+                # NA becomes NaN on write and is restored to NA by the
+                # `storage.mode(re) <- r_type` step in `subset()`
                 "logical" = "float32",
                 "numeric" = "float64",
                 "double" = "float64",
@@ -705,7 +720,15 @@ LazyH5 <- R6::R6Class(
                 }
               )
 
-              ptr$write(data = robj, name = dataset_name, as = dtype)
+              # `chunk`/`chunk_dims` has no per-dimension equivalent in h5lite;
+              # `compress` takes a level from 1 to 9, anything else is "none"
+              gzip_level <- args$gzip_level
+              if (length(gzip_level) != 1 || is.na(gzip_level)) {
+                gzip_level <- "gzip"
+              }
+
+              ptr$write(data = robj, name = dataset_name, as = dtype,
+                        compress = gzip_level)
               ptr$write(data = ctype, name = dataset_name, as = "ascii", attr = "R_type")
               ptr$close()
             } else if (!has_data) {
@@ -721,7 +744,8 @@ LazyH5 <- R6::R6Class(
 
           }
 
-          private$last_dim <- private$data_ptr$dim(".")
+          # h5lite follows the python convention, dimensions are reversed
+          private$last_dim <- rev(private$data_ptr$dim("."))
         },
         {
           stop("Unsupported HDF5 backend: ", private$backend)
@@ -766,11 +790,17 @@ LazyH5 <- R6::R6Class(
               private$data_ptr$close()
             }
 
-            # if file link is valid, get_obj_ids() should return a vector of 1
+            # h5lite holds no connection; closing only invalidates the handle
             if (all && !is.null(private$file_ptr) && !is.null(private$file_ptr$.file)) {
               private$file_ptr$close()
             }
           }, silent = TRUE)
+        },
+        "filearray" = {
+          # connections are managed by the `filearray` package itself
+        },
+        {
+          stop("Invalid HDF5 backend: ", private$backend)
         }
       )
 
@@ -791,7 +821,7 @@ LazyH5 <- R6::R6Class(
     ) {
       self$open()
       on.exit({
-        self$close(all = !read_only)
+        self$close(all = !private$read_only)
       })
       # dims <- self$get_dims()
 
@@ -975,7 +1005,7 @@ LazyH5 <- R6::R6Class(
           attr_names <- private$data_ptr$attr_names(name = ".")
           if ("R_type" %in% attr_names) {
             type <- private$data_ptr$read(".", attr = "R_type")
-            if (type == 1) { return(type) }
+            if (length(type) == 1) { return(type) }
           }
           type <- private$data_ptr$typeof(".")
 
