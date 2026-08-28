@@ -32,9 +32,24 @@ ensure_hdf5_backend <- local({
       return()
     }
 
-    if (!nzchar(Sys.getenv("IEEGIO_USE_H5PY")) && nzchar(system.file(package = "hdf5r"))) {
-      # Using hdf5r
-      return(asNamespace("hdf5r"))
+    # Resolve system flag
+    sys_flag <- Sys.getenv("IEEGIO_USE_H5", unset = "hdf5r")
+    if (!nzchar(sys_flag) && nzchar(Sys.getenv("IEEGIO_USE_H5PY"))) {
+      # backward compatible
+      sys_flag <- "h5py"
+    }
+
+    # default order is h5lite, hdf5r, then h5py
+    # if hdf5r specified, hdf5r, then h5py
+    # if h5py, then h5py
+    if (sys_flag != "h5py") {
+      if (sys_flag == "h5lite" && nzchar(system.file(package = "h5lite"))) {
+        return(asNamespace("h5lite"))
+      }
+      if (nzchar(system.file(package = "hdf5r"))) {
+        # Using hdf5r
+        return(asNamespace("hdf5r"))
+      }
     }
 
 
@@ -70,7 +85,16 @@ ensure_hdf5_backend <- local({
   }
 })
 
-
+hdf5_backend_type <- function(h5backend = ensure_hdf5_backend()) {
+  if (inherits(h5backend, "python.builtin.module")) {
+    return("h5py")
+  }
+  if (isNamespace(h5backend)) {
+    # h5lite or hdf5r
+    return(unname(getNamespaceName(h5backend)))
+  }
+  return("filearray")
+}
 
 h5FileValid <- function(filename) {
   if (!length(filename)) { return(structure(FALSE, reasons = "file length must be one")) }
@@ -79,25 +103,41 @@ h5FileValid <- function(filename) {
 
   h5backend <- ensure_hdf5_backend()
 
-  if (!is.null(h5backend)) {
-    if (!file.exists(filename)) { return(structure(FALSE, reasons = "file must exist")) }
-    if (isTRUE(file.info(filename)[["isdir"]])) { return(structure(FALSE, reasons = "file length must not be a directory")) }
+  backend_type <- hdf5_backend_type(h5backend)
 
-    filename <- normalizePath(filename)
-
-    if (inherits(h5backend, "python.builtin.module")) {
-      # using python
+  switch(
+    backend_type,
+    "h5py" = {
+      if (!file.exists(filename)) { return(structure(FALSE, reasons = "file must exist")) }
+      if (isTRUE(file.info(filename)[["isdir"]])) { return(structure(FALSE, reasons = "file length must not be a directory")) }
+      filename <- normalizePath(filename)
       return(py_to_r(h5backend$is_hdf5(filename)))
-    } else if (isNamespace(h5backend)) {
+    },
+    "hdf5r" = {
+      if (!file.exists(filename)) { return(structure(FALSE, reasons = "file must exist")) }
+      if (isTRUE(file.info(filename)[["isdir"]])) { return(structure(FALSE, reasons = "file length must not be a directory")) }
+      filename <- normalizePath(filename)
       return(tryCatch({
         hdf5r::is.h5file(filename)
       }, error = function(e) {
+        # h5lite::h5_exists(file = filename, name = "/", assert = FALSE)
         structure(FALSE, reasons = e$message)
       }))
+    },
+    "filearray" = {
+      return(dir.exists(alternative_h5_fname(filename)))
+    },
+    "h5lite" = {
+      if (!file.exists(filename)) { return(structure(FALSE, reasons = "file must exist")) }
+      if (isTRUE(file.info(filename)[["isdir"]])) { return(structure(FALSE, reasons = "file length must not be a directory")) }
+      filename <- normalizePath(filename)
+      # h5lite
+      return(h5backend$h5_exists(file = filename, name = "/", assert = FALSE))
+    },
+    {
+      stop("Invalid HDF5 backend: ", backend_type)
     }
-  } else {
-    return(dir.exists(alternative_h5_fname(filename)))
-  }
+  )
 
 }
 
@@ -111,6 +151,7 @@ LazyH5 <- R6::R6Class(
   portable = TRUE,
   cloneable = FALSE,
   private = list(
+    backend = character(0L),
     file = NULL,
     name = NULL,
     read_only = TRUE,
@@ -136,8 +177,13 @@ LazyH5 <- R6::R6Class(
     #' @description overrides print method
     #' @return self instance
     print = function() {
-      if (!is.null(private$data_ptr)) {
-        if (inherits(private$data_ptr, "python.builtin.object")) {
+      if (is.null(private$data_ptr)) {
+        base::cat("HDF5 file object (closed)\n")
+        return(invisible(self))
+      }
+      switch(
+        private$backend,
+        "h5py" = {
           if (isTRUE(py_to_r(private$file_ptr$`__bool__`()))) {
             base::cat("HDF5 file object with <h5py> backend\n")
             base::cat(sprintf("  Dataset: %s (dim: %s)\n", private$name, paste(private$last_dim, collapse = "x")))
@@ -146,11 +192,8 @@ LazyH5 <- R6::R6Class(
                       paste(private$last_dim, collapse = "x"), " \tRank: ",
                       length(private$last_dim), "\n")
           }
-        } else if (inherits(private$data_ptr, "filearray_ptr")) {
-          base::cat("HDF5 cache object with <filearray> backend\n")
-          base::cat(sprintf("  Dataset : %s (dim: %s)\n", private$name, paste(private$last_dim, collapse = "x")))
-          base::cat(sprintf("  Datatype: %s\n", private$data_ptr$object$type()))
-        } else {
+        },
+        "hdf5r" = {
           if (isTRUE(private$data_ptr$is_valid)) {
             base::print(private$data_ptr)
           } else {
@@ -158,10 +201,23 @@ LazyH5 <- R6::R6Class(
                       paste(private$last_dim, collapse = "x"), " \tRank: ",
                       length(private$last_dim), "\n")
           }
+        },
+        "filearray" = {
+          base::cat("HDF5 cache object with <filearray> backend\n")
+          base::cat(sprintf("  Dataset : %s (dim: %s)\n", private$name, paste(private$last_dim, collapse = "x")))
+          base::cat(sprintf("  Datatype: %s\n", private$data_ptr$object$type()))
+        },
+        "h5lite" = {
+          base::cat("HDF5 file object with <h5lite> backend\n")
+          base::print(private$data_ptr)
+          base::cat("Information since last open:\nDim: ",
+                    paste(private$last_dim, collapse = "x"), " \tRank: ",
+                    length(private$last_dim), "\n")
+        },
+        {
+          base::cat("HDF5 file object (closed)\n")
         }
-      } else {
-        base::cat("HDF5 file object (closed)\n")
-      }
+      )
       invisible(self)
     },
 
@@ -174,6 +230,10 @@ LazyH5 <- R6::R6Class(
     #' @param quiet whether to suppress messages, default is false
     #' @return self instance
     initialize = function(file_path, data_name, read_only = FALSE, quiet = FALSE) {
+
+      h5backend <- ensure_hdf5_backend()
+
+      private$backend <- hdf5_backend_type(h5backend)
 
       # First get absolute path, otherwise hdf5r may report file not found error
       private$file <- normalizePath(file_path, mustWork = FALSE)
@@ -281,274 +341,392 @@ LazyH5 <- R6::R6Class(
 
       h5backend <- ensure_hdf5_backend()
 
-      if (inherits(h5backend, "python.builtin.module")) {
-        # Use Python backend
-        # check data pointer
-        # if valid, no need to do anything, otherwise, enter if clause
+      switch(
+        private$backend,
+        "h5py" = {
+          # Use Python backend
+          # check data pointer
+          # if valid, no need to do anything, otherwise, enter if clause
 
-        pointer_valid <- TRUE
-        if (
-          !inherits(private$file_ptr, "python.builtin.object") || py_is_null_xptr(private$file_ptr) ||
-          !isTRUE(py_to_r(private$file_ptr$`__bool__`()))
-        ) {
-          pointer_valid <- FALSE
-        }
-
-        if (new_dataset || !pointer_valid) {
-
-          # check if `file_ptr` is valid
-          if (!pointer_valid) {
-            # if no, create new link
-            mode <- ifelse(private$read_only, "r", "a")
-
-            private$file_ptr <- h5backend$File(private$file, mode = mode)
+          pointer_valid <- TRUE
+          if (
+            !inherits(private$file_ptr, "python.builtin.object") || py_is_null_xptr(private$file_ptr) ||
+            !isTRUE(py_to_r(private$file_ptr$`__bool__`()))
+          ) {
+            pointer_valid <- FALSE
           }
 
-          has_data <- tryCatch({
-            private$file_ptr$`__getitem__`(private$name)
-            TRUE
-          }, error = function(e) {
-            FALSE
-          })
+          if (new_dataset || !pointer_valid) {
+
+            # check if `file_ptr` is valid
+            if (!pointer_valid) {
+              # if no, create new link
+              mode <- ifelse(private$read_only, "r", "a")
+
+              private$file_ptr <- h5backend$File(private$file, mode = mode)
+            }
+
+            has_data <- tryCatch({
+              private$file_ptr$`__getitem__`(private$name)
+              TRUE
+            }, error = function(e) {
+              FALSE
+            })
+
+            if (!private$read_only && (new_dataset || !has_data)) {
+              # need to create new dataset
+              g <- strsplit(private$name, "/", fixed = TRUE)[[1]]
+              g <- g[stringr::str_trim(g) != ""]
+
+              group_name <- paste(c("", g[-length(g)]), collapse = "/")
+              group_name <- trimws(group_name)
+              if (nzchar(group_name)) {
+                ptr <- private$file_ptr$require_group(group_name)
+              } else {
+                ptr <- private$file_ptr
+              }
+
+
+              # delete it first as the data will be written later
+              nm <- g[length(g)]
+
+              if (missing(robj)) {
+                robj <- NA_real_
+              }
+              data_shape <- dim(robj)
+              if (!length(data_shape)) {
+                data_shape <- length(robj)
+              } else {
+                # R is col-major and python is row-major
+                robj <- aperm(robj, rev(seq_along(data_shape)))
+                data_shape <- dim(robj)
+              }
+              py_data_shape <- do.call(rpymat::py_tuple, unname(as.list(data_shape)))
+              # self$open(new_dataset = replace, robj = x, ctype=, ...)
+              args <- list(...)
+              ctype <- args$ctype
+              if (length(ctype) != 1) {
+                ctype <- storage.mode(robj)
+              }
+
+              # if(inherits(type, "H5T_STRING")) { return("character") }
+              # if(inherits(type, "H5T_INTEGER")) { return("integer") }
+              # if(inherits(type, "H5T_BITFIELD")) { return("raw") }
+              # if(inherits(type, "H5T_FLOAT")) { return("double") }
+              # if(inherits(type, "H5T_COMPLEX")) { return("complex") }
+              dtype <- switch(
+                ctype,
+                "character" = h5backend$string_dtype(),
+                "integer" = "int32",
+                "logical" = "bool",
+                "numeric" = "float64",
+                "double" = "float64",
+                "float" = "float32",
+                "raw" = {
+                  storage.mode(robj) <- "integer"
+                  "uint8"
+                },
+                {
+                  ctype
+                }
+              )
+
+              dtpr <- tryCatch(
+                {
+                  ptr$require_dataset(nm, py_data_shape, dtype)
+                },
+                error = function(e) {
+                  ptr$`__delitem__`(nm)
+                  ptr$require_dataset(nm, py_data_shape, dtype)
+                }
+              )
+              dtpr$`__setitem__`(rpymat::py_tuple(), robj)
+              # ptr$`__setitem__`(nm, robj)
+
+            } else if (!has_data) {
+              stop(sprintf(
+                "File [%s] has no [%s] in it.",
+                private$file, private$name
+              ))
+            }
+
+          }
+
+          tryCatch(
+            {
+              private$data_ptr <- private$file_ptr$`__getitem__`(private$name)
+              private$last_dim <- rev(unlist(py_to_r(private$data_ptr$shape)))
+            },
+            error = function(e) {}
+          )
+        },
+        "hdf5r" = {
+          # check data pointer
+          # if valid, no need to do anything, otherwise, enter if clause
+          if (new_dataset || is.null(private$data_ptr) || !private$data_ptr$is_valid) {
+
+            # Check if file is valid,
+            if (is.null(private$file_ptr) || !private$file_ptr$is_valid) {
+              # if no, create new link
+              mode <- ifelse(private$read_only, "r", "a")
+
+              # Using hdf5r
+              tryCatch({
+                private$file_ptr <- hdf5r::H5File$new(private$file, mode)
+              }, error = function(e) {
+                # Open for writting, we should close all connections first
+                # then the file can be opened, otherwise, Access type: H5F_ACC_RDONLY
+                # will lock the file for writting
+                f <- hdf5r::H5File$new(private$file, "r")
+                if (!self$quiet) {
+                  cat("Closing all other connections to [{private$file}] - {f$get_obj_count() - 1}\n")
+                }
+
+                try({ f$close_all() }, silent = TRUE)
+                private$file_ptr <- hdf5r::H5File$new(private$file, mode)
+              })
+
+              has_data <- private$file_ptr$path_valid(private$name)
+            }
+
+            if (!private$read_only && (new_dataset || !has_data)) {
+              # need to create new dataset
+              g <- stringr::str_split(private$name, "/", simplify = TRUE)
+              g <- g[stringr::str_trim(g) != ""]
+
+              ptr <- private$file_ptr
+              nm <- ""
+
+              for (i in g[-length(g)]) {
+                nm <- sprintf("%s/%s", nm, i)
+                if (!ptr$path_valid(path = nm)) {
+                  ptr <- ptr$create_group(i)
+                  if (!self$quiet) {
+                    cat(sprintf("%s => %s (Group Created)\n", private$file, nm))
+                  }
+                } else {
+                  ptr <- ptr[[i]]
+                }
+              }
+
+              # create dataset
+              nm <- g[length(g)]
+              if (ptr$path_valid(path = nm)) {
+                # dataset exists, unlink first
+                if (!self$quiet) {
+                  cat(sprintf("%s => %s (Dataset Removed)\n", private$file, nm))
+                }
+                ptr$link_delete(nm)
+              }
+              # new create
+              if (!self$quiet) {
+                cat(sprintf("%s => %s (Dataset Created)\n", private$file, nm))
+              }
+              if (missing(robj)) {
+                robj <- NA
+              }
+              ptr$create_dataset(nm, robj = robj, ...)
+              if (ptr$is_valid && inherits(ptr, "H5Group")) {
+                ptr$close()
+              }
+            } else if (!has_data) {
+              stop(sprintf(
+                "File [%s] has no [%s] in it.",
+                private$file, private$name
+              ))
+            }
+
+            private$data_ptr <- private$file_ptr[[private$name]]
+
+          }
+
+          private$last_dim <- private$data_ptr$dims
+        },
+        "filearray" = {
+          # use filearray
+
+          filebase <- file.path(alternative_h5_fname(private$file), private$name)
+          has_data <- dir.exists(filebase)
 
           if (!private$read_only && (new_dataset || !has_data)) {
-            # need to create new dataset
-            g <- strsplit(private$name, "/", fixed = TRUE)[[1]]
-            g <- g[stringr::str_trim(g) != ""]
-
-            group_name <- paste(c("", g[-length(g)]), collapse = "/")
-            group_name <- trimws(group_name)
-            if (nzchar(group_name)) {
-              ptr <- private$file_ptr$require_group(group_name)
-            } else {
-              ptr <- private$file_ptr
+            if (file.exists(filebase)) {
+              unlink(filebase, recursive = TRUE)
             }
+            if (!missing(robj)) {
 
-
-            # delete it first as the data will be written later
-            nm <- g[length(g)]
-
-            if (missing(robj)) {
-              robj <- NA_real_
-            }
-            data_shape <- dim(robj)
-            if (!length(data_shape)) {
-              data_shape <- length(robj)
-            } else {
-              # R is col-major and python is row-major
-              robj <- aperm(robj, rev(seq_along(data_shape)))
-              data_shape <- dim(robj)
-            }
-            py_data_shape <- do.call(rpymat::py_tuple, unname(as.list(data_shape)))
-            # self$open(new_dataset = replace, robj = x, ctype=, ...)
-            args <- list(...)
-            ctype <- args$ctype
-            if (length(ctype) != 1) {
-              ctype <- storage.mode(robj)
-            }
-
-            # if(inherits(type, "H5T_STRING")) { return("character") }
-            # if(inherits(type, "H5T_INTEGER")) { return("integer") }
-            # if(inherits(type, "H5T_BITFIELD")) { return("raw") }
-            # if(inherits(type, "H5T_FLOAT")) { return("double") }
-            # if(inherits(type, "H5T_COMPLEX")) { return("complex") }
-            dtype <- switch(
-              ctype,
-              "character" = h5backend$string_dtype(),
-              "integer" = "int32",
-              "logical" = "bool",
-              "numeric" = "float64",
-              "double" = "float64",
-              "float" = "float32",
-              "raw" = {
-                storage.mode(robj) <- "integer"
-                "uint8"
-              },
-              {
-                ctype
+              # need to create new dataset
+              dir.create(dirname(filebase), recursive = TRUE, showWarnings = FALSE)
+              dm0 <- dim(robj)
+              dm <- dm0
+              if (length(dm) < 2) {
+                dm0 <- length(robj)
+                dm <- c(dm0, 1)
               }
-            )
+              storage <- storage.mode(robj)
+              if (storage %in% c("string", "character")) {
+                storage <- "raw"
+                robj <- paste(robj, collapse = "")
+                robj <- charToRaw(robj)
 
-            dtpr <- tryCatch(
-              {
-                ptr$require_dataset(nm, py_data_shape, dtype)
-              },
-              error = function(e) {
-                ptr$`__delitem__`(nm)
-                ptr$require_dataset(nm, py_data_shape, dtype)
-              }
-            )
-            dtpr$`__setitem__`(rpymat::py_tuple(), robj)
-            # ptr$`__setitem__`(nm, robj)
-
-          } else if (!has_data) {
-            stop(sprintf(
-              "File [%s] has no [%s] in it.",
-              private$file, private$name
-            ))
-          }
-
-        }
-
-        tryCatch(
-          {
-            private$data_ptr <- private$file_ptr$`__getitem__`(private$name)
-            private$last_dim <- rev(unlist(py_to_r(private$data_ptr$shape)))
-          },
-          error = function(e) {}
-        )
-      } else if (isNamespace(h5backend)) {
-        # Use R backend
-        # check data pointer
-        # if valid, no need to do anything, otherwise, enter if clause
-        if (new_dataset || is.null(private$data_ptr) || !private$data_ptr$is_valid) {
-
-          # Check if file is valid,
-          if (is.null(private$file_ptr) || !private$file_ptr$is_valid) {
-            # if no, create new link
-            mode <- ifelse(private$read_only, "r", "a")
-            tryCatch({
-              private$file_ptr <- hdf5r::H5File$new(private$file, mode)
-            }, error = function(e) {
-              # Open for writting, we should close all connections first
-              # then the file can be opened, otherwise, Access type: H5F_ACC_RDONLY
-              # will lock the file for writting
-              f <- hdf5r::H5File$new(private$file, "r")
-              if (!self$quiet) {
-                cat("Closing all other connections to [{private$file}] - {f$get_obj_count() - 1}\n")
-              }
-
-              try({ f$close_all() }, silent = TRUE)
-              private$file_ptr <- hdf5r::H5File$new(private$file, mode)
-            })
-          }
-
-          has_data <- private$file_ptr$path_valid(private$name)
-
-          if (!private$read_only && (new_dataset || ! has_data)) {
-            # need to create new dataset
-            g <- stringr::str_split(private$name, "/", simplify = TRUE)
-            g <- g[stringr::str_trim(g) != ""]
-
-            ptr <- private$file_ptr
-            nm <- ""
-
-            for (i in g[-length(g)]) {
-              nm <- sprintf("%s/%s", nm, i)
-              if (!ptr$path_valid(path = nm)) {
-                ptr <- ptr$create_group(i)
-                if (!self$quiet) {
-                  cat(sprintf("%s => %s (Group Created)\n", private$file, nm))
+                dm <- c(length(robj), 1)
+                if (any(dm == 0)) {
+                  arr <- filearray::filearray_create(filebase = filebase, dimension = c(1, 1), type = storage)
+                  arr$set_header("original_dim", dm0)
+                } else {
+                  arr <- filearray::filearray_create(filebase = filebase, dimension = dm, type = storage)
+                  arr$set_header("original_dim", dm0)
+                  suppressWarnings({
+                    arr[] <- robj
+                  })
                 }
               } else {
-                ptr <- ptr[[i]]
+                if (any(dm == 0)) {
+                  arr <- filearray::filearray_create(filebase = filebase, dimension = c(1, 1), type = storage)
+                  arr$set_header("original_dim", dm0)
+                } else {
+                  arr <- filearray::filearray_create(filebase = filebase, dimension = dm, type = storage)
+                  arr$set_header("original_dim", dm0)
+                  arr[] <- robj
+                }
               }
-            }
 
-            # create dataset
-            nm <- g[length(g)]
-            if (ptr$path_valid(path = nm)) {
-              # dataset exists, unlink first
-              if (!self$quiet) {
-                cat(sprintf("%s => %s (Dataset Removed)\n", private$file, nm))
-              }
-              ptr$link_delete(nm)
-            }
-            # new create
-            if (!self$quiet) {
-              cat(sprintf("%s => %s (Dataset Created)\n", private$file, nm))
-            }
-            if (missing(robj)) {
-              robj <- NA
-            }
-            ptr$create_dataset(nm, robj = robj, ...)
-            if (ptr$is_valid && inherits(ptr, "H5Group")) {
-              ptr$close()
+              private$data_ptr <- structure(
+                class = "filearray_ptr",
+                list(object = arr,
+                     is_valid = TRUE)
+              )
             }
           } else if (!has_data) {
             stop(sprintf(
               "File [%s] has no [%s] in it.",
               private$file, private$name
             ))
-          }
-
-          private$data_ptr <- private$file_ptr[[private$name]]
-
-        }
-
-        private$last_dim <- private$data_ptr$dims
-      } else {
-        # use filearray
-
-        filebase <- file.path(alternative_h5_fname(private$file), private$name)
-        has_data <- dir.exists(filebase)
-
-        if (!private$read_only && (new_dataset || ! has_data)) {
-          if (file.exists(filebase)) {
-            unlink(filebase, recursive = TRUE)
-          }
-          if (!missing(robj)) {
-
-            # need to create new dataset
-            dir.create(dirname(filebase), recursive = TRUE, showWarnings = FALSE)
-            dm0 <- dim(robj)
-            dm <- dm0
-            if (length(dm) < 2) {
-              dm0 <- length(robj)
-              dm <- c(dm0, 1)
-            }
-            storage <- storage.mode(robj)
-            if (storage %in% c("string", "character")) {
-              storage <- "raw"
-              robj <- paste(robj, collapse = "")
-              robj <- charToRaw(robj)
-
-              dm <- c(length(robj), 1)
-              if (any(dm == 0)) {
-                arr <- filearray::filearray_create(filebase = filebase, dimension = c(1, 1), type = storage)
-                arr$set_header("original_dim", dm0)
-              } else {
-                arr <- filearray::filearray_create(filebase = filebase, dimension = dm, type = storage)
-                arr$set_header("original_dim", dm0)
-                suppressWarnings({
-                  arr[] <- robj
-                })
-              }
-            } else {
-              if (any(dm == 0)) {
-                arr <- filearray::filearray_create(filebase = filebase, dimension = c(1, 1), type = storage)
-                arr$set_header("original_dim", dm0)
-              } else {
-                arr <- filearray::filearray_create(filebase = filebase, dimension = dm, type = storage)
-                arr$set_header("original_dim", dm0)
-                arr[] <- robj
-              }
-            }
-
+          } else {
+            arr <- filearray::filearray_load(filebase = filebase, mode = ifelse(private$read_only, "readonly", "readwrite"))
             private$data_ptr <- structure(
               class = "filearray_ptr",
               list(object = arr,
                    is_valid = TRUE)
             )
           }
-        } else if (!has_data) {
-          stop(sprintf(
-            "File [%s] has no [%s] in it.",
-            private$file, private$name
-          ))
-        } else {
-          arr <- filearray::filearray_load(filebase = filebase, mode = ifelse(private$read_only, "readonly", "readwrite"))
-          private$data_ptr <- structure(
-            class = "filearray_ptr",
-            list(object = arr,
-                 is_valid = TRUE)
-          )
+
+          private$last_dim <- dim(private$data_ptr)
+        },
+        "h5lite" = {
+          # h5lite
+          # check data pointer
+          # if valid, no need to do anything, otherwise, enter if clause
+          if (new_dataset || is.null(private$data_ptr) || is.null(private$data_ptr$.file)) {
+
+            # Check if file is valid,
+            # is.null(private$file_ptr$.file) is how h5lite check if file is opened
+            if (is.null(private$file_ptr) || is.null(private$file_ptr$.file)) {
+              # if no, create new link
+              mode <- ifelse(private$read_only, "r", "a")
+
+              # h5lite: h5lite always perform simple ops and does not hold
+              # connections open
+              private$file_ptr <- h5backend$h5_open(private$file)
+
+            }
+            has_data <- private$file_ptr$exists(private$name)
+
+            if (!private$read_only && (new_dataset || !has_data)) {
+              # need to create new dataset
+              g <- stringr::str_split(private$name, "/", simplify = TRUE)
+              g <- g[stringr::str_trim(g) != ""]
+
+              group_name <- paste(g[-length(g)], collapse = "/")
+              dataset_name <- paste(g, collapse = "/")
+
+              ptr <- private$file_ptr
+              if (nzchar(group_name) && !ptr$exists(group_name)) {
+                ptr$create_group(group_name)
+
+                if (!self$quiet) {
+                  cat(sprintf("%s => %s (Group Created)\n", private$file, group_name))
+                }
+              }
+
+              # create dataset
+              if (ptr$exists(dataset_name)) {
+                # dataset exists, unlink first
+                if (!self$quiet) {
+                  cat(sprintf("%s => %s (Dataset Removed)\n", private$file, dataset_name))
+                }
+                ptr$delete(dataset_name)
+              }
+
+              # new create
+              if (!self$quiet) {
+                cat(sprintf("%s => %s (Dataset Created)\n", private$file, dataset_name))
+              }
+              if (missing(robj)) {
+                robj <- NA
+              }
+
+              data_shape <- dim(robj)
+              if (!length(data_shape)) {
+                data_shape <- length(robj)
+              } else {
+                # R is col-major and python is row-major, h5lite follows python convention
+                robj <- aperm(robj, rev(seq_along(data_shape)))
+                data_shape <- dim(robj)
+              }
+              args <- list(...)
+              ctype <- args$ctype
+              if (length(ctype) != 1) {
+                ctype <- storage.mode(robj)
+              }
+
+              # When writing a numeric or logical vector, you can specify one of the following storage types for it:
+              #
+              #   Floating Point: "float16", "float32", "float64", "bfloat16"
+              #
+              # Signed Integer: "int8", "int16", "int32", "int64"
+              #
+              # Unsigned Integer: "uint8", "uint16", "uint32", "uint64"
+              #
+              # NOTE: NA values must be stored as float64. NaN, Inf, and -Inf must be stored as a floating point type.
+              dtype <- switch(
+                ctype,
+                "character" = "utf8",
+                "integer" = "float64",
+                "logical" = "float32",
+                "numeric" = "float64",
+                "double" = "float64",
+                "float" = "float32",
+                "raw" = {
+                  storage.mode(robj) <- "integer"
+                  "uint8"
+                },
+                {
+                  ctype
+                }
+              )
+
+              ptr$write(data = robj, name = dataset_name, as = dtype)
+              ptr$write(data = ctype, name = dataset_name, as = "ascii", attr = "R_type")
+              ptr$close()
+            } else if (!has_data) {
+              stop(sprintf(
+                "File [%s] has no [%s] in it.",
+                private$file, private$name
+              ))
+            }
+
+            data_ptr <- h5backend$h5_open(private$file)
+            data_ptr$cd(private$name)
+            private$data_ptr <- data_ptr
+
+          }
+
+          private$last_dim <- private$data_ptr$dim(".")
+        },
+        {
+          stop("Unsupported HDF5 backend: ", private$backend)
         }
-
-        private$last_dim <- dim(private$data_ptr)
-
-      }
-
+      )
     },
 
 
@@ -560,27 +738,42 @@ LazyH5 <- R6::R6Class(
 
       h5backend <- ensure_hdf5_backend()
 
-      if (inherits(h5backend, "python.builtin.module")) {
-        tryCatch({
-          private$file_ptr$close()
-          private$data_ptr <- NULL
-          private$file_ptr <- NULL
-        }, error = function(e) {})
-      } else if (isNamespace(h5backend)) {
-        try({
-          # check if data link is valid
-          if (!is.null(private$data_ptr) && private$data_ptr$is_valid) {
-            private$data_ptr$close()
-          }
+      switch(
+        private$backend,
+        "h5py" = {
+          tryCatch({
+            private$file_ptr$close()
+            private$data_ptr <- NULL
+            private$file_ptr <- NULL
+          }, error = function(e) {})
+        },
+        "hdf5r" = {
+          try({
+            # check if data link is valid
+            if (!is.null(private$data_ptr) && private$data_ptr$is_valid) {
+              private$data_ptr$close()
+            }
 
-          # if file link is valid, get_obj_ids() should return a vector of 1
-          if (all && !is.null(private$file_ptr) && private$file_ptr$is_valid) {
-            private$file_ptr$close_all()
-          }
-        }, silent = TRUE)
-      } else {
+            # if file link is valid, get_obj_ids() should return a vector of 1
+            if (all && !is.null(private$file_ptr) && private$file_ptr$is_valid) {
+              private$file_ptr$close_all()
+            }
+          }, silent = TRUE)
+        },
+        "h5lite" = {
+          try({
+            if (!is.null(private$data_ptr) && !is.null(private$data_ptr$.file)) {
+              private$data_ptr$close()
+            }
 
-      }
+            # if file link is valid, get_obj_ids() should return a vector of 1
+            if (all && !is.null(private$file_ptr) && !is.null(private$file_ptr$.file)) {
+              private$file_ptr$close()
+            }
+          }, silent = TRUE)
+        }
+      )
+
       invisible()
     },
 
@@ -602,64 +795,101 @@ LazyH5 <- R6::R6Class(
       })
       # dims <- self$get_dims()
 
-      if (inherits(private$data_ptr, "python.builtin.object")) {
+      switch(
+        private$backend,
+        "h5py" = {
+          re <- py_to_r(private$data_ptr[])
+          dm <- dim(re)
 
-        re <- py_to_r(private$data_ptr[])
-        dm <- dim(re)
-
-        if (length(dm) > 1) {
-          re <- aperm(re, perm = rev(seq_along(dm)))
-        }
-
-        re <- re[..., drop = FALSE]
-        if (drop) {
-          re <- base::drop(re)
-        }
-
-        if (!is.null(re) && length(dim(re)) == 1) {
-          dim(re) <- NULL
-        }
-        return(re)
-
-      } else if (inherits(private$data_ptr, "filearray_ptr")) {
-        arr <- private$data_ptr$object
-        storage <- private$data_ptr$object$type()
-        dm0 <- arr$get_header("original_dim", default = NULL)
-        if (!length(dm0) || any(dm0 == 0)) {
-          re <- logical(0L)
-          dim(re) <- dm0
-          if (storage == "raw") {
-            storage <- "character"
+          if (length(dm) > 1) {
+            re <- aperm(re, perm = rev(seq_along(dm)))
           }
-          storage.mode(re) <- storage
-          re <- re[..., drop = drop]
-        } else {
-          if (storage == "raw") {
-            re <- as.vector(private$data_ptr$object[drop = TRUE])
-            re <- rawToChar(re)
-            if (length(dm0) >= 2) {
-              dim(re) <- dm0
+
+          re <- re[..., drop = FALSE]
+          if (drop) {
+            re <- base::drop(re)
+          }
+
+          if (!is.null(re) && length(dim(re)) == 1) {
+            dim(re) <- NULL
+          }
+          return(re)
+        },
+        "filearray" = {
+          arr <- private$data_ptr$object
+          storage <- private$data_ptr$object$type()
+          dm0 <- arr$get_header("original_dim", default = NULL)
+          if (!length(dm0) || any(dm0 == 0)) {
+            re <- logical(0L)
+            dim(re) <- dm0
+            if (storage == "raw") {
+              storage <- "character"
             }
+            storage.mode(re) <- storage
             re <- re[..., drop = drop]
           } else {
-            if (length(dm0) < 2) {
+            if (storage == "raw") {
               re <- as.vector(private$data_ptr$object[drop = TRUE])
+              re <- rawToChar(re)
+              if (length(dm0) >= 2) {
+                dim(re) <- dm0
+              }
               re <- re[..., drop = drop]
             } else {
-              re <- private$data_ptr$object[..., drop = drop]
+              if (length(dm0) < 2) {
+                re <- as.vector(private$data_ptr$object[drop = TRUE])
+                re <- re[..., drop = drop]
+              } else {
+                re <- private$data_ptr$object[..., drop = drop]
+              }
             }
           }
+          return(re)
+        },
+        "hdf5r" = {
+          # step 1: eval indices
+          dot_len <- ...length()
+          args <- eval(substitute(alist(...)))
+          if (dot_len == 0 || (dot_len == 1 && isTRUE(args[[1]] == ""))) {
+            return(private$data_ptr$read(drop = drop))
+          }
+          return(private$data_ptr$read(args = args, drop = drop, envir = envir))
+        },
+        "h5lite" = {
+
+          re <- private$data_ptr$read(".")
+          r_type <- attr(re, "R_type")
+
+          if (length(r_type) == 1) {
+            try(
+              silent = TRUE,
+              expr = {
+                storage.mode(re) <- r_type
+                attr(re, "R_type") <- NULL
+              }
+            )
+          }
+
+          dm <- private$data_ptr$dim(".")
+
+          if (length(dm) > 1) {
+            re <- aperm(re, perm = rev(seq_along(dm)))
+          }
+
+          re <- re[..., drop = FALSE]
+          if (drop) {
+            re <- base::drop(re)
+          }
+
+          if (!is.null(re) && length(dim(re)) == 1) {
+            dim(re) <- NULL
+          }
+          return(re)
+        },
+        {
+          stop("Invalid HDF5 backend: ", private$backend)
         }
-        return(re)
-      } else {
-        # step 1: eval indices
-        dot_len <- ...length()
-        args <- eval(substitute(alist(...)))
-        if (dot_len == 0 || (dot_len == 1 && isTRUE(args[[1]] == ""))) {
-          return(private$data_ptr$read(drop = drop))
-        }
-        return(private$data_ptr$read(args = args, drop = drop, envir = envir))
-      }
+      )
     },
 
 
@@ -669,13 +899,25 @@ LazyH5 <- R6::R6Class(
     get_dims = function(stay_open = TRUE) {
       self$open()
 
-      if (inherits(private$data_ptr, "python.builtin.object")) {
-        re <- rev(unlist(py_to_r(private$data_ptr$shape)))
-      } else if (inherits(private$data_ptr, "filearray_ptr")) {
-        re <- dim(private$data_ptr)
-      } else {
-        re <- private$data_ptr$dims
-      }
+      re <- switch(
+        private$backend,
+        "h5py" = {
+          rev(unlist(py_to_r(private$data_ptr$shape)))
+        },
+        "filearray" = {
+          dim(private$data_ptr)
+        },
+        "hdf5r" = {
+          private$data_ptr$dims
+        },
+        "h5lite" = {
+          rev(private$data_ptr$dim("."))
+        },
+        {
+          stop("Invalid HDF5 backend: ", private$backend)
+        }
+      )
+
       if (!stay_open) {
         self$close(all = !private$read_only)
       }
@@ -689,14 +931,9 @@ LazyH5 <- R6::R6Class(
     get_type = function(stay_open = TRUE) {
       self$open()
 
-      if (inherits(private$data_ptr, "filearray_ptr")) {
-        re <- private$data_ptr$object$type()
-        if (re == "raw") {
-          re <- "character"
-        }
-        return(re)
-      } else {
-        if (inherits(private$data_ptr, "python.builtin.object")) {
+      switch(
+        private$backend,
+        "h5py" = {
           type <- py_to_r(private$data_ptr$dtype$type$`__name__`)
           type <- tolower(substr(type, 1, 3))
           re <- switch(
@@ -714,18 +951,55 @@ LazyH5 <- R6::R6Class(
             }
           )
           return(re)
-        }
-        type <- private$data_ptr$get_type()
+        },
+        "filearray" = {
+          re <- private$data_ptr$object$type()
+          if (re == "raw") {
+            re <- "character"
+          }
+          return(re)
+        },
+        "hdf5r" = {
+          type <- private$data_ptr$get_type()
 
-        if (!stay_open) {
-          self$close(all = !private$read_only)
+          if (!stay_open) {
+            self$close(all = !private$read_only)
+          }
+          if (inherits(type, "H5T_STRING")) { return("character") }
+          if (inherits(type, "H5T_INTEGER")) { return("integer") }
+          if (inherits(type, "H5T_BITFIELD")) { return("raw") }
+          if (inherits(type, "H5T_FLOAT")) { return("double") }
+          if (inherits(type, "H5T_COMPLEX")) { return("complex") }
+        },
+        "h5lite" = {
+          attr_names <- private$data_ptr$attr_names(name = ".")
+          if ("R_type" %in% attr_names) {
+            type <- private$data_ptr$read(".", attr = "R_type")
+            if (type == 1) { return(type) }
+          }
+          type <- private$data_ptr$typeof(".")
+
+          type <- switch(
+            substr(type, 1, 3),
+            "flo" = "double",
+            "dou" = "double",
+            "boo" = "logical",
+            "int" = "integer",
+            "uin" = "raw",
+            "com" = "complex",
+            "utf" = "character",
+            "asc" = "character",
+            {
+              type
+            }
+          )
+          return(type)
+        },
+        {
+          stop("Invalid HDF5 backend: ", private$backend)
         }
-        if (inherits(type, "H5T_STRING")) { return("character") }
-        if (inherits(type, "H5T_INTEGER")) { return("integer") }
-        if (inherits(type, "H5T_BITFIELD")) { return("raw") }
-        if (inherits(type, "H5T_FLOAT")) { return("double") }
-        if (inherits(type, "H5T_COMPLEX")) { return("complex") }
-      }
+      )
+
 
       return("unknown")
     }

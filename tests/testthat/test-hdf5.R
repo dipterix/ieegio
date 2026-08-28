@@ -1,9 +1,19 @@
 require(testthat)
-test_that("HDF5 IO with R backend", {
+
+test_that("HDF5 IO with R-hdf5r backend", {
+
+  testthat::skip_if_not(nzchar(system.file(package = "hdf5r")))
 
   Sys.unsetenv("IEEGIO_USE_H5PY")
+  Sys.setenv("IEEGIO_USE_H5" = "hdf5r")
   old_opt <- options("ieegio.debug.emscripten" = FALSE)
-  on.exit({ options(old_opt) }, add = TRUE)
+  on.exit({
+    options(old_opt)
+    Sys.unsetenv("IEEGIO_USE_H5")
+  }, add = TRUE)
+
+  h5backend <- ensure_hdf5_backend()
+  expect_true(getNamespaceName(h5backend) == "hdf5r")
 
   x <- array(1:24, c(1, 2, 3, 1, 4, 1))
 
@@ -70,6 +80,92 @@ test_that("HDF5 IO with R backend", {
 
 })
 
+test_that("HDF5 IO with R-h5lite backend", {
+
+  testthat::skip_if_not(nzchar(system.file(package = "h5lite")))
+
+  Sys.unsetenv("IEEGIO_USE_H5PY")
+  Sys.setenv("IEEGIO_USE_H5" = "hdf5r")
+  old_opt <- options("ieegio.debug.emscripten" = FALSE)
+  on.exit({
+    options(old_opt)
+    Sys.unsetenv("IEEGIO_USE_H5")
+  }, add = TRUE)
+
+  h5backend <- ensure_hdf5_backend()
+  expect_true(getNamespaceName(h5backend) == "hdf5r")
+
+
+  x <- array(1:24, c(1, 2, 3, 1, 4, 1))
+
+  f <- tempfile()
+  on.exit({ unlink(f) })
+
+  io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
+
+  Sys.setenv("IEEGIO_USE_H5" = "h5lite")
+
+  h5backend <- ensure_hdf5_backend()
+  expect_true(getNamespaceName(h5backend) == "h5lite")
+
+  y <- io_read_h5(file = f, name = "data")
+  expect_equal(
+    dim(y),
+    dim(x)
+  )
+
+  expect_equal(
+    dim(io_read_h5(file = f, name = "data", ram = TRUE)),
+    dim(x)
+  )
+  expect_equal(
+    dim(y[]),
+    dim(x)
+  )
+  expect_equal(
+    dim(y[drop = TRUE]),
+    dim(drop(x))
+  )
+
+  env <- new.env()
+  env$idx <- c(FALSE, TRUE, TRUE)
+  expect_equal(
+    with(env, {
+      y[1, , idx, , , ]
+    }),
+    x[1, , c(2, 3), , , , drop = FALSE]
+  )
+  expect_equal(
+    y[1, , 1, , 4, , drop = TRUE],
+    x[1, , 1, , 4, , drop = TRUE]
+  )
+
+  x <- 1:24
+  io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
+  y <- io_read_h5(file = f, name = "data")
+
+  expect_equal(x, y[])
+
+  x <- array(1:24, c(1, 24))
+  io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
+  y <- io_read_h5(file = f, name = "data")
+
+  expect_equal(x, y[])
+
+  x <- array(1:24, c(24, 1))
+  io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
+  y <- io_read_h5(file = f, name = "data")
+
+  expect_equal(x, y[])
+
+  x <- numeric(0)
+  io_write_h5(x, file = f, name = "data", quiet = TRUE, ctype = "numeric")
+  y <- io_read_h5(file = f, name = "data")
+
+  expect_equal(x, y[])
+
+})
+
 
 test_that("HDF5 IO with Python backend", {
 
@@ -77,9 +173,10 @@ test_that("HDF5 IO with Python backend", {
   testthat::skip_on_bioc()
   testthat::skip_if(nzchar(Sys.getenv("IEEGIO_NO_PYTHON", unset = "")))
 
-  Sys.setenv("IEEGIO_USE_H5PY" = "TRUE")
+  Sys.setenv("IEEGIO_USE_H5" = "h5py")
   old_opt <- options("ieegio.debug.emscripten" = FALSE)
   on.exit({
+    Sys.unsetenv("IEEGIO_USE_H5")
     Sys.unsetenv("IEEGIO_USE_H5PY")
     options(old_opt)
   }, add = TRUE)
