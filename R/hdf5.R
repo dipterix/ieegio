@@ -231,7 +231,9 @@ io_h5_valid <- function(file, mode = c("r", "w"), close_all = FALSE) {
         ptr$close()
       },
       "hdf5r" = {
-        f <- hdf5r::H5File$new(filename = file, mode = mode)
+        # f <- hdf5r::H5File$new(filename = file, mode = mode)
+        f <- h5backend$H5File$new(filename = file, mode = mode)
+
         if (close_all) {
           f$close_all()
         } else {
@@ -322,9 +324,13 @@ io_h5_names <- function(file) {
       names
     },
     "hdf5r" = {
-      f <- hdf5r::H5File$new(filename = file, mode = "r")
+      # f <- hdf5r::H5File$new(filename = file, mode = "r")
+      f <- h5backend$H5File$new(filename = file, mode = "r")
+
       on.exit({ f$close() })
-      names <- hdf5r::list.datasets(f)
+      # names <- hdf5r::list.datasets(f)
+      names <- h5backend$list.datasets(f)
+
       names
     },
     "filearray" = {

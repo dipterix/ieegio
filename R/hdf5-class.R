@@ -122,7 +122,8 @@ h5FileValid <- function(filename) {
       if (isTRUE(file.info(filename)[["isdir"]])) { return(structure(FALSE, reasons = "file length must not be a directory")) }
       filename <- normalizePath(filename)
       return(tryCatch({
-        hdf5r::is.h5file(filename)
+        # hdf5r::is.h5file(filename)
+        h5backend$is.h5file(filename)
       }, error = function(e) {
         # h5lite::h5_exists(file = filename, name = "/", assert = FALSE)
         structure(FALSE, reasons = e$message)
@@ -478,18 +479,23 @@ LazyH5 <- R6::R6Class(
 
               # Using hdf5r
               tryCatch({
-                private$file_ptr <- hdf5r::H5File$new(private$file, mode)
+                # private$file_ptr <- hdf5r::H5File$new(private$file, mode)
+                private$file_ptr <- h5backend$H5File$new(private$file, mode)
               }, error = function(e) {
                 # Open for writting, we should close all connections first
                 # then the file can be opened, otherwise, Access type: H5F_ACC_RDONLY
                 # will lock the file for writting
-                f <- hdf5r::H5File$new(private$file, "r")
+                # f <- hdf5r::H5File$new(private$file, "r")
+                f <- h5backend$H5File$new(private$file, "r")
+
                 if (!self$quiet) {
                   cat("Closing all other connections to [{private$file}] - {f$get_obj_count() - 1}\n")
                 }
 
                 try({ f$close_all() }, silent = TRUE)
-                private$file_ptr <- hdf5r::H5File$new(private$file, mode)
+                # private$file_ptr <- hdf5r::H5File$new(private$file, mode)
+                private$file_ptr <- h5backend::H5File$new(private$file, mode)
+
               })
 
             }
