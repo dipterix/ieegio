@@ -71,6 +71,7 @@ ieegio_sample_data()
 #>   - streamlines/CNVII_R.trk
 #>   - streamlines/CNVII_R.tt
 #>   - streamlines/CNVII_R.tt.gz
+#>   - niml/std.141.lh.aparc.a2009s.annot.niml.dset
 #>   - mat_v73.mat
 #>   - nwb_sample.nwb
 #>   - placeholder
