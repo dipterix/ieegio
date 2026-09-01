@@ -71,6 +71,9 @@ ieegio_sample_data()
 #>   - streamlines/CNVII_R.trk
 #>   - streamlines/CNVII_R.tt
 #>   - streamlines/CNVII_R.tt.gz
+#>   - niml/HCP.L_Anterior_Agranular_Insula_Complex.k112.niml.dset
+#>   - niml/HCP.L_Anterior_Ventral_Insular_Area.k111.niml.dset
+#>   - niml/rh.std.141.Glasser_HCP.lbl.niml.dset
 #>   - niml/std.141.lh.aparc.a2009s.annot.niml.dset
 #>   - mat_v73.mat
 #>   - nwb_sample.nwb

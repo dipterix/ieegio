@@ -133,6 +133,12 @@
 - [`io_read_h5()`](http://dipterix.org/ieegio/reference/io_read_h5.md) :
   Lazy Load 'HDF5' File
 
+- [`niml_find()`](http://dipterix.org/ieegio/reference/io_read_niml.md)
+  [`io_read_niml()`](http://dipterix.org/ieegio/reference/io_read_niml.md)
+  :
+
+  Read an `AFNI`/`SUMA` `NIML` dataset
+
 - [`io_write_h5()`](http://dipterix.org/ieegio/reference/io_write_h5.md)
   : Save objects to 'HDF5' file without trivial checks
 

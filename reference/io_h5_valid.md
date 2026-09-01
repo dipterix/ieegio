@@ -45,9 +45,9 @@ io_h5_valid(f, 'r')
 #> [1] FALSE
 
 io_write_h5(x, f, 'dset')
-#> /tmp/Rtmph1C318/file2221243585e8 => dset (Dataset Created)
-#> /tmp/Rtmph1C318/file2221243585e8 => dset (Dataset Removed)
-#> /tmp/Rtmph1C318/file2221243585e8 => dset (Dataset Created)
+#> /tmp/RtmpJ3Tr4G/file2274500ecdf9 => dset (Dataset Created)
+#> /tmp/RtmpJ3Tr4G/file2274500ecdf9 => dset (Dataset Removed)
+#> /tmp/RtmpJ3Tr4G/file2274500ecdf9 => dset (Dataset Created)
 io_h5_valid(f, 'w')
 #> [1] TRUE
 
@@ -71,7 +71,7 @@ if (nzchar(system.file(package = "hdf5r"))) {
   try({ ptr$close_all() }, silent = TRUE)
 }
 #> [1] TRUE
-#> [1] FALSE
+#> [1] TRUE
 #> Class: H5File
 #> ID: Object invalid
 

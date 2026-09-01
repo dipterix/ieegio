@@ -40,8 +40,8 @@ io_write_gii(x, con, ...)
 - format:
 
   format of the file, for `write_surface`, this is `'gifti'`,
-  `'freesurfer'`, or `'vtk'`; for `read_surface`, see 'Arguments'
-  section in
+  `'freesurfer'`, or `'vtk'`; for `read_surface`, use `'niml'` to force
+  the `NIML` reader, or see 'Arguments' section in
   [`read.fs.surface`](https://rdrr.io/pkg/freesurferformats/man/read.fs.surface.html)
   (when file type is `'geometry'`) and
   [`read.fs.curv`](https://rdrr.io/pkg/freesurferformats/man/read.fs.curv.html)
@@ -68,6 +68,14 @@ io_write_gii(x, con, ...)
   :   measurement file such as `'sulc'` and `'curv'` files, containing
       numerical values (often with continuous domain) for each vertex
       node
+
+  For `AFNI`/`SUMA` `NIML` files (file name ending with `'.niml.dset'`),
+  the type is resolved automatically from the dataset when left
+  unspecified: datasets whose `dset_type` denotes labels or regions of
+  interest, or that carry an `AFNI_labeltable`, are read as
+  `'annotations'`; the rest are read as `'measurements'`. See
+  [`io_read_niml`](http://dipterix.org/ieegio/reference/io_read_niml.md)
+  for the low-level reader.
 
 - ...:
 
