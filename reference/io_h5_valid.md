@@ -45,35 +45,11 @@ io_h5_valid(f, 'r')
 #> [1] FALSE
 
 io_write_h5(x, f, 'dset')
-#> /tmp/RtmpJ3Tr4G/file2274500ecdf9 => dset (Dataset Created)
-#> /tmp/RtmpJ3Tr4G/file2274500ecdf9 => dset (Dataset Removed)
-#> /tmp/RtmpJ3Tr4G/file2274500ecdf9 => dset (Dataset Created)
+#> /tmp/RtmpniHXPY/file229c5a1a5790 => dset (Dataset Created)
+#> /tmp/RtmpniHXPY/file229c5a1a5790 => dset (Dataset Removed)
+#> /tmp/RtmpniHXPY/file229c5a1a5790 => dset (Dataset Created)
 io_h5_valid(f, 'w')
 #> [1] TRUE
-
-# `close_all` applies to the `hdf5r` backend, the only one that holds
-# file connections open
-if (nzchar(system.file(package = "hdf5r"))) {
-
-  # Open the file and hold a connection
-  ptr <- hdf5r::H5File$new(filename = f, mode = 'w')
-
-  # Can read, but cannot write while the connection is held
-  print(io_h5_valid(f, 'r'))
-  print(io_h5_valid(f, 'w'))
-
-  # However, this can be reset via `close_all=TRUE`
-  io_h5_valid(f, 'r', close_all = TRUE)
-
-  # Now the connection is no longer valid
-  print(ptr)
-
-  try({ ptr$close_all() }, silent = TRUE)
-}
-#> [1] TRUE
-#> [1] TRUE
-#> Class: H5File
-#> ID: Object invalid
 
 # clean up
 unlink(f)
