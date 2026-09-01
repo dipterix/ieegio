@@ -254,6 +254,19 @@ io_h5_valid <- function(file, mode = c("r", "w"), close_all = FALSE) {
         }
         # `close_all` is a no-op here: h5lite does not hold the file open
       },
+      "readNSx" = {
+        return(
+          # Valid file?
+          h5backend$h5FileValid(file) && (
+            # yes, then
+            # read-only?
+            mode == "r" ||
+
+              # write mode, writable?
+              h5backend$h5_writable(file)
+          )
+        )
+      },
       {
         stop("Invalid HDF5 backend: ", backend_type)
       }
@@ -347,6 +360,9 @@ io_h5_names <- function(file) {
       names <- gsub("^[/\\\\]+", "", names)
       names <- gsub("[/\\\\]+", "/", names)
       names
+    },
+    "readNSx" = {
+      h5backend$h5_names(file = file)
     },
     {
       stop("Invalid HDF5 backend: ", backend_type)

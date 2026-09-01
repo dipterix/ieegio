@@ -40,7 +40,7 @@ ensure_hdf5_backend <- local({
     }
     if (!nzchar(sys_flag)) {
       # Resolved default; change this line to move the default to `h5lite`
-      sys_flag <- "hdf5r"
+      sys_flag <- "readNSx"
     }
 
     # if h5lite specified, h5lite, then hdf5r, then h5py
@@ -50,10 +50,26 @@ ensure_hdf5_backend <- local({
       if (sys_flag == "h5lite" && nzchar(system.file(package = "h5lite"))) {
         return(asNamespace("h5lite"))
       }
-      if (nzchar(system.file(package = "hdf5r"))) {
+      if (sys_flag == "hdf5r" && nzchar(system.file(package = "hdf5r"))) {
         # Using hdf5r
         return(asNamespace("hdf5r"))
       }
+
+      # Using readNSx, essentially hdf5lib
+      readNSx <- asNamespace("readNSx")
+      if (is.function(readNSx$h5_native_write)) {
+        return(readNSx)
+      }
+
+      # readNSx is old version
+      if (nzchar(system.file(package = "hdf5r"))) {
+        return(asNamespace("hdf5r"))
+      }
+
+      if (nzchar(system.file(package = "h5lite"))) {
+        return(asNamespace("h5lite"))
+      }
+
     }
 
 
@@ -139,6 +155,9 @@ h5FileValid <- function(filename) {
       # h5lite
       return(h5backend$h5_exists(file = filename, name = "/", assert = FALSE))
     },
+    "readNSx" = {
+      h5backend$h5FileValid(filename)
+    },
     {
       stop("Invalid HDF5 backend: ", backend_type)
     }
@@ -182,7 +201,7 @@ LazyH5 <- R6::R6Class(
     #' @description overrides print method
     #' @return self instance
     print = function() {
-      if (is.null(private$data_ptr)) {
+      if (is.null(private$data_ptr) && private$backend != "readNSx") {
         base::cat("HDF5 file object (closed)\n")
         return(invisible(self))
       }
@@ -218,6 +237,15 @@ LazyH5 <- R6::R6Class(
           base::cat("Information since last open:\nDim: ",
                     paste(private$last_dim, collapse = "x"), " \tRank: ",
                     length(private$last_dim), "\n")
+        },
+        "readNSx" = {
+          base::cat(
+            sep = "",
+            "<HDF5 dataset>\n",
+            sprintf("  File   : %s\n", private$file),
+            sprintf("  Dataset: %s\n", private$name),
+            sprintf("  Dim    : %s\n", paste(private$last_dim, collapse = "x"))
+          )
         },
         {
           base::cat("HDF5 file object (closed)\n")
@@ -753,6 +781,52 @@ LazyH5 <- R6::R6Class(
           # h5lite follows the python convention, dimensions are reversed
           private$last_dim <- rev(private$data_ptr$dim("."))
         },
+        "readNSx" = {
+
+          has_data <- h5backend$h5_native_exists(private$file, private$name)
+
+          if (private$read_only) {
+            if (!has_data) {
+              stop(sprintf(
+                "File [%s] has no [%s] in it.",
+                private$file, private$name
+              ))
+            }
+          } else if (!h5backend$h5_writable(private$file)) {
+            stop(sprintf("Cannot open file [%s] for writing.", private$file))
+          }
+
+          # Check if we need to write
+          # self$open(new_dataset = replace, robj = x, ctype=, ...)
+          if (new_dataset) {
+            args <- list(...)
+            ctype <- args$ctype
+            chunk <- args$chunk %||% "auto"
+            level <- as.integer(args$level %||% 7)[[1]]
+            replace <- as.logical(args$replace %||% TRUE)[[1]]
+            if (length(ctype) && !identical(ctype, storage.mode(x))) {
+              robj <- h5backend$coerce_ctype(robj, ctype)
+            }
+
+            h5backend$h5_native_write(
+              path = private$file,
+              name = private$name,
+              x = robj,
+              chunk = h5backend$as_h5_chunk(chunk),
+              level = level,
+              replace = replace
+            )
+
+            has_data <- TRUE
+          }
+
+          if (has_data) {
+            private$last_dim <- h5backend$h5_native_dims(private$file, private$name)
+          }
+
+          invisible(self)
+
+        },
         {
           stop("Unsupported HDF5 backend: ", private$backend)
         }
@@ -801,6 +875,9 @@ LazyH5 <- R6::R6Class(
               private$file_ptr$close()
             }
           }, silent = TRUE)
+        },
+        "readNSx" = {
+          # Every operation opens and closes the file; nothing is held to release.
         },
         "filearray" = {
           # connections are managed by the `filearray` package itself
@@ -891,6 +968,93 @@ LazyH5 <- R6::R6Class(
           }
           return(private$data_ptr$read(args = args, drop = drop, envir = envir))
         },
+        "readNSx" = {
+          h5backend <- ensure_hdf5_backend()
+
+          self$open()
+          dims <- self$get_dims()
+
+          # step 1: eval indices
+          dot_len <- ...length()
+          args <- eval(substitute(alist(...)))
+          if (dot_len == 0 || (dot_len == 1 && isTRUE(args[[1]] == ""))) {
+            re <- h5backend$h5_native_read(private$file, private$name)
+            # return()
+          } else {
+            args <- lapply(args, function(x) {
+              if (x == "") {
+                return(x)
+              } else {
+                return(eval(x, envir = envir))
+              }
+            })
+
+            # step 2: get allocation size
+            alloc_dim <- sapply(seq_along(dims), function(ii) {
+              if (is.logical(args[[ii]])) {
+                return(sum(args[[ii]]))
+              } else if (is.numeric(args[[ii]])) {
+                return(length(args[[ii]]))
+              } else {
+                # must be blank "", otherwise raise error
+                return(dims[ii])
+              }
+            })
+
+            # step 3: get legit indices
+            legit_args <- lapply(seq_along(dims), function(ii) {
+              if (is.logical(args[[ii]])) {
+                return(args[[ii]])
+              } else if (is.numeric(args[[ii]])) {
+                return(
+                  args[[ii]][args[[ii]] <= dims[ii] & args[[ii]] > 0]
+                )
+              } else {
+                return(args[[ii]])
+              }
+            })
+
+            # step 4: get mapping
+            mapping <- lapply(seq_along(dims), function(ii) {
+              if (is.logical(args[[ii]])) {
+                return(
+                  rep(TRUE, sum(args[[ii]]))
+                )
+              } else if (is.numeric(args[[ii]])) {
+                return(args[[ii]] <= dims[ii] & args[[ii]] > 0)
+              } else {
+                return(args[[ii]])
+              }
+            })
+
+            # alloc space
+            re <- array(NA, dim = alloc_dim)
+
+            # A request for one contiguous block per dimension - the common
+            # `channel$data[a:b]` case - is served straight from disk instead of
+            # reading the whole dataset first.
+            block <- h5backend$h5_contiguous_block(legit_args, dims)
+            if (is.null(block)) {
+              selected <- do.call("[", c(
+                list(h5backend$h5_native_read(private$file, private$name)),
+                legit_args, list(drop = FALSE)
+              ))
+            } else {
+              selected <- h5backend$h5_native_read_slab(
+                private$file, private$name,
+                start = h5backend$as_h5_index(block$start),
+                count = h5backend$as_h5_index(block$count)
+              )
+            }
+
+            re <- do.call(`[<-`, c(list(quote(re)), mapping, list(value = quote(selected))))
+          }
+
+          if (drop) {
+            re <- base::drop(re)
+          }
+          return(re)
+        },
         "h5lite" = {
 
           re <- private$data_ptr$read(".")
@@ -935,7 +1099,9 @@ LazyH5 <- R6::R6Class(
     get_dims = function(stay_open = TRUE) {
       self$open()
 
-      re <- switch(
+      h5backend <- ensure_hdf5_backend()
+
+      private$last_dim <- switch(
         private$backend,
         "h5py" = {
           rev(unlist(py_to_r(private$data_ptr$shape)))
@@ -949,6 +1115,9 @@ LazyH5 <- R6::R6Class(
         "h5lite" = {
           rev(private$data_ptr$dim("."))
         },
+        "readNSx" = {
+          h5backend$h5_native_dims(private$file, private$name)
+        },
         {
           stop("Invalid HDF5 backend: ", private$backend)
         }
@@ -957,7 +1126,7 @@ LazyH5 <- R6::R6Class(
       if (!stay_open) {
         self$close(all = !private$read_only)
       }
-      re
+      private$last_dim
     },
 
     #' @description get data type
