@@ -42,6 +42,31 @@ io_read_cmap_fs_annot <- function(file, ...) {
 
 # AFNI NIML: auto-detect labeltable vs colorscale inside the file
 io_read_cmap_afni <- function(file, ...) {
+  # Try the full NIML parser first: a `.niml.dset` stores its label table as an
+  # `AFNI_labeltable` ni_group whose SPARSE_DATA may be binary, in which case
+  # `readLines` below would warn about embedded nuls and find nothing.
+  lt <- tryCatch({
+    tree <- io_read_niml(file)
+    groups <- niml_find(tree, "AFNI_labeltable", recursive = TRUE, groups = TRUE)
+    if (length(groups)) { niml_label_table(groups[[1]]) } else { NULL }
+  }, error = function(e) { NULL })
+
+  if (!is.null(lt) && nrow(lt)) {
+    ct <- new_colortable(data.frame(
+      Key = lt$Key,
+      R = as.integer(round(pmin(pmax(lt$Red, 0), 1) * 255)),
+      G = as.integer(round(pmin(pmax(lt$Green, 0), 1) * 255)),
+      B = as.integer(round(pmin(pmax(lt$Blue, 0), 1) * 255)),
+      A = as.integer(round(pmin(pmax(lt$Alpha, 0), 1) * 255))
+    ))
+    lut <- new_lookup_discrete(data.frame(Key = lt$Key, Label = lt$Label))
+    return(new_colormap(
+      ct, lookup = lut, colorspace = "RGB",
+      meta = list(name = tools::file_path_sans_ext(basename(file)),
+                  source = "AFNI")
+    ))
+  }
+
   text <- paste(readLines(file, warn = FALSE), collapse = "\n")
 
   # Try labeltable first

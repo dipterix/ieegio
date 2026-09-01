@@ -1156,9 +1156,16 @@ plot.ieegio_surface <- function(
 #' \code{'curv'} files, containing numerical values (often with continuous
 #' domain) for each vertex node}
 #' }
+#' For \verb{AFNI}/\verb{SUMA} \verb{NIML} files (file name ending with
+#' \code{'.niml.dset'}), the type is resolved automatically from the dataset
+#' when left unspecified: datasets whose \verb{dset_type} denotes labels or
+#' regions of interest, or that carry an \verb{AFNI_labeltable}, are read as
+#' \code{'annotations'}; the rest are read as \code{'measurements'}. See
+#' \code{\link{io_read_niml}} for the low-level reader.
 #' @param format format of the file, for \code{write_surface}, this is
 #' \code{'gifti'}, \code{'freesurfer'}, or \code{'vtk'}; for
-#' \code{read_surface}, see
+#' \code{read_surface}, use \code{'niml'} to force the \verb{NIML} reader, or
+#' see
 #' 'Arguments' section in \code{\link[freesurferformats]{read.fs.surface}}
 #' (when file type is \code{'geometry'}) and
 #' \code{\link[freesurferformats]{read.fs.curv}}
@@ -1217,6 +1224,12 @@ read_surface <- function(file, format = "auto", type = NULL, ...) {
      tolower(format) %in% c("gii", "gifti", "gii.gz")) {
     # GIfTI
     return(io_read_gii(file))
+  }
+  if (grepl("\\.niml\\.dset$", tolower(fname)) ||
+     tolower(format) %in% c("niml", "niml.dset")) {
+    # AFNI/SUMA NIML dataset; `path_ext` reports "dset" here, so the full
+    # ".niml.dset" suffix is what identifies the format
+    return(niml_as_surface(file, type = type, name = fname))
   }
   vtk_formats <- c("vtk", "vtp", "pvtp", "vtu")
   if (tolower(format) %in% vtk_formats ||
