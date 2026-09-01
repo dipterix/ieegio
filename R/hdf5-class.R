@@ -798,13 +798,26 @@ LazyH5 <- R6::R6Class(
 
           # Check if we need to write
           # self$open(new_dataset = replace, robj = x, ctype=, ...)
-          if (new_dataset) {
+          if (!private$read_only && (new_dataset || !has_data)) {
             args <- list(...)
             ctype <- args$ctype
             chunk <- args$chunk %||% "auto"
-            level <- as.integer(args$level %||% 7)[[1]]
+
+            # `save()` forwards the compress level as `gzip_level`, while
+            # `h5_native_write` calls it `level`; honor whichever arrives
+            level <- args$gzip_level %||% args$level %||% 7
+            level <- as.integer(level)[[1]]
+            if (is.na(level)) { level <- 7L }
+
             replace <- as.logical(args$replace %||% TRUE)[[1]]
-            if (length(ctype) && !identical(ctype, storage.mode(x))) {
+
+            if (missing(robj)) {
+              # Same contract as the `hdf5r` and `h5lite` branches: opening for
+              # write must register the dataset name even when there is no data
+              # to store yet
+              robj <- NA_real_
+            }
+            if (length(ctype) && !identical(ctype, storage.mode(robj))) {
               robj <- h5backend$coerce_ctype(robj, ctype)
             }
 
@@ -971,8 +984,10 @@ LazyH5 <- R6::R6Class(
         "readNSx" = {
           h5backend <- ensure_hdf5_backend()
 
-          self$open()
-          dims <- self$get_dims()
+          # `subset()` has already opened the dataset above, and `open()` caches
+          # the dimensions; every extra `open()`/`get_dims()` here would cost
+          # another pair of file open/close cycles
+          dims <- private$last_dim
 
           # step 1: eval indices
           dot_len <- ...length()
@@ -1052,6 +1067,13 @@ LazyH5 <- R6::R6Class(
 
           if (drop) {
             re <- base::drop(re)
+          }
+
+          # `hdf5r` hands back a plain vector for a rank-1 dataset; `base::drop`
+          # keeps a 1-d `dim` when the extent is not 1, so strip it here as the
+          # `h5py` and `h5lite` branches do
+          if (!is.null(re) && length(dim(re)) == 1) {
+            dim(re) <- NULL
           }
           return(re)
         },
@@ -1136,6 +1158,8 @@ LazyH5 <- R6::R6Class(
     get_type = function(stay_open = TRUE) {
       self$open()
 
+      h5backend <- ensure_hdf5_backend()
+
       switch(
         private$backend,
         "h5py" = {
@@ -1199,6 +1223,24 @@ LazyH5 <- R6::R6Class(
             }
           )
           return(type)
+        },
+        "readNSx" = {
+          # `readNSx` exposes no datatype accessor, but it stores native HDF5
+          # types (H5T_ENUM for logical, an {r,i} compound for complex, variable
+          # length strings for character), so reading a single element back is
+          # enough to recover the R type - and it only touches one chunk.
+          dims <- private$last_dim
+          if (!length(dims) || any(dims == 0)) {
+            re <- h5backend$h5_native_read(private$file, private$name)
+          } else {
+            idx <- h5backend$as_h5_index(rep(1, length(dims)))
+            re <- h5backend$h5_native_read_slab(
+              private$file, private$name, start = idx, count = idx)
+          }
+          if (!stay_open) {
+            self$close(all = !private$read_only)
+          }
+          return(storage.mode(re))
         },
         {
           stop("Invalid HDF5 backend: ", private$backend)

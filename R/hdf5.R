@@ -65,7 +65,8 @@ io_read_h5 <- function(file, name, read_only = TRUE, ram = FALSE, quiet = FALSE)
     tmpf <- tempfile(fileext = "conflict.h5")
     file.copy(file, tmpf)
     tryCatch({
-      LazyH5$new(file_path = tmpf, data_name = name, read_only = read_only)
+      LazyH5$new(file_path = tmpf, data_name = name, read_only = read_only,
+                 quiet = quiet)
     }, error = function(e2) {
       stop(e)
     })
@@ -147,7 +148,7 @@ io_write_h5 <- function(x, file, name, chunk = "auto", level = 4, replace = TRUE
       unlink(tmpf)
     }
     # Otherwise it's some weird error, or dirname not exists, expose the error
-    f <- LazyH5$new(file, name, read_only = FALSE)
+    f <- LazyH5$new(file, name, read_only = FALSE, quiet = quiet)
     f$close(all = TRUE)
     f
   })
@@ -231,6 +232,12 @@ io_h5_valid <- function(file, mode = c("r", "w"), close_all = FALSE) {
         ptr$close()
       },
       "hdf5r" = {
+        # `hdf5r`'s "w" is `H5F_ACC_TRUNC`: it would erase the very file this
+        # function is only supposed to ask about. "r+" is read/write on an
+        # existing file, which is the same substitution the `h5py` branch makes.
+        if (mode == "w") {
+          mode <- "r+"
+        }
         # f <- hdf5r::H5File$new(filename = file, mode = mode)
         f <- h5backend$H5File$new(filename = file, mode = mode)
 
@@ -294,7 +301,7 @@ io_h5_names <- function(file) {
     file <- normalizePath(file, mustWork = TRUE)
   }
 
-  switch(
+  names <- switch(
     backend_type,
     "h5py" = {
       ptr <- h5backend$File(file, mode = "r")
@@ -368,4 +375,8 @@ io_h5_names <- function(file) {
       stop("Invalid HDF5 backend: ", backend_type)
     }
   )
+
+  # `hdf5r` and `readNSx` list datasets in name order while `h5lite` lists them
+  # in insertion order; sort so the backends agree
+  sort(names)
 }
