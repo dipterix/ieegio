@@ -39,26 +39,6 @@ io_h5_valid(f, 'r')
 io_write_h5(x, f, 'dset')
 io_h5_valid(f, 'w')
 
-# `close_all` applies to the `hdf5r` backend, the only one that holds
-# file connections open
-if (nzchar(system.file(package = "hdf5r"))) {
-
-  # Open the file and hold a connection
-  ptr <- hdf5r::H5File$new(filename = f, mode = 'w')
-
-  # Can read, but cannot write while the connection is held
-  print(io_h5_valid(f, 'r'))
-  print(io_h5_valid(f, 'w'))
-
-  # However, this can be reset via `close_all=TRUE`
-  io_h5_valid(f, 'r', close_all = TRUE)
-
-  # Now the connection is no longer valid
-  print(ptr)
-
-  try({ ptr$close_all() }, silent = TRUE)
-}
-
 # clean up
 unlink(f)
 
