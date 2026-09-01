@@ -1,11 +1,13 @@
 Package: ieegio
 Title: File IO for Intracranial Electroencephalography
-Version: 0.1.1.4
+Version: 0.1.1.5
 Language: en-US
 Encoding: UTF-8
 Authors@R: 
     person(
-        "Zhengjia", "Wang", , "dipterix.wang@gmail.com",
+        given = "Zhengjia", 
+        family = "Wang", 
+        email = "dipterix.wang@gmail.com",
         role = c("aut", "cre"),
         comment = c(ORCID = "0000-0001-5629-1116")
     )
@@ -37,7 +39,6 @@ Imports:
     utils,
     yaml
 Suggests: 
-    hdf5r,
     h5lite,
     reticulate,
     ravetools,
