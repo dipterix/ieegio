@@ -1220,20 +1220,23 @@ plot.ieegio_surface <- function(
 #' @export
 read_surface <- function(file, format = "auto", type = NULL, ...) {
   fname <- basename(file)
-  if (endsWith(tolower(fname), "gii") || endsWith(tolower(fname), "gii.gz") ||
-     tolower(format) %in% c("gii", "gifti", "gii.gz")) {
+  fname_lc <- tolower(fname)
+  format_lc <- tolower(format)
+
+  if (endsWith(fname_lc, "gii") || endsWith(fname_lc, "gii.gz") ||
+     format_lc %in% c("gii", "gifti", "gii.gz")) {
     # GIfTI
     return(io_read_gii(file))
   }
-  if (grepl("\\.niml\\.dset$", tolower(fname)) ||
-     tolower(format) %in% c("niml", "niml.dset")) {
+  if (grepl("\\.niml\\.dset$", fname_lc) ||
+     format_lc %in% c("niml", "niml.dset")) {
     # AFNI/SUMA NIML dataset; `path_ext` reports "dset" here, so the full
     # ".niml.dset" suffix is what identifies the format
     return(niml_as_surface(file, type = type, name = fname))
   }
   vtk_formats <- c("vtk", "vtp", "pvtp", "vtu")
-  if (tolower(format) %in% vtk_formats ||
-     (tolower(format) %in% c("auto", "") &&
+  if (format_lc %in% vtk_formats ||
+     (format_lc %in% c("auto", "") &&
       tolower(path_ext(fname)) %in% vtk_formats)) {
     # VTK polygon mesh; explicitly specified `format` takes precedence over
     # the file extension

@@ -5,8 +5,7 @@ on_cran <- function() {
   env <- Sys.getenv("NOT_CRAN")
   if (identical(env, "")) {
     !interactive()
-  }
-  else {
+  } else {
     !isTRUE(as.logical(env))
   }
 }

@@ -3,17 +3,20 @@
 \name{niml_find}
 \alias{niml_find}
 \alias{io_read_niml}
+\alias{niml_as_surface}
 \title{Read an \verb{AFNI}/\verb{SUMA} \verb{NIML} dataset}
 \usage{
 niml_find(x, name, recursive = TRUE, groups = FALSE)
 
 io_read_niml(file)
+
+niml_as_surface(file, type = NULL, name = path_ext_remove(basename(file)))
 }
 \arguments{
 \item{x}{an \code{'ieegio_niml'} object, or an element node within one}
 
-\item{name}{element names to look for, such as \code{'SPARSE_DATA'} or
-\code{'AFNI_atr'}}
+\item{name}{name of the data; used when the name cannot be inferred from
+the data file to set surface data names}
 
 \item{recursive}{whether to descend into nested \verb{ni_group} elements;
 default is true. Use \code{FALSE} to restrict the search to the immediate
@@ -24,6 +27,11 @@ itself rather than the one inside its label table}
 elements; default is false}
 
 \item{file}{path to a \verb{NIML} file}
+
+\item{type}{type of the data table, either \code{'annotations'} for discrete
+data with look-up color table, or \code{'measurements'} for
+continuous values; set to \code{NULL} or \code{'auto'} for automated
+detection; default is \code{NULL}}
 }
 \value{
 \code{io_read_niml} returns an \code{'ieegio_niml'} object: a list
@@ -72,5 +80,37 @@ dset <- x[[1]]
 niml_find(dset, "SPARSE_DATA", recursive = FALSE)[[1]]$value
 
 unlink(path)
+
+# ---- Read as a surface annotation/measurement --------------
+
+# This example requires extra sample data. Please run
+# `ieegio_sample_data("niml/rh.std.141.Glasser_HCP.lbl.niml.dset")`
+# to download sample NIML data
+
+
+has_niml_file <- ieegio_sample_data(
+  file = "niml/rh.std.141.Glasser_HCP.lbl.niml.dset",
+  test = TRUE
+)
+
+if (has_niml_file) {
+
+  niml_file <- ieegio_sample_data(
+    file = "niml/rh.std.141.Glasser_HCP.lbl.niml.dset"
+  )
+
+  surf_file <- ieegio_sample_data("gifti/std.141.rh.inf_200.gii")
+
+  # Read in surface mesh
+  mesh <- read_surface(surf_file)
+
+  # read_surface internally uses `niml_as_surface` for niml.dset
+  annot <- niml_as_surface(niml_file)
+
+  merged <- merge(mesh, annot)
+
+  plot(merged)
+
+}
 
 }

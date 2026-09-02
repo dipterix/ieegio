@@ -7,6 +7,7 @@
 \alias{as_ieegio_surface.ieegio_surface}
 \alias{as_ieegio_surface.mesh3d}
 \alias{as_ieegio_surface.fs.surface}
+\alias{as_ieegio_surface.ieegio_niml}
 \title{Convert other surface formats to \code{ieegio} surface}
 \usage{
 as_ieegio_surface(x, ...)
@@ -34,6 +35,8 @@ as_ieegio_surface(x, ...)
 \method{as_ieegio_surface}{mesh3d}(x, ...)
 
 \method{as_ieegio_surface}{fs.surface}(x, ...)
+
+\method{as_ieegio_surface}{ieegio_niml}(x, type = NULL, name = "", ...)
 }
 \arguments{
 \item{x}{R object or file path}
@@ -87,6 +90,10 @@ where \code{n} is the number of vertices and \code{m} is the number of time
 points, hence each column is a time slice and each row is a vertex node.}
 
 \item{name}{(optional) name of the geometry}
+
+\item{type}{type of the data, either \code{'auto'}, \code{NULL} (default)
+for automatic detection, or \code{'annotations'} \code{'measurements'} for
+explicit data type}
 }
 \value{
 An \code{ieeg_surface} object; see \code{\link{read_surface}} or

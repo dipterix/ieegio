@@ -562,6 +562,38 @@ niml_sibling_labs <- function(group, ncol) {
 #'
 #' unlink(path)
 #'
+#' # ---- Read as a surface annotation/measurement --------------
+#'
+#' # This example requires extra sample data. Please run
+#' # `ieegio_sample_data("niml/rh.std.141.Glasser_HCP.lbl.niml.dset")`
+#' # to download sample NIML data
+#'
+#'
+#' has_niml_file <- ieegio_sample_data(
+#'   file = "niml/rh.std.141.Glasser_HCP.lbl.niml.dset",
+#'   test = TRUE
+#' )
+#'
+#' if (has_niml_file) {
+#'
+#'   niml_file <- ieegio_sample_data(
+#'     file = "niml/rh.std.141.Glasser_HCP.lbl.niml.dset"
+#'   )
+#'
+#'   surf_file <- ieegio_sample_data("gifti/std.141.rh.inf_200.gii")
+#'
+#'   # Read in surface mesh
+#'   mesh <- read_surface(surf_file)
+#'
+#'   # read_surface internally uses `niml_as_surface` for niml.dset
+#'   annot <- niml_as_surface(niml_file)
+#'
+#'   merged <- merge(mesh, annot)
+#'
+#'   plot(merged)
+#'
+#' }
+#'
 #' @export
 io_read_niml <- function(file) {
   sz <- file.info(file)$size
@@ -713,95 +745,16 @@ niml_attributes <- function(group) {
   out
 }
 
-niml_as_surface <- function(file, type = NULL, name = basename(file)) {
+
+#' @rdname io_read_niml
+#' @param type type of the data table, either \code{'annotations'} for discrete
+#' data with look-up color table, or \code{'measurements'} for
+#' continuous values; set to \code{NULL} or \code{'auto'} for automated
+#' detection; default is \code{NULL}
+#' @param name name of the data; used when the name cannot be inferred from
+#' the data file to set surface data names
+#' @export
+niml_as_surface <- function(file, type = NULL, name = path_ext_remove(basename(file))) {
   x <- io_read_niml(file)
-  dset <- niml_dataset_root(x)
-
-  els <- niml_find(dset, c("SPARSE_DATA", "DATA"), recursive = FALSE)
-  if (!length(els)) {
-    stop("NIML file contains no SPARSE_DATA or DATA element: ", file)
-  }
-  data <- els[[1]]$value
-  atr <- niml_attributes(dset)
-
-  # column names: prefer the dataset's own COLMS_LABS, else name the single
-  # column after the file so `merge()` on surfaces stays readable
-  labs <- niml_sibling_labs(dset, ncol(data))
-  if (length(labs)) {
-    names(data) <- labs
-  } else if (ncol(data) == 1L) {
-    names(data) <- name
-  } else {
-    names(data) <- sprintf("%s.%d", name, seq_len(ncol(data)))
-  }
-
-  # node indices are 0-based in NIML
-  node_index <- NULL
-  idx_els <- niml_find(dset, "INDEX_LIST", recursive = FALSE)
-  if (length(idx_els) && nrow(idx_els[[1]]$value)) {
-    node_index <- list(
-      node_index = as.integer(idx_els[[1]]$value[[1]]) + 1L,
-      node_index_start = 1L
-    )
-  }
-
-  lt_groups <- niml_find(dset, "AFNI_labeltable", recursive = TRUE,
-                         groups = TRUE)
-  label_table <- NULL
-  if (length(lt_groups)) {
-    label_table <- niml_label_table(lt_groups[[1]])
-  }
-
-  # Resolve the data type from the object, not from the values: `dset_type`
-  # first, then whether the file carries a label table.
-  if (!length(type) || identical(type, "auto")) {
-    dset_type <- dset$attributes["dset_type"]
-    type <- if (!is.na(dset_type) && grepl("label|roi", dset_type, ignore.case = TRUE)) {
-      "annotations"
-    } else if (!is.null(label_table)) {
-      "annotations"
-    } else {
-      "measurements"
-    }
-  }
-
-  header <- structure(
-    class = "niml_dset",
-    list(dset_type = unname(dset$attributes["dset_type"]), attributes = atr)
-  )
-
-  if (identical(type, "annotations")) {
-    if (is.null(label_table)) {
-      # an annotation without a table: synthesize keys so the object is usable
-      keys <- sort(unique(as.integer(data[[1]])))
-      label_table <- data.table::data.table(
-        Key = keys, Label = as.character(keys),
-        Red = 0, Green = 0, Blue = 0, Alpha = 1,
-        Color = grDevices::rgb(0, 0, 0)
-      )
-      data.table::setkeyv(label_table, "Key")
-    }
-    for (nm in names(data)) {
-      data[[nm]] <- as.integer(data[[nm]])
-    }
-    return(new_surface(
-      header = header,
-      annotations = list(
-        label_table = label_table,
-        data_table = data.table::as.data.table(data),
-        meta = structure(names = names(data),
-                         rep(list(atr), ncol(data)))
-      ),
-      sparse_node_index = node_index
-    ))
-  }
-
-  new_surface(
-    header = header,
-    measurements = list(
-      data_table = data.table::as.data.table(data),
-      meta = list(intent = "NIFTI_INTENT_SHAPE")
-    ),
-    sparse_node_index = node_index
-  )
+  as_ieegio_surface.ieegio_niml(x, type = type, name = name)
 }

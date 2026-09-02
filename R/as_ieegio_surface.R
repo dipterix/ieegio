@@ -37,6 +37,9 @@
 #' where \code{n} is the number of vertices and \code{m} is the number of time
 #' points, hence each column is a time slice and each row is a vertex node.
 #' @param name (optional) name of the geometry
+#' @param type type of the data, either \code{'auto'}, \code{NULL} (default)
+#' for automatic detection, or \code{'annotations'} \code{'measurements'} for
+#' explicit data type
 #' @param ... passed to default method
 #'
 #' @returns An \code{ieeg_surface} object; see \code{\link{read_surface}} or
@@ -377,6 +380,109 @@ as_ieegio_surface.fs.surface <- function(x, ...) {
   surf
 }
 
+#' @rdname as_ieegio_surface
+#' @export
+as_ieegio_surface.ieegio_niml <- function(x, type = NULL, name = "", ...) {
+  dset <- niml_dataset_root(x)
+
+  els <- niml_find(dset, c("SPARSE_DATA", "DATA"), recursive = FALSE)
+  if (!length(els)) {
+    stop("NIML file contains no SPARSE_DATA or DATA element: ", file)
+  }
+  data <- els[[1]]$value
+  atr <- niml_attributes(dset)
+
+  # column names: prefer the dataset's own COLMS_LABS, else name the single
+  # column after the file so `merge()` on surfaces stays readable
+  nc <- ncol(data)
+  if (nc > 0) {
+    labs <- niml_sibling_labs(dset, nc)
+
+    if (length(labs) == nc) {
+      # labs might starts with `#`
+      if (any(startsWith(labs, "#"))) {
+        labs <- gsub("^[#]{1,}", sprintf("%s.V", name), labs)
+      }
+      names(data) <- labs
+    } else if (nzchar(name)) {
+      if (nc == 1L) {
+        names(data) <- name
+      } else {
+        names(data) <- sprintf("%s.%d", name, seq_len(nc))
+      }
+    }
+  }
+
+  # node indices are 0-based in NIML
+  node_index <- NULL
+  idx_els <- niml_find(dset, "INDEX_LIST", recursive = FALSE)
+  if (length(idx_els) && nrow(idx_els[[1]]$value)) {
+    node_index <- list(
+      node_index = as.integer(idx_els[[1]]$value[[1]]) + 1L,
+      node_index_start = 1L
+    )
+  }
+
+  lt_groups <- niml_find(dset, "AFNI_labeltable", recursive = TRUE,
+                         groups = TRUE)
+  label_table <- NULL
+  if (length(lt_groups)) {
+    label_table <- niml_label_table(lt_groups[[1]])
+  }
+
+  # Resolve the data type from the object, not from the values: `dset_type`
+  # first, then whether the file carries a label table.
+  if (!length(type) || identical(type, "auto")) {
+    dset_type <- dset$attributes["dset_type"]
+    type <- if (!is.na(dset_type) && grepl("label|roi", dset_type, ignore.case = TRUE)) {
+      "annotations"
+    } else if (!is.null(label_table)) {
+      "annotations"
+    } else {
+      "measurements"
+    }
+  }
+
+  header <- structure(
+    class = "niml_dset",
+    list(dset_type = unname(dset$attributes["dset_type"]), attributes = atr)
+  )
+
+  if (identical(type, "annotations")) {
+    if (is.null(label_table)) {
+      # an annotation without a table: synthesize keys so the object is usable
+      keys <- sort(unique(as.integer(data[[1]])))
+      label_table <- data.table::data.table(
+        Key = keys, Label = as.character(keys),
+        Red = 0, Green = 0, Blue = 0, Alpha = 1,
+        Color = grDevices::rgb(0, 0, 0)
+      )
+      data.table::setkeyv(label_table, "Key")
+    }
+    for (nm in names(data)) {
+      data[[nm]] <- as.integer(data[[nm]])
+    }
+    return(new_surface(
+      header = header,
+      annotations = list(
+        label_table = label_table,
+        data_table = data.table::as.data.table(data),
+        meta = structure(names = names(data),
+                         rep(list(atr), ncol(data)))
+      ),
+      sparse_node_index = node_index
+    ))
+  }
+
+  new_surface(
+    header = header,
+    measurements = list(
+      data_table = data.table::as.data.table(data),
+      meta = list(intent = "NIFTI_INTENT_SHAPE")
+    ),
+    sparse_node_index = node_index
+  )
+}
 
 #
 #

@@ -154,7 +154,12 @@ file_size <- function(path, fail = TRUE) {
   fs::file_size(path, fail = fail)
 }
 
-ARCHIVE_EXTENSIONS <- c("zip", "rar", "7z", "tar", "tar.gz", "tar.bz2", "gz", "bz2", "xz", "iso")
+ARCHIVE_EXTENSIONS <- c(
+  "zip", "rar", "7z", "tar", "tar.gz", "tar.bz2", "gz", "bz2", "xz", "iso",
+
+  # niml.dset
+  "dset"
+)
 
 path_ext_remove <- function(path, archive_ext = ARCHIVE_EXTENSIONS) {
   ext <- path_ext(path, archive_ext = archive_ext)
