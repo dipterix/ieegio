@@ -135,6 +135,7 @@
 
 - [`niml_find()`](http://dipterix.org/ieegio/reference/io_read_niml.md)
   [`io_read_niml()`](http://dipterix.org/ieegio/reference/io_read_niml.md)
+  [`niml_as_surface()`](http://dipterix.org/ieegio/reference/io_read_niml.md)
   :
 
   Read an `AFNI`/`SUMA` `NIML` dataset

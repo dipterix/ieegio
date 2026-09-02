@@ -20,6 +20,8 @@ this function.
 niml_find(x, name, recursive = TRUE, groups = FALSE)
 
 io_read_niml(file)
+
+niml_as_surface(file, type = NULL, name = path_ext_remove(basename(file)))
 ```
 
 ## Arguments
@@ -30,7 +32,8 @@ io_read_niml(file)
 
 - name:
 
-  element names to look for, such as `'SPARSE_DATA'` or `'AFNI_atr'`
+  name of the data; used when the name cannot be inferred from the data
+  file to set surface data names
 
 - recursive:
 
@@ -47,6 +50,12 @@ io_read_niml(file)
 - file:
 
   path to a `NIML` file
+
+- type:
+
+  type of the data table, either `'annotations'` for discrete data with
+  look-up color table, or `'measurements'` for continuous values; set to
+  `NULL` or `'auto'` for automated detection; default is `NULL`
 
 ## Value
 
@@ -95,4 +104,38 @@ niml_find(dset, "SPARSE_DATA", recursive = FALSE)[[1]]$value
 #> 4  1
 
 unlink(path)
+
+# ---- Read as a surface annotation/measurement --------------
+
+# This example requires extra sample data. Please run
+# `ieegio_sample_data("niml/rh.std.141.Glasser_HCP.lbl.niml.dset")`
+# to download sample NIML data
+
+
+has_niml_file <- ieegio_sample_data(
+  file = "niml/rh.std.141.Glasser_HCP.lbl.niml.dset",
+  test = TRUE
+)
+
+if (has_niml_file) {
+
+  niml_file <- ieegio_sample_data(
+    file = "niml/rh.std.141.Glasser_HCP.lbl.niml.dset"
+  )
+
+  surf_file <- ieegio_sample_data("gifti/std.141.rh.inf_200.gii")
+
+  # Read in surface mesh
+  mesh <- read_surface(surf_file)
+
+  # read_surface internally uses `niml_as_surface` for niml.dset
+  annot <- niml_as_surface(niml_file)
+
+  merged <- merge(mesh, annot)
+
+  plot(merged)
+
+}
+#> Merging geometry attributes, assuming all the surface objects have the same number of vertices.
+
 ```

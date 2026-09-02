@@ -35,6 +35,9 @@ as_ieegio_surface(x, ...)
 
 # S3 method for class 'fs.surface'
 as_ieegio_surface(x, ...)
+
+# S3 method for class 'ieegio_niml'
+as_ieegio_surface(x, type = NULL, name = "", ...)
 ```
 
 ## Arguments
@@ -121,6 +124,11 @@ as_ieegio_surface(x, ...)
 - name:
 
   (optional) name of the geometry
+
+- type:
+
+  type of the data, either `'auto'`, `NULL` (default) for automatic
+  detection, or `'annotations'` `'measurements'` for explicit data type
 
 ## Value
 
