@@ -64,6 +64,13 @@ channel <- edf$get_channel(1)
 channel
 ```
 
+A channel can also be looked up by its label instead of its number, which saves
+a round trip through the channel table:
+
+```{r get_channel_label}
+edf$get_channel("squarewave")
+```
+
 The `channel` contains the following elements:
 
 * `type`: a character indicating the original file type;
@@ -84,6 +91,44 @@ plot(
 ```
 
 
+
+## Writing `EDF` files
+
+To save signals back out, build each channel with `as_edf_channel` and hand the
+list to `write_edf`. A channel is either a signal vector or an annotation table:
+
+```{r write_edf}
+signal <- sin(seq(0, 10, by = 0.01))
+
+channels <- list(
+  as_edf_channel(signal, channel_num = 1,
+                 sample_rate = 200, label = "sine"),
+
+  as_edf_channel(
+    data.frame(
+      timestamp = c(0, 5),
+      comments = c("start", "end")
+    ),
+    channel_num = 2
+  )
+)
+
+out_path <- tempfile(fileext = ".edf")
+write_edf(channels = channels, con = out_path)
+```
+
+Reading it back gives the signal and the annotations:
+
+```{r write_edf_verify}
+written <- read_edf(out_path, extract_path = tempfile(), verbose = FALSE)
+written$get_channel("sine")
+written$get_annotations()
+```
+
+```{r write_edf_cleanup, echo = FALSE, results='hide'}
+written$delete()
+unlink(out_path)
+```
 
 ```{r teardown, echo=FALSE, results='hide'}
 cache_dir <- tools::R_user_dir("ieegio", "cache")

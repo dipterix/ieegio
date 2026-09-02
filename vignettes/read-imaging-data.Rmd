@@ -34,8 +34,10 @@ if (identical(Sys.getenv("IEEGIO_PKGDOWN", unset = ""), "")) {
 `ieegio` supports reading from and writing to multiple imaging formats:
 
 * Volume: `NIfTI` & `FreeSurfer MGH/MGZ`
-* Surface: `GIfTI` & `FreeSurfer` geometry, annotation, curvature/measurement, `w` format
+* Surface: `GIfTI` & `FreeSurfer` geometry, annotation, curvature/measurement, `w` format, `AFNI`/`SUMA` `NIML`, `VTK` polygon meshes
 * Streamlines: `TRK`, `TCK`, `TT` (read-only), `VTK`, `VTP`, ...
+
+Beyond reading and writing, `ieegio` can also map data between volumes and surfaces, chain coordinate transforms, and compare regions of interest; those are covered at the end of this article.
 
 To start, please load `ieegio`. This vignette uses sample data which requires extra download.
 
@@ -68,6 +70,17 @@ tck_file <- ieegio_sample_data(
 
 tt_file <- ieegio_sample_data(
   "streamlines/CNVII_R.tt")
+
+# AFNI/SUMA std.141 geometry and matching annotation
+std141_geom_file <- ieegio_sample_data(
+  "gifti/std.141.lh.inf_200.gii")
+
+niml_file <- ieegio_sample_data(
+  "niml/std.141.lh.aparc.a2009s.annot.niml.dset")
+
+# volumetric atlas
+atlas_file <- ieegio_sample_data(
+  "atlases/YBA/YBA690.nii.gz")
 ```
 
 
@@ -199,6 +212,86 @@ if (file.exists(tfile)) {
   unlink(tfile)
 }
 ```
+
+## Surface annotations from `AFNI`/`SUMA`
+
+`NIML` datasets (file names ending with `.niml.dset`) are read by the same `read_surface` entry point. The data type is resolved from the dataset itself: datasets carrying a label table are read as `annotations`, the rest as `measurements`.
+
+```{r read_niml}
+std141_geometry <- read_surface(std141_geom_file)
+
+annotation <- read_surface(niml_file)
+annotation
+```
+
+The sample geometry and annotation live on the same `std.141` mesh, so they merge directly:
+
+```{r merge_niml}
+labeled <- merge(std141_geometry, annotation)
+labeled
+```
+
+```{r plot_niml, fig.width=7, fig.height=4, out.width="95%"}
+plot(labeled, name = "annotations")
+```
+
+If you need the raw `NIML` element tree rather than a surface object, use the low-level `io_read_niml` together with `niml_find`.
+
+## Regions of interest
+
+A region of interest is described first and computed later. `as_ieegio_roi` records the criteria without applying them, and `resolve_roi_as` carries them out, returning geometry in world (`RAS`) coordinates.
+
+```{r roi_describe}
+atlas <- read_volume(atlas_file)
+
+# describe: which voxels count as the region
+roi <- as_ieegio_roi(atlas, threshold_lb = 1, threshold_ub = 5)
+roi
+```
+
+```{r roi_resolve}
+# compute: turn that description into geometry
+resolve_roi_as(roi, "pointcloud")
+```
+
+Because both sides are resolved to world coordinates first, regions stored in different ways can be compared directly. Here the whole atlas is tested against the facial-nerve tracts read earlier:
+
+```{r roi_overlap}
+overlap <- detect_roi_overlap(
+  as_ieegio_roi(atlas, threshold_lb = 1),
+  trk,
+  radius = 2
+)
+overlap
+```
+
+The result carries the annotated streamlines back in `overlap$annotated`, so each tract knows whether it reached the region, and `overlap$hit_ratio` reports the proportion that did.
+
+## Volume to surface
+
+`volume_to_surface` turns a mask or a set of atlas labels into a smoothed mesh:
+
+```{r volume_to_surface}
+volume_to_surface(atlas, threshold_lb = 1, threshold_ub = 5)
+```
+
+## Coordinate spaces and transforms
+
+`new_space` names a coordinate space, and `surface_to_surface` moves a surface into it, recording the target on the surface transform list.
+
+```{r spaces}
+mni <- new_space("MNI152", orientation = "RAS")
+mni
+
+surface_to_surface(
+  geometry,
+  space_from = "scanner",
+  space_to = mni,
+  transform = diag(1, 4)
+)
+```
+
+Transforms themselves can come from other tools: `io_read_ants_transform` reads `ANTs` affine and displacement field transforms, `io_read_flirt_transform` reads `FSL FLIRT` matrices, and `transform_flirt2ras` converts a `FLIRT` transform into world (`RAS`) coordinates.
 
 ```{r teardown, echo=FALSE, results='hide'}
 cache_dir <- tools::R_user_dir("ieegio", "cache")

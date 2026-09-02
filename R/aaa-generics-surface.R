@@ -1234,7 +1234,7 @@ read_surface <- function(file, format = "auto", type = NULL, ...) {
     # ".niml.dset" suffix is what identifies the format
     return(niml_as_surface(file, type = type, name = fname))
   }
-  vtk_formats <- c("vtk", "vtp", "pvtp", "vtu")
+  vtk_formats <- c("vtk", "vtp", "pvtp", "vtu", "vtpb")
   if (format_lc %in% vtk_formats ||
      (format_lc %in% c("auto", "") &&
       tolower(path_ext(fname)) %in% vtk_formats)) {

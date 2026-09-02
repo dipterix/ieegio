@@ -15,8 +15,10 @@ Result: ERROR
 Flavors: r-devel-linux-x86_64-debian-clang, r-devel-linux-x86_64-debian-gcc, r-release-linux-x86_64
 ```
 
-This is because an upstream package `hdf5r` fails to compile on those platforms. 
+Two changes were made to the package to fix this issue:
 
-I have create a pull-request (https://github.com/hhoeflin/hdf5r/pull/245) to solve this issue and fix the bugs.
+1. Removed `hdf5r` as a dependency. Added multiple back-ends for `HDF5` support, including `hdf5r`, `h5lite`, and `readNSx` (just submitted to `CRAN`). The back-end is automatically detected at run time, and the user can choose which back-end to use. 
 
-This package itself contains no changes that worsen the condition.
+To accommodate this change, the `Suggests` field in the `DESCRIPTION` file was updated to include `h5lite`. Currently `hdf5r` is removed from `Suggests` and is disabled, but it will be added back once the upstream issue is resolved.
+
+2. I have created a pull-request (https://github.com/hhoeflin/hdf5r/pull/245) to solve multiple bugs that prevent that package from passing the CRAN checks.
