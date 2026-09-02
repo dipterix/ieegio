@@ -38,6 +38,25 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.2" id="ieegio-012">ieegio 0.1.2<a class="anchor" aria-label="anchor" href="#ieegio-012"></a></h2>
+<ul><li>Added <code>as_ieegio_roi</code> to mark an image volume, surface, point cloud, or streamlines object as a region of interest, recording the selection criteria (intensity bounds, threshold expressions, arc length filters) rather than applying them right away</li>
+<li>Added <code>resolve_roi_as</code> to carry out those criteria and convert the region into a chosen representation (volume, point cloud, surface, or streamlines), always in world <code>RAS</code> coordinates so two resolved regions can be compared directly</li>
+<li>Added <code>detect_roi_overlap</code> to test whether two regions overlap, with distance tolerance, an optional interior test for closed surfaces, and per-unit hit ratios written back onto the second region</li>
+<li>Added <code>io_read_niml</code> and <code>niml_find</code> to read <code>AFNI</code> and <code>SUMA</code> <code>NIML</code> datasets, supporting every storage form (plain text, binary and <code>base64</code> in either byte order, optionally <code>gzip</code> compressed) and every column type, including <code>String</code>, <code>Line</code>, <code>complex</code>, <code>rgb</code>, and <code>rgba</code>
+</li>
+<li>Added <code>niml_as_surface</code> and an <code>as_ieegio_surface</code> method for <code>NIML</code> objects; <code>read_surface</code> now recognizes <code>'.niml.dset'</code> files and decides between annotations and measurements from the dataset itself</li>
+<li>
+<code>read_colormap</code> now reads the <code>AFNI</code> label table from <code>NIML</code> datasets that store it in binary form</li>
+<li>The <code>HDF5</code> back-end is now resolved at run time, choosing among <code>readNSx</code>, <code>h5lite</code>, <code>hdf5r</code>, and <code>h5py</code>; <code>hdf5r</code> is no longer required and has been removed from <code>Suggests</code>
+</li>
+<li>Fixed the <code>h5py</code> back-end returning 32-bit integer datasets as double, which turned the missing value sentinel into a large negative number</li>
+<li>Added a <code>sanitize</code> argument to <code>read_streamlines</code> and <code>as_ieegio_streamlines</code> that discards tracts which are not lines and points with missing coordinates; set it to <code>FALSE</code> to read a file exactly as written</li>
+<li>Fixed streamline scalar and property naming when the scalars are stored as a matrix, and gave automatically generated property names their own prefix</li>
+<li>Fixed <code>as_ieegio_volume</code> choosing an integer data type for arrays that contain <code>Inf</code>
+</li>
+<li>Added <code>NIML</code> sample datasets and <code>std.141</code> inflated surfaces to example data</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1" id="ieegio-011">ieegio 0.1.1<a class="anchor" aria-label="anchor" href="#ieegio-011"></a></h2>
 <ul><li>Added <code>io_read_vtk_polys</code> and <code>io_write_vtk_polys</code> to read and write surface meshes stored in <code>VTK</code> polygon formats (legacy <code>.vtk</code>, <code>XML</code>-based <code>.vtp</code>, <code>.pvtp</code>, <code>.vtu</code>, and <code>HDF5</code>-based <code>.vtpb</code>), including vertex colors and vertex-wise measurements; <code>read_surface</code> and <code>write_surface</code> now recognize these formats</li>
 <li>Added read and write functions for color-map files</li>

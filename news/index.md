@@ -1,5 +1,44 @@
 # Changelog
 
+## ieegio 0.1.2
+
+- Added `as_ieegio_roi` to mark an image volume, surface, point cloud,
+  or streamlines object as a region of interest, recording the selection
+  criteria (intensity bounds, threshold expressions, arc length filters)
+  rather than applying them right away
+- Added `resolve_roi_as` to carry out those criteria and convert the
+  region into a chosen representation (volume, point cloud, surface, or
+  streamlines), always in world `RAS` coordinates so two resolved
+  regions can be compared directly
+- Added `detect_roi_overlap` to test whether two regions overlap, with
+  distance tolerance, an optional interior test for closed surfaces, and
+  per-unit hit ratios written back onto the second region
+- Added `io_read_niml` and `niml_find` to read `AFNI` and `SUMA` `NIML`
+  datasets, supporting every storage form (plain text, binary and
+  `base64` in either byte order, optionally `gzip` compressed) and every
+  column type, including `String`, `Line`, `complex`, `rgb`, and `rgba`
+- Added `niml_as_surface` and an `as_ieegio_surface` method for `NIML`
+  objects; `read_surface` now recognizes `'.niml.dset'` files and
+  decides between annotations and measurements from the dataset itself
+- `read_colormap` now reads the `AFNI` label table from `NIML` datasets
+  that store it in binary form
+- The `HDF5` back-end is now resolved at run time, choosing among
+  `readNSx`, `h5lite`, `hdf5r`, and `h5py`; `hdf5r` is no longer
+  required and has been removed from `Suggests`
+- Fixed the `h5py` back-end returning 32-bit integer datasets as double,
+  which turned the missing value sentinel into a large negative number
+- Added a `sanitize` argument to `read_streamlines` and
+  `as_ieegio_streamlines` that discards tracts which are not lines and
+  points with missing coordinates; set it to `FALSE` to read a file
+  exactly as written
+- Fixed streamline scalar and property naming when the scalars are
+  stored as a matrix, and gave automatically generated property names
+  their own prefix
+- Fixed `as_ieegio_volume` choosing an integer data type for arrays that
+  contain `Inf`
+- Added `NIML` sample datasets and `std.141` inflated surfaces to
+  example data
+
 ## ieegio 0.1.1
 
 - Added `io_read_vtk_polys` and `io_write_vtk_polys` to read and write

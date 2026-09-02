@@ -59,26 +59,217 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of <code>ieegio</code> is to provide integrated toolbox for common file formats used in intracranial Electroencephalography (iEEG) and deep-brain stimulation (DBS). Currently the package is under active development.</p>
+<p>The goal of <code>ieegio</code> is to provide integrated toolbox for common file formats used in intracranial Electroencephalography (iEEG) and deep-brain stimulation (DBS). Besides reading and writing files, <code>ieegio</code> also maps data between volumes and surfaces, chains coordinate transforms, and compares regions of interest. Currently the package is under active development.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <code>ieegio</code> from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>Install the released version from <code>CRAN</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ieegio"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from <a href="https://dipterix.r-universe.dev/ieegio" class="external-link">r-universe</a>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ieegio"</span>, repos <span class="op">=</span> <span class="st">"https://dipterix.r-universe.dev"</span><span class="op">)</span></span></code></pre></div>
+<p>Or from <a href="https://github.com/dipterix/ieegio" class="external-link">GitHub</a>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"dipterix/ieegio"</span><span class="op">)</span></span></code></pre></div>
 <p><code>ieegio</code> provides additional sample data. To download them:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># list all the sample data</span></span>
 <span><span class="va">sample_names</span> <span class="op">&lt;-</span> <span class="fu">ieegio</span><span class="fu">::</span><span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">sample_names</span>, <span class="fu">ieegio</span><span class="fu">::</span><span class="va"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">)</span></span></code></pre></div>
+<p>All examples below use these sample files.</p>
 </div>
 <div class="section level2">
-<h2 id="list-1-read-formatted-ephys-data-examples">List 1: read formatted <code>ephys</code> data (<a href="https://dipterix.org/ieegio/articles/read-ephys.html" class="external-link">examples</a>)<a class="anchor" aria-label="anchor" href="#list-1-read-formatted-ephys-data-examples"></a>
+<h2 id="electrophysiology">Electrophysiology<a class="anchor" aria-label="anchor" href="#electrophysiology"></a>
+</h2>
+<p>Read a recording, then pull a channel out by number or by label:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ieegio/">ieegio</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">edf</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/read_edf.html">read_edf</a></span><span class="op">(</span><span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"edfPlusD.edf"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># channel metadata as a data frame</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">edf</span><span class="op">$</span><span class="fu">get_channel_table</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># by number, or by label</span></span>
+<span><span class="va">channel</span> <span class="op">&lt;-</span> <span class="va">edf</span><span class="op">$</span><span class="fu">get_channel</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">channel</span> <span class="op">&lt;-</span> <span class="va">edf</span><span class="op">$</span><span class="fu">get_channel</span><span class="op">(</span><span class="st">"squarewave"</span><span class="op">)</span></span></code></pre></div>
+<p>To write a recording, build the channels with <code>as_edf_channel</code>. A channel is either a signal or an annotation table:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">signal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">channels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/write_edf.html">as_edf_channel</a></span><span class="op">(</span><span class="va">signal</span>, channel_num <span class="op">=</span> <span class="fl">1</span>, sample_rate <span class="op">=</span> <span class="fl">200</span>, label <span class="op">=</span> <span class="st">"sine"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="reference/write_edf.html">as_edf_channel</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timestamp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span><span class="op">)</span>, comments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"start"</span>, <span class="st">"end"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    channel_num <span class="op">=</span> <span class="fl">2</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".edf"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/write_edf.html">write_edf</a></span><span class="op">(</span>channels <span class="op">=</span> <span class="va">channels</span>, con <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
+<p>See the <a href="https://dipterix.org/ieegio/articles/read-ephys.html" class="external-link"><code>ephys</code> article</a> for more.</p>
+</div>
+<div class="section level2">
+<h2 id="volumes-and-surfaces">Volumes and surfaces<a class="anchor" aria-label="anchor" href="#volumes-and-surfaces"></a>
+</h2>
+<p><code>read_volume</code> and <code>read_surface</code> are the universal entry points; the format is inferred from the file name. Volumes carry a <code>header</code>, the <code>data</code>, and a <code>transforms</code> list mapping voxel index to other coordinate systems.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">volume</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/imaging-volume.html">read_volume</a></span><span class="op">(</span><span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"brain.demosubject.nii.gz"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># index with `[`, plot anatomical slices</span></span>
+<span><span class="va">volume</span><span class="op">[</span><span class="fl">128</span>, , <span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">volume</span>, position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">50</span>, <span class="op">-</span><span class="fl">10</span>, <span class="fl">15</span><span class="op">)</span>, which <span class="op">=</span> <span class="st">"coronal"</span><span class="op">)</span></span></code></pre></div>
+<p>Surface files each hold one kind of data, and <code>merge</code> combines them into a single object:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">geometry</span>    <span class="op">&lt;-</span> <span class="fu"><a href="reference/imaging-surface.html">read_surface</a></span><span class="op">(</span><span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"gifti/icosahedron3d/geometry.gii"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">measurement</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/imaging-surface.html">read_surface</a></span><span class="op">(</span><span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"gifti/icosahedron3d/rand.gii"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">merged</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">geometry</span>, <span class="va">measurement</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">merged</span>, name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"measurements"</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>See the <a href="https://dipterix.org/ieegio/articles/read-imaging-data.html" class="external-link">imaging article</a> for more.</p>
+</div>
+<div class="section level2">
+<h2 id="surface-annotations-from-afnisuma">Surface annotations from <code>AFNI</code>/<code>SUMA</code>
+<a class="anchor" aria-label="anchor" href="#surface-annotations-from-afnisuma"></a>
+</h2>
+<p><code>NIML</code> datasets (<code>*.niml.dset</code>) are read by <code>read_surface</code>, which decides between labels and continuous values from the dataset itself. Sample data includes matching <code>std.141</code> geometry and annotations:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">geometry</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/imaging-surface.html">read_surface</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"gifti/std.141.lh.inf_200.gii"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">annotation</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/imaging-surface.html">read_surface</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"niml/std.141.lh.aparc.a2009s.annot.niml.dset"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">geometry</span>, <span class="va">annotation</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;ieegio Surface&gt;</span></span>
+<span><span class="co">#&gt;   Header class: basic_geometry</span></span>
+<span><span class="co">#&gt;   Geometry :</span></span>
+<span><span class="co">#&gt;     # of Vertex     : 198812</span></span>
+<span><span class="co">#&gt;     # of Face index : 397620</span></span>
+<span><span class="co">#&gt;   Annotations: `node label`</span></span>
+<span><span class="co">#&gt;     # of labels: 76</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Contains: `geometry`, `annotations`</span></span></code></pre></div>
+<p><code>io_read_niml</code> is the low-level reader if you need the raw element tree. All <code>NIML</code> storage forms are supported (plain text, binary and <code>base64</code> in either byte order, optionally <code>gzip</code> compressed).</p>
+</div>
+<div class="section level2">
+<h2 id="color-maps">Color maps<a class="anchor" aria-label="anchor" href="#color-maps"></a>
+</h2>
+<p><code>read_colormap</code> handles <code>FreeSurfer</code> lookup tables, <code>.annot</code> color tables, <code>AFNI</code> label tables, <code>FSL</code> color maps, and <code>threeBrain</code>/<code>RAVE</code> <code>JSON</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cmap</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/read_colormap.html">read_colormap</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"niml/rh.std.141.Glasser_HCP.lbl.niml.dset"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">cmap</span></span>
+<span><span class="co">#&gt; &lt;ieegio Colormap [discrete]&gt;</span></span>
+<span><span class="co">#&gt;   Colorspace   : RGB</span></span>
+<span><span class="co">#&gt;   Color stops  : 181  (keys 0 to 180)</span></span>
+<span><span class="co">#&gt;   Lookup       : 181 labels</span></span>
+<span></span>
+<span><span class="co"># write as a FreeSurfer lookup table</span></span>
+<span><span class="fu"><a href="reference/write_colormap.html">write_colormap</a></span><span class="op">(</span><span class="va">cmap</span>, <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".txt"</span><span class="op">)</span>, format <span class="op">=</span> <span class="st">"fs_lut"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="regions-of-interest">Regions of interest<a class="anchor" aria-label="anchor" href="#regions-of-interest"></a>
+</h2>
+<p>A region of interest is described first and computed later. <code>as_ieegio_roi</code> records the criteria, <code>resolve_roi_as</code> carries them out and hands back geometry in world (<code>RAS</code>) coordinates, and <code>detect_roi_overlap</code> compares two regions.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">atlas</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/imaging-volume.html">read_volume</a></span><span class="op">(</span><span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"atlases/YBA/YBA690.nii.gz"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># describe: which voxels count as the region</span></span>
+<span><span class="va">roi</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/as_ieegio_roi.html">as_ieegio_roi</a></span><span class="op">(</span><span class="va">atlas</span>, threshold_lb <span class="op">=</span> <span class="fl">1</span>, threshold_ub <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># compute: turn the description into geometry</span></span>
+<span><span class="fu"><a href="reference/resolve_roi_as.html">resolve_roi_as</a></span><span class="op">(</span><span class="va">roi</span>, <span class="st">"pointcloud"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;ieegio ROI [pointcloud]&gt;</span></span>
+<span><span class="co">#&gt; ... # of Vertex : 3495</span></span></code></pre></div>
+<p>Because both sides are resolved to world coordinates first, regions of different kinds can be compared directly. Here the whole atlas is tested against a facial-nerve tract bundle:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tracts</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/imaging-streamlines.html">read_streamlines</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"streamlines/CNVII_R.trk"</span><span class="op">)</span>, half_voxel_offset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/detect_roi_overlap.html">detect_roi_overlap</a></span><span class="op">(</span><span class="fu"><a href="reference/as_ieegio_roi.html">as_ieegio_roi</a></span><span class="op">(</span><span class="va">atlas</span>, threshold_lb <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">tracts</span>, radius <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;ieegio ROI overlap: `x` and `y` overlap&gt;</span></span>
+<span><span class="co">#&gt;   x: volume</span></span>
+<span><span class="co">#&gt;   y: streamlines (annotated)</span></span>
+<span><span class="co">#&gt;   Units of `y` overlapping `x`: 53.7%</span></span>
+<span><span class="co">#&gt;   Early stop: FALSE</span></span></code></pre></div>
+<p>The result also carries the annotated tracts back, so each streamline knows whether it hit the region.</p>
+</div>
+<div class="section level2">
+<h2 id="coordinate-spaces-and-transforms">Coordinate spaces and transforms<a class="anchor" aria-label="anchor" href="#coordinate-spaces-and-transforms"></a>
+</h2>
+<p>Name a space with <code>new_space</code>, then move a surface into it. Transforms can be read from <code>ANTs</code> or <code>FSL FLIRT</code> files, or chained with <code>as_ieegio_transform</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mni</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/new_space.html">new_space</a></span><span class="op">(</span><span class="st">"MNI152"</span>, orientation <span class="op">=</span> <span class="st">"RAS"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">surface</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/imaging-surface.html">read_surface</a></span><span class="op">(</span><span class="fu"><a href="reference/ieegio_sample_data.html">ieegio_sample_data</a></span><span class="op">(</span><span class="st">"gifti/icosahedron3d/geometry.gii"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/surface_to_surface.html">surface_to_surface</a></span><span class="op">(</span><span class="va">surface</span>, space_from <span class="op">=</span> <span class="st">"scanner"</span>, space_to <span class="op">=</span> <span class="va">mni</span>,</span>
+<span>                   transform <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ...</span></span>
+<span><span class="co">#&gt;     # of transforms : 1</span></span>
+<span><span class="co">#&gt;       Transform Targets : MNI152</span></span></code></pre></div>
+<table class="table">
+<thead><tr>
+<th align="left">Purpose</th>
+<th align="left">Function</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="left">Define a coordinate space</td>
+<td align="left"><code>new_space</code></td>
+</tr>
+<tr>
+<td align="left">Build or chain transforms</td>
+<td align="left"><code>as_ieegio_transform</code></td>
+</tr>
+<tr>
+<td align="left">Read <code>ANTs</code> affine / displacement field</td>
+<td align="left"><code>io_read_ants_transform</code></td>
+</tr>
+<tr>
+<td align="left">Read <code>FSL FLIRT</code> matrix</td>
+<td align="left"><code>io_read_flirt_transform</code></td>
+</tr>
+<tr>
+<td align="left">Convert <code>FLIRT</code> to world (<code>RAS</code>)</td>
+<td align="left"><code>transform_flirt2ras</code></td>
+</tr>
+<tr>
+<td align="left">Transform between orientations</td>
+<td align="left"><code>transform_orientation</code></td>
+</tr>
+<tr>
+<td align="left">Move a surface between spaces</td>
+<td align="left"><code>surface_to_surface</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="mapping-and-editing-volumes">Mapping and editing volumes<a class="anchor" aria-label="anchor" href="#mapping-and-editing-volumes"></a>
+</h2>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># volume mask or atlas label to a smoothed mesh</span></span>
+<span><span class="fu"><a href="reference/volume_to_surface.html">volume_to_surface</a></span><span class="op">(</span><span class="va">atlas</span>, threshold_lb <span class="op">=</span> <span class="fl">1</span>, threshold_ub <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># down-sample or super-sample</span></span>
+<span><span class="fu"><a href="reference/resample_volume.html">resample_volume</a></span><span class="op">(</span><span class="va">volume</span>, new_dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">128</span>, <span class="fl">128</span>, <span class="fl">128</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># burn electrode contacts at RAS positions</span></span>
+<span><span class="fu"><a href="reference/burn_volume.html">burn_volume</a></span><span class="op">(</span><span class="va">volume</span>, ras_position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">50</span>, <span class="op">-</span><span class="fl">10</span>, <span class="fl">15</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">40</span>, <span class="op">-</span><span class="fl">10</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>            col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"green"</span><span class="op">)</span>, radius <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><code>burn_curve</code> does the same for a trajectory, such as a depth (<code>sEEG</code>) lead or a <code>DBS</code> shaft, given start and end positions.</p>
+</div>
+<div class="section level2">
+<h2 id="supported-formats">Supported formats<a class="anchor" aria-label="anchor" href="#supported-formats"></a>
 </h2>
 <p>The following formats have been (or will be) supported. Please feel free to make a wish-list by posting an issue in this repository.</p>
-<p><strong>Electrophysiology</strong></p>
+<div class="section level3">
+<h3 id="electrophysiology-examples">Electrophysiology (<a href="https://dipterix.org/ieegio/articles/read-ephys.html" class="external-link">examples</a>)<a class="anchor" aria-label="anchor" href="#electrophysiology-examples"></a>
+</h3>
 <table class="table">
 <colgroup>
 <col width="35%">
@@ -137,10 +328,9 @@
 </table>
 <p><code>*</code> - <code>NWB</code> format only has low-level support due to its format nature. Please see examples with <code><a href="reference/read_nwb.html">help(read_nwb)</a></code></p>
 </div>
-<div class="section level2">
-<h2 id="list-2-read-imaging-data-examples">List 2: read imaging data (<a href="https://dipterix.org/ieegio/articles/read-imaging-data.html" class="external-link">examples</a>)<a class="anchor" aria-label="anchor" href="#list-2-read-imaging-data-examples"></a>
-</h2>
-<p><strong>Imaging</strong></p>
+<div class="section level3">
+<h3 id="imaging-examples">Imaging (<a href="https://dipterix.org/ieegio/articles/read-imaging-data.html" class="external-link">examples</a>)<a class="anchor" aria-label="anchor" href="#imaging-examples"></a>
+</h3>
 <table class="table">
 <colgroup>
 <col width="37%">
@@ -206,6 +396,35 @@
 </tr>
 <tr>
 <td align="left">
+<code>AFNI</code>/<code>SUMA</code> <code>NIML</code> surface data</td>
+<td align="center"><code>*.niml.dset</code></td>
+<td align="center">
+<code>read_surface</code> (<code>io_read_niml</code>)</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">
+<code>VTK</code> poly-data (as surface mesh)</td>
+<td align="center">
+<code>*.vtk</code>, <code>*.vtp</code>, <code>*.pvtp</code>, <code>*.vtu</code>, <code>*.vtpb</code>
+</td>
+<td align="center">
+<code>read_surface</code> (<code>io_read_vtk_polys</code>)</td>
+<td align="center">
+<code>write_surface</code> (<code>io_write_vtk_polys</code>) **</td>
+</tr>
+<tr>
+<td align="left">Other mesh formats</td>
+<td align="center">
+<code>*.stl</code>, <code>*.ply</code>, <code>*.obj</code>, <code>*.off</code>, <code>*.mz3</code>
+</td>
+<td align="center">
+<code>read_surface</code> (via <code>freesurferformats</code>)</td>
+<td align="center">
+<code>write_surface</code> (<code>*.stl</code> only)</td>
+</tr>
+<tr>
+<td align="left">
 <code>TRK</code> streamlines</td>
 <td align="center">
 <code>*.trk</code>, <code>*.trk.gz</code>
@@ -238,19 +457,84 @@
 <td align="left">
 <code>VTK</code> poly-data (as streamlines)</td>
 <td align="center">
-<code>*.vtk</code>, <code>*.vtp</code>, <code>*.vtpb</code>
+<code>*.vtk</code>, <code>*.vtp</code>
 </td>
 <td align="center">
-<code>read_streamlines</code> (<code>io_read_vtk_streamlines</code>)</td>
+<code>read_streamlines</code> (<code>io_read_vtk_streamlines</code>) ***</td>
 <td align="center">
-<code>read_streamlines</code> (<code>io_write_vtk_streamlines</code>)</td>
+<code>write_streamlines</code> (<code>io_write_vtk_streamlines</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><code>**</code> - <code>VTK</code> surfaces can be read from all five extensions, but only written as legacy <code>*.vtk</code>, <code>XML</code> <code>*.vtp</code>, or <code>HDF5</code> <code>*.vtpb</code>.</p>
+<p><code>***</code> - <code>read_streamlines</code> infers <code>*.vtk</code> and <code>*.vtp</code> from the file name; call <code>io_read_vtk_streamlines</code> directly for <code>*.pvtp</code> and <code>*.vtpb</code>. <code>write_streamlines</code> also writes <code>*.vtpb</code> and <code>*.h5</code>.</p>
+<p>The <code>VTK</code> readers and writers use the <code>Python</code> <code>vtk</code> package.</p>
+</div>
+<div class="section level3">
+<h3 id="color-maps-1">Color maps<a class="anchor" aria-label="anchor" href="#color-maps-1"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="24%">
+<col width="20%">
+<col width="21%">
+</colgroup>
+<thead><tr>
+<th align="left">Name</th>
+<th align="center">Common Extensions</th>
+<th align="center">Read</th>
+<th align="center">Write</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="left">
+<code>FreeSurfer</code> lookup table</td>
+<td align="center"><code>*.txt</code></td>
+<td align="center"><code>read_colormap</code></td>
+<td align="center"><code>write_colormap(format="fs_lut")</code></td>
+</tr>
+<tr>
+<td align="left">
+<code>FreeSurfer</code> annotation</td>
+<td align="center"><code>*.annot</code></td>
+<td align="center"><code>read_colormap</code></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">
+<code>AFNI</code> label table</td>
+<td align="center">
+<code>*.niml.dset</code>, <code>*.lut</code>
+</td>
+<td align="center"><code>read_colormap</code></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">
+<code>FSL</code> color map / <code>VEST</code>
+</td>
+<td align="center">
+<code>*.cmap</code>, <code>*.lut</code>
+</td>
+<td align="center"><code>read_colormap</code></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">
+<code>threeBrain</code>/<code>RAVE</code>
+</td>
+<td align="center"><code>*.json</code></td>
+<td align="center"><code>read_colormap</code></td>
+<td align="center">
+<code>write_colormap</code> (default)</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="section level2">
-<h2 id="list-3-common-file-formats-used-for-meta-data">List 3: common file formats used for meta data<a class="anchor" aria-label="anchor" href="#list-3-common-file-formats-used-for-meta-data"></a>
-</h2>
+<div class="section level3">
+<h3 id="meta-data">Meta data<a class="anchor" aria-label="anchor" href="#meta-data"></a>
+</h3>
 <table class="table">
 <thead><tr>
 <th align="left">Name</th>
@@ -299,6 +583,8 @@
 </tr>
 </tbody>
 </table>
+<p>The <code>HDF5</code> back-end is resolved at run time, choosing among <code>readNSx</code>, <code>h5lite</code>, <code>hdf5r</code>, and <code>h5py</code>, so no single one of them is required. <code>LazyH5</code> and <code>LazyFST</code> read <code>HDF5</code> and <code>FST</code> files lazily, and <code>convert_fst_to_csv</code> and <code>convert_fst_to_hdf5</code> convert between the formats.</p>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

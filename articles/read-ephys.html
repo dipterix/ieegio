@@ -167,6 +167,18 @@ method.</p>
 <span><span class="co">#&gt;   Continuous : no</span></span>
 <span><span class="co">#&gt;   Number of timepoints: 2200</span></span>
 <span><span class="co">#&gt;   Time range : 0.0 to 20.0 sec</span></span></code></pre></div>
+<p>A channel can also be looked up by its label instead of its number,
+which saves a round trip through the channel table:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">edf</span><span class="op">$</span><span class="fu">get_channel</span><span class="op">(</span><span class="st">"squarewave"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; E/BDF(+) signal</span></span>
+<span><span class="co">#&gt;   Channel    : 1</span></span>
+<span><span class="co">#&gt;   label      : squarewave</span></span>
+<span><span class="co">#&gt;   Unit       : uV</span></span>
+<span><span class="co">#&gt;   Sample rate: 200.0</span></span>
+<span><span class="co">#&gt;   Continuous : no</span></span>
+<span><span class="co">#&gt;   Number of timepoints: 2200</span></span>
+<span><span class="co">#&gt;   Time range : 0.0 to 20.0 sec</span></span></code></pre></div>
 <p>The <code>channel</code> contains the following elements:</p>
 <ul>
 <li>
@@ -188,7 +200,7 @@ converted from digital to analog trace.</li>
 </ul>
 <p>Using such information, it is straightforward to plot the channel
 data:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="va">channel</span><span class="op">$</span><span class="va">time</span>, y <span class="op">=</span> <span class="va">channel</span><span class="op">$</span><span class="va">value</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time"</span>, ylab <span class="op">=</span> <span class="va">channel</span><span class="op">$</span><span class="va">info</span><span class="op">$</span><span class="va">Unit</span>,</span>
@@ -196,6 +208,52 @@ data:</p>
 <span>  type <span class="op">=</span> <span class="st">"p"</span>, pch <span class="op">=</span> <span class="st">"."</span>, col <span class="op">=</span> <span class="st">"green"</span>, lwd <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="read-ephys_files/figure-html/plot_channel-1.png" class="r-plt" alt="" width="700"></p>
+<div class="section level2">
+<h2 id="writing-edf-files">Writing <code>EDF</code> files<a class="anchor" aria-label="anchor" href="#writing-edf-files"></a>
+</h2>
+<p>To save signals back out, build each channel with
+<code>as_edf_channel</code> and hand the list to <code>write_edf</code>.
+A channel is either a signal vector or an annotation table:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">signal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">channels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/write_edf.html">as_edf_channel</a></span><span class="op">(</span><span class="va">signal</span>, channel_num <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                 sample_rate <span class="op">=</span> <span class="fl">200</span>, label <span class="op">=</span> <span class="st">"sine"</span><span class="op">)</span>,</span>
+<span></span>
+<span>  <span class="fu"><a href="../reference/write_edf.html">as_edf_channel</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>      timestamp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span><span class="op">)</span>,</span>
+<span>      comments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"start"</span>, <span class="st">"end"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    channel_num <span class="op">=</span> <span class="fl">2</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">out_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".edf"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/write_edf.html">write_edf</a></span><span class="op">(</span>channels <span class="op">=</span> <span class="va">channels</span>, con <span class="op">=</span> <span class="va">out_path</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Recording duration for each chunk is set to `1 sec`</span></span></code></pre></div>
+<p>Reading it back gives the signal and the annotations:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">written</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_edf.html">read_edf</a></span><span class="op">(</span><span class="va">out_path</span>, extract_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">written</span><span class="op">$</span><span class="fu">get_channel</span><span class="op">(</span><span class="st">"sine"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; E/BDF(+) signal</span></span>
+<span><span class="co">#&gt;   Channel    : 1</span></span>
+<span><span class="co">#&gt;   label      : sine</span></span>
+<span><span class="co">#&gt;   Unit       : uV</span></span>
+<span><span class="co">#&gt;   Sample rate: 200.0</span></span>
+<span><span class="co">#&gt;   Continuous : yes</span></span>
+<span><span class="co">#&gt;   Number of timepoints: 1200</span></span>
+<span><span class="co">#&gt;   Time range : 0.0 to 6.0 sec</span></span>
+<span><span class="va">written</span><span class="op">$</span><span class="fu">get_annotations</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;fst file&gt;</span></span>
+<span><span class="co">#&gt; 2 rows, 4 columns (annot.fst)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;"> </span> timestamp duration    comments   channel</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8; font-style: italic;">   &lt;double&gt; &lt;double&gt; &lt;character&gt; &lt;integer&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">1</span>         0       NA       start         2</span></span>
+<span><span class="co">#&gt; <span style="color: #A8A8A8;">2</span>         5       NA         end         2</span></span></code></pre></div>
+</div>
   </main>
 </div>
 

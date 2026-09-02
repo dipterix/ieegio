@@ -4,8 +4,13 @@
 
 - Volume: `NIfTI` & `FreeSurfer MGH/MGZ`
 - Surface: `GIfTI` & `FreeSurfer` geometry, annotation,
-  curvature/measurement, `w` format
+  curvature/measurement, `w` format, `AFNI`/`SUMA` `NIML`, `VTK` polygon
+  meshes
 - Streamlines: `TRK`, `TCK`, `TT` (read-only), `VTK`, `VTP`, …
+
+Beyond reading and writing, `ieegio` can also map data between volumes
+and surfaces, chain coordinate transforms, and compare regions of
+interest; those are covered at the end of this article.
 
 To start, please load `ieegio`. This vignette uses sample data which
 requires extra download.
@@ -39,6 +44,17 @@ tck_file <- ieegio_sample_data(
 
 tt_file <- ieegio_sample_data(
   "streamlines/CNVII_R.tt")
+
+# AFNI/SUMA std.141 geometry and matching annotation
+std141_geom_file <- ieegio_sample_data(
+  "gifti/std.141.lh.inf_200.gii")
+
+niml_file <- ieegio_sample_data(
+  "niml/std.141.lh.aparc.a2009s.annot.niml.dset")
+
+# volumetric atlas
+atlas_file <- ieegio_sample_data(
+  "atlases/YBA/YBA690.nii.gz")
 ```
 
 ### Volume files
@@ -229,3 +245,183 @@ To write the streamlines, for example, write `tck` file to `trk` file:
 tfile <- tempfile(fileext = ".trk")
 write_streamlines(x = tck, con = tfile)
 ```
+
+### Surface annotations from `AFNI`/`SUMA`
+
+`NIML` datasets (file names ending with `.niml.dset`) are read by the
+same `read_surface` entry point. The data type is resolved from the
+dataset itself: datasets carrying a label table are read as
+`annotations`, the rest as `measurements`.
+
+``` r
+
+std141_geometry <- read_surface(std141_geom_file)
+
+annotation <- read_surface(niml_file)
+annotation
+#> <ieegio Surface>
+#>   Header class: niml_dset
+#>   Annotations: `node label`
+#>     # of labels: 76
+#> 
+#> Contains: `annotations`
+```
+
+The sample geometry and annotation live on the same `std.141` mesh, so
+they merge directly:
+
+``` r
+
+labeled <- merge(std141_geometry, annotation)
+#> Merging geometry attributes, assuming all the surface objects have the same number of vertices.
+labeled
+#> <ieegio Surface>
+#>   Header class: basic_geometry
+#>   Geometry : 
+#>     # of Vertex     : 198812
+#>     # of Face index : 397620
+#>     # of transforms : 1
+#>       Transform Targets : Unknown
+#>   Annotations: `node label`
+#>     # of labels: 76
+#> 
+#> Contains: `geometry`, `annotations`
+```
+
+``` r
+
+plot(labeled, name = "annotations")
+```
+
+![](read-imaging-data_files/figure-html/plot_niml-1.png)
+
+If you need the raw `NIML` element tree rather than a surface object,
+use the low-level `io_read_niml` together with `niml_find`.
+
+### Regions of interest
+
+A region of interest is described first and computed later.
+`as_ieegio_roi` records the criteria without applying them, and
+`resolve_roi_as` carries them out, returning geometry in world (`RAS`)
+coordinates.
+
+``` r
+
+atlas <- read_volume(atlas_file)
+
+# describe: which voxels count as the region
+roi <- as_ieegio_roi(atlas, threshold_lb = 1, threshold_ub = 5)
+roi
+#> <ieegio ROI [volume]: lower bound 1, upper bound 5>
+#> <Image Volume>
+#>   Type : rnifti/nifti
+#>   Shape: c(197L, 233L, 189L)
+#>   Transforms:
+#>     vox2ras:
+#>       [1  0  0   -98]
+#>       [0  1  0  -134]
+#>       [0  0  1   -72]
+#>       [0  0  0     1]
+#>     vox2ras_tkr:
+#>       [1  0  0   -98.5]
+#>       [0  1  0  -116.5]
+#>       [0  0  1   -94.5]
+#>       [0  0  0       1]
+#>     vox2fsl:
+#>       [-1  0  0  196]
+#>       [ 0  1  0    0]
+#>       [ 0  0  1    0]
+#>       [ 0  0  0    1]
+```
+
+``` r
+
+# compute: turn that description into geometry
+resolve_roi_as(roi, "pointcloud")
+#> <ieegio ROI [pointcloud]>
+#> <ieegio Surface>
+#>   Header class: basic_geometry
+#>   Geometry : 
+#>     # of Vertex     : 3495
+#>     # of Face index : 0
+#>     # of transforms : 0
+#>       Transform Targets : 
+#> 
+#> Contains: `geometry`
+```
+
+Because both sides are resolved to world coordinates first, regions
+stored in different ways can be compared directly. Here the whole atlas
+is tested against the facial-nerve tracts read earlier:
+
+``` r
+
+overlap <- detect_roi_overlap(
+  as_ieegio_roi(atlas, threshold_lb = 1),
+  trk,
+  radius = 2
+)
+overlap
+#> <ieegio ROI overlap: `x` and `y` overlap>
+#>   x: volume
+#>   y: streamlines (annotated)
+#>   Units of `y` overlapping `x`: 53.7%
+#>   Early stop: FALSE
+```
+
+The result carries the annotated streamlines back in
+`overlap$annotated`, so each tract knows whether it reached the region,
+and `overlap$hit_ratio` reports the proportion that did.
+
+### Volume to surface
+
+`volume_to_surface` turns a mask or a set of atlas labels into a
+smoothed mesh:
+
+``` r
+
+volume_to_surface(atlas, threshold_lb = 1, threshold_ub = 5)
+#> <ieegio Surface>
+#>   Header class: basic_geometry
+#>   Geometry : 
+#>     # of Vertex     : 1940
+#>     # of Face index : 3878
+#>     # of transforms : 1
+#>       Transform Targets : ScannerAnat
+#> 
+#> Contains: `geometry`
+```
+
+### Coordinate spaces and transforms
+
+`new_space` names a coordinate space, and `surface_to_surface` moves a
+surface into it, recording the target on the surface transform list.
+
+``` r
+
+mni <- new_space("MNI152", orientation = "RAS")
+mni
+#> MNI152 (RAS)
+
+surface_to_surface(
+  geometry,
+  space_from = "scanner",
+  space_to = mni,
+  transform = diag(1, 4)
+)
+#> <ieegio Surface>
+#>   Header class: gifti
+#>   Geometry : 
+#>     # of Vertex     : 12
+#>     # of Face index : 20
+#>     # of transforms : 1
+#>       Transform Targets : MNI152
+#> 
+#> Contains: `geometry`
+```
+
+Transforms themselves can come from other tools:
+`io_read_ants_transform` reads `ANTs` affine and displacement field
+transforms, `io_read_flirt_transform` reads `FSL FLIRT` matrices, and
+`transform_flirt2ras` converts a `FLIRT` transform into world (`RAS`)
+coordinates.

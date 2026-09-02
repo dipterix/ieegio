@@ -115,6 +115,22 @@ channel
 #>   Time range : 0.0 to 20.0 sec
 ```
 
+A channel can also be looked up by its label instead of its number,
+which saves a round trip through the channel table:
+
+``` r
+
+edf$get_channel("squarewave")
+#> E/BDF(+) signal
+#>   Channel    : 1
+#>   label      : squarewave
+#>   Unit       : uV
+#>   Sample rate: 200.0
+#>   Continuous : no
+#>   Number of timepoints: 2200
+#>   Time range : 0.0 to 20.0 sec
+```
+
 The `channel` contains the following elements:
 
 - `type`: a character indicating the original file type;
@@ -138,3 +154,55 @@ plot(
 ```
 
 ![](read-ephys_files/figure-html/plot_channel-1.png)
+
+## Writing `EDF` files
+
+To save signals back out, build each channel with `as_edf_channel` and
+hand the list to `write_edf`. A channel is either a signal vector or an
+annotation table:
+
+``` r
+
+signal <- sin(seq(0, 10, by = 0.01))
+
+channels <- list(
+  as_edf_channel(signal, channel_num = 1,
+                 sample_rate = 200, label = "sine"),
+
+  as_edf_channel(
+    data.frame(
+      timestamp = c(0, 5),
+      comments = c("start", "end")
+    ),
+    channel_num = 2
+  )
+)
+
+out_path <- tempfile(fileext = ".edf")
+write_edf(channels = channels, con = out_path)
+#> Recording duration for each chunk is set to `1 sec`
+```
+
+Reading it back gives the signal and the annotations:
+
+``` r
+
+written <- read_edf(out_path, extract_path = tempfile(), verbose = FALSE)
+written$get_channel("sine")
+#> E/BDF(+) signal
+#>   Channel    : 1
+#>   label      : sine
+#>   Unit       : uV
+#>   Sample rate: 200.0
+#>   Continuous : yes
+#>   Number of timepoints: 1200
+#>   Time range : 0.0 to 6.0 sec
+written$get_annotations()
+#> <fst file>
+#> 2 rows, 4 columns (annot.fst)
+#> 
+#>   timestamp duration    comments   channel
+#>    <double> <double> <character> <integer>
+#> 1         0       NA       start         2
+#> 2         5       NA         end         2
+```
