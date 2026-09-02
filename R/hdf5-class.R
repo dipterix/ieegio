@@ -11,6 +11,22 @@ py_func <- function(fun) {
   rpymat$run_package_function("reticulate", "py_func", fun)
 }
 
+# `reticulate` picks the R type from the `numpy` dtype, and on some platforms a
+# 32-bit integer dataset arrives as a double vector, carrying `NA_integer_`
+# through as the raw `INT_MIN` sentinel every backend stores it as. Put the
+# value back into the storage mode the dtype declares. R's integer is a signed
+# 32-bit type with `INT_MIN` reserved for `NA`, so only the narrow `numpy`
+# integer dtypes can be represented that way; everything else is left alone.
+py_h5_restore_integer <- function(x, kind, size) {
+  fits <- (identical(kind, "i") && size <= 4) ||
+    (identical(kind, "u") && size <= 2)
+  if (!fits || !is.double(x)) { return(x) }
+
+  x[!is.na(x) & x == -(as.numeric(.Machine$integer.max) + 1)] <- NA
+  storage.mode(x) <- "integer"
+  x
+}
+
 py_is_null_xptr <- function(x) {
   if (is.null(x)) { return(TRUE) }
   if (!inherits(x, "python.builtin.object")) { return(FALSE) }
@@ -522,7 +538,7 @@ LazyH5 <- R6::R6Class(
 
                 try({ f$close_all() }, silent = TRUE)
                 # private$file_ptr <- hdf5r::H5File$new(private$file, mode)
-                private$file_ptr <- h5backend::H5File$new(private$file, mode)
+                private$file_ptr <- h5backend$H5File$new(private$file, mode)
 
               })
 
@@ -924,7 +940,14 @@ LazyH5 <- R6::R6Class(
       switch(
         private$backend,
         "h5py" = {
+          # the value has to keep the storage mode `get_type()` reports and the
+          # R backends return, which `reticulate` alone does not guarantee
+          dtype_kind <- py_to_r(private$data_ptr$dtype$kind)
+          dtype_size <- py_to_r(private$data_ptr$dtype$itemsize)
+
           re <- py_to_r(private$data_ptr[])
+          re <- py_h5_restore_integer(re, dtype_kind, dtype_size)
+
           dm <- dim(re)
 
           if (length(dm) > 1) {

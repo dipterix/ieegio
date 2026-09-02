@@ -10,21 +10,27 @@ h5_all_backends <- function() {
   c("hdf5r", "h5lite", "readNSx", "h5py")
 }
 
+# Presence of the package is not enough: `readNSx` only grew the native HDF5
+# API in 0.0.8, and `ensure_hdf5_backend()` silently falls back to another
+# backend for older versions. Ask which backend a request really resolves to.
 h5_backend_ready <- function(backend) {
-  if (identical(backend, "h5py")) {
-    if (nzchar(Sys.getenv("IEEGIO_NO_PYTHON", unset = ""))) { return(FALSE) }
-    old <- Sys.getenv("IEEGIO_USE_H5", unset = NA_character_)
-    on.exit({
-      if (is.na(old)) {
-        Sys.unsetenv("IEEGIO_USE_H5")
-      } else {
-        Sys.setenv("IEEGIO_USE_H5" = old)
-      }
-    }, add = TRUE)
-    Sys.setenv("IEEGIO_USE_H5" = "h5py")
-    return(inherits(ensure_hdf5_backend(), "python.builtin.module"))
+  if (identical(backend, "h5py") &&
+      nzchar(Sys.getenv("IEEGIO_NO_PYTHON", unset = ""))) {
+    return(FALSE)
   }
-  nzchar(system.file(package = backend))
+  old <- Sys.getenv("IEEGIO_USE_H5", unset = NA_character_)
+  old_opt <- options("ieegio.debug.emscripten" = FALSE)
+  on.exit({
+    options(old_opt)
+    if (is.na(old)) {
+      Sys.unsetenv("IEEGIO_USE_H5")
+    } else {
+      Sys.setenv("IEEGIO_USE_H5" = old)
+    }
+  }, add = TRUE)
+  Sys.unsetenv("IEEGIO_USE_H5PY")
+  Sys.setenv("IEEGIO_USE_H5" = backend)
+  identical(hdf5_backend_type(ensure_hdf5_backend()), backend)
 }
 
 # Switches the active backend and reports which one actually got resolved.
@@ -326,6 +332,7 @@ test_that("HDF5 IO with R-h5lite backend", {
 
 test_that("HDF5 IO with R-readNSx backend", {
 
+  testthat::skip_if_not(h5_backend_ready("readNSx"))
   # the fixture below is written with hdf5r, to check cross-backend reads
   testthat::skip_if_not(nzchar(system.file(package = "hdf5r")))
 
@@ -489,6 +496,13 @@ test_that("h5lite backend validity checks on write-protected files", {
 
   Sys.chmod(f, "0444")
 
+  # r-universe runs `R CMD check` as root, and root ignores the mode bits: the
+  # file stays writable, so there is no write protection left to check
+  testthat::skip_if(
+    unname(file.access(f, 2)) == 0,
+    "file is still writable after chmod (running as root?)"
+  )
+
   # `h5_open()` creates the root group, i.e. it writes, so a write-protected
   # file cannot be opened through an h5lite handle; the validity check must
   # report that rather than claiming the file is writable
@@ -617,6 +631,38 @@ test_that("HDF5 IO with Python backend", {
   y <- io_read_h5(file = f, name = "data")
 
   expect_equal(x, y[])
+
+})
+
+test_that("h5py integer datasets keep their storage mode", {
+
+  # `reticulate` only widens a 32-bit integer dataset to double on some
+  # platforms - Windows does, macOS and Linux do not - so the recovery is
+  # driven directly here rather than through a live `h5py` read, which would
+  # leave the branch untested everywhere it actually matters.
+  int_min <- -(as.numeric(.Machine$integer.max) + 1)
+
+  # signed 32-bit: the value comes back as an integer and `INT_MIN` is `NA`
+  expect_identical(
+    py_h5_restore_integer(c(1, int_min, 3), "i", 4L),
+    c(1L, NA, 3L)
+  )
+
+  # the narrow integer dtypes fit as well, and `dim` has to survive
+  x <- py_h5_restore_integer(array(c(1, 2, 3, 4), c(2, 2)), "u", 1L)
+  expect_identical(storage.mode(x), "integer")
+  expect_identical(dim(x), c(2L, 2L))
+
+  # anything R cannot hold in an integer is left as a double
+  expect_identical(py_h5_restore_integer(c(1, 2), "i", 8L), c(1, 2))
+  expect_identical(py_h5_restore_integer(c(1, 2), "u", 4L), c(1, 2))
+  expect_identical(py_h5_restore_integer(c(1.5, 2.5), "f", 8L), c(1.5, 2.5))
+
+  # a backend that already hands back an integer is not touched
+  expect_identical(py_h5_restore_integer(c(1L, NA, 3L), "i", 4L), c(1L, NA, 3L))
+
+  # an empty dataset keeps its type without erroring
+  expect_identical(py_h5_restore_integer(numeric(0), "i", 4L), integer(0))
 
 })
 
@@ -833,6 +879,8 @@ for (h5_writer in h5_all_backends()) {
 
 test_that("readNSx backend write path", {
 
+  testthat::skip_if_not(h5_backend_ready("readNSx"))
+
   Sys.unsetenv("IEEGIO_USE_H5PY")
   old_opt <- options("ieegio.debug.emscripten" = FALSE)
   f <- tempfile()
@@ -903,6 +951,8 @@ test_that("readNSx backend out-of-bound indices are padded with NA", {
   # `tidx` spans a pre-stimulus window. Nothing clamps `tp`, so a trial near a
   # block boundary asks for samples that do not exist, and the result must keep
   # the requested shape so that `dim(voltage) <- dim(tp)` still lines up.
+  testthat::skip_if_not(h5_backend_ready("readNSx"))
+
   Sys.unsetenv("IEEGIO_USE_H5PY")
   old_opt <- options("ieegio.debug.emscripten" = FALSE)
   f <- tempfile()
@@ -982,6 +1032,7 @@ for (h5_backend in c("hdf5r", "h5lite", "readNSx")) {
 test_that("readNSx backend validity checks on write-protected files", {
 
   testthat::skip_on_os("windows")
+  testthat::skip_if_not(h5_backend_ready("readNSx"))
 
   Sys.unsetenv("IEEGIO_USE_H5PY")
   old_opt <- options("ieegio.debug.emscripten" = FALSE)
@@ -999,6 +1050,14 @@ test_that("readNSx backend validity checks on write-protected files", {
   io_write_h5(x, file = f, name = "data", quiet = TRUE)
 
   Sys.chmod(f, "0444")
+
+  # r-universe runs `R CMD check` as root, and root ignores the mode bits: the
+  # file stays writable, so there is no write protection left to check
+  testthat::skip_if(
+    unname(file.access(f, 2)) == 0,
+    "file is still writable after chmod (running as root?)"
+  )
+
   expect_true(io_h5_valid(f, "r"))
   expect_false(io_h5_valid(f, "w"))
 
