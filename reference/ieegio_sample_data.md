@@ -66,6 +66,8 @@ ieegio_sample_data()
 #>   - gifti/icosahedron3d/rand.curv
 #>   - gifti/icosahedron3d/rand.gii
 #>   - gifti/icosahedron3d/ts.gii
+#>   - gifti/std.141.lh.inf_200.gii
+#>   - gifti/std.141.rh.inf_200.gii
 #>   - streamlines/CNVII_R.tck
 #>   - streamlines/CNVII_R.trk.gz
 #>   - streamlines/CNVII_R.trk
