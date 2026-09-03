@@ -87,8 +87,8 @@ cm_cont <- as_ieegio_colormap(ct, lookup = lut, data_range = c(-3, 3))
 grDevices::pdf(NULL)
 plot(cm_cont)
 grDevices::dev.off()
-#> agg_record_220351aba9fb 
-#>                       2 
+#> agg_record_220e16b1c28 
+#>                      2 
 
 # Discrete legend ----------------------------------------------------
 ct2 <- as_ieegio_colortable(data.frame(
@@ -104,6 +104,6 @@ cm_disc <- as_ieegio_colormap(ct2, lookup = lut2)
 grDevices::pdf(NULL)
 plot(cm_disc)
 grDevices::dev.off()
-#> agg_record_220351aba9fb 
-#>                       2 
+#> agg_record_220e16b1c28 
+#>                      2 
 ```
