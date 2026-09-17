@@ -335,7 +335,7 @@ as_ieegio_streamlines.character <- function(x, sanitize = TRUE, ...) {
       half_voxel_offset <- args$half_voxel_offset
       endian <- args$endian
       if (length(half_voxel_offset) != 1) {
-        message(strwrap("TCK file is detected. Please read the following text carefully. TCK file format has ambiguity by definition: if the file is generated from TrackVis, nibabel, then there is a half-voxel offset, which can be corrected by setting `half_voxel_offset=TRUE`. However, if the file is generated from DSI-Studio, then there is no such offset, please set the `half_voxel_offset=FALSE`."), "\n\n  `half_voxel_offset` is unspecified, setting to `TRUE` by default.\n")
+        message(strwrap("TRK file is detected. Please read the following text carefully. TRK file format has ambiguity by definition: if the file is generated from TrackVis, nibabel, then there is a half-voxel offset, which can be corrected by setting `half_voxel_offset=TRUE`. However, if the file is generated from DSI-Studio, then there is no such offset, please set the `half_voxel_offset=FALSE`."), "\n\n  `half_voxel_offset` is unspecified, setting to `TRUE` by default.\n")
         half_voxel_offset <- TRUE
       }
       io_read_trk(x, half_voxel_offset = half_voxel_offset)
