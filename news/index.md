@@ -2,6 +2,8 @@
 
 ## ieegio 0.1.2
 
+CRAN release: 2026-09-03
+
 - Added `as_ieegio_roi` to mark an image volume, surface, point cloud,
   or streamlines object as a region of interest, recording the selection
   criteria (intensity bounds, threshold expressions, arc length filters)

@@ -42,9 +42,9 @@ io_write_gii(x, con, ...)
   format of the file, for `write_surface`, this is `'gifti'`,
   `'freesurfer'`, or `'vtk'`; for `read_surface`, use `'niml'` to force
   the `NIML` reader, or see 'Arguments' section in
-  [`read.fs.surface`](https://rdrr.io/pkg/freesurferformats/man/read.fs.surface.html)
+  [`read.fs.surface`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.surface.html)
   (when file type is `'geometry'`) and
-  [`read.fs.curv`](https://rdrr.io/pkg/freesurferformats/man/read.fs.curv.html)
+  [`read.fs.curv`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.curv.html)
   (when file type is `'measurements'`)
 
 - type:

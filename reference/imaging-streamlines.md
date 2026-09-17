@@ -138,7 +138,7 @@ if (FALSE) { # \dontrun{
 
 # Read formats
 y <- read_streamlines(file.path(tdir, "sample.trk"))
-#> TCK file is detected. Please read the following text carefully. TCKfile format has ambiguity by definition: if the file is generated fromTrackVis, nibabel, then there is a half-voxel offset, which can becorrected by setting `half_voxel_offset=TRUE`. However, if the file isgenerated from DSI-Studio, then there is no such offset, please set the`half_voxel_offset=FALSE`.
+#> TRK file is detected. Please read the following text carefully. TRKfile format has ambiguity by definition: if the file is generated fromTrackVis, nibabel, then there is a half-voxel offset, which can becorrected by setting `half_voxel_offset=TRUE`. However, if the file isgenerated from DSI-Studio, then there is no such offset, please set the`half_voxel_offset=FALSE`.
 #> 
 #>   `half_voxel_offset` is unspecified, setting to `TRUE` by default.
 
