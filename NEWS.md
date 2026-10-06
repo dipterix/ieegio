@@ -1,3 +1,8 @@
+# ieegio 0.1.3
+
+* `volume_to_surface` reduces surfaces with more than `max_vertices` vertices (500,000 by default) with `ravetools::vcg_decimate`; a whole-brain mask at sub-millimeter resolution gives millions of vertices. Smoothing runs first, at full resolution, since the same `lambda` and `degree` smooth a decimated mesh several times more; a surface too large to smooth at full resolution is decimated first
+* `volume_to_surface` gains `smooth_method = "explicit"` to smooth with `ravetools::mris_smooth` (`smooth_iterations` rounds of neighbor averaging) instead of the implicit solver
+
 # ieegio 0.1.2
 
 * Added `as_ieegio_roi` to mark an image volume, surface, point cloud, or streamlines object as a region of interest, recording the selection criteria (intensity bounds, threshold expressions, arc length filters) rather than applying them right away

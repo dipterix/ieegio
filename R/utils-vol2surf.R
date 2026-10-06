@@ -8,6 +8,21 @@
 #' smoothing, set \code{lambda} to negative or \code{NA}
 #' @param threshold_lb,threshold_ub threshold of volume, see
 #' \code{\link[ravetools]{vcg_isosurface}}; default is any voxel value above 0.5
+#' @param smooth_method \code{"implicit"} (default) smooths with
+#' \code{\link[ravetools]{vcg_smooth_implicit}} using \code{lambda} and
+#' \code{degree}; \code{"explicit"} smooths with
+#' \code{\link[ravetools]{mris_smooth}} instead, repeated neighbor averaging
+#' whose memory grows only linearly with the surface
+#' @param smooth_iterations number of averaging rounds when
+#' \code{smooth_method} is \code{"explicit"}; default is \code{10}
+#' @param max_vertices surfaces with more vertices than this are reduced to
+#' about this many with \code{ravetools::vcg_decimate()} (needs a
+#' \pkg{ravetools} version that has it), which removes
+#' vertices from flat regions first and keeps the shape; default is
+#' \code{500000}. Use \code{Inf} to keep every vertex. Smoothing runs
+#' first, at full resolution, because the same \code{lambda} and
+#' \code{degree} smooth a coarser mesh much more; only a surface too large
+#' to smooth at full resolution is decimated first
 #'
 #' @returns A \code{as_ieegio_surface} object; the surface is
 #' transformed into anatomical space defined by the volume.
@@ -32,7 +47,10 @@
 #' @export
 volume_to_surface <- function(
     volume, lambda = 0.2, degree = 2, threshold_lb = 0.5, threshold_ub = NA,
-    ...) {
+    smooth_method = c("implicit", "explicit", "none"), smooth_iterations = 10L,
+    max_vertices = 500000, ...) {
+
+  smooth_method <- match.arg(smooth_method)
 
   # DIPSAUS DEBUG START
   # volume <- "~/rave_data/raw_dir/yael_demo_001/rave-imaging/fs/mri/ct_in_t1.nii.gz"
@@ -80,16 +98,68 @@ volume_to_surface <- function(
     return(ieegio::as_ieegio_surface(mesh, transform = diag(1, 4)))
   }
 
-  # smooth
-  if (isTRUE(lambda > 0)) {
-    mesh <- ravetools::vcg_smooth_implicit(
-      mesh,
-      lambda = lambda,
-      use_mass_matrix = TRUE,
-      fix_border = TRUE,
-      use_cot_weight = FALSE,
-      degree = degree
-    )
+  # For compatibility, since some functions are not available in the old versions
+  ravetools <- asNamespace("ravetools")
+  mris_smooth <- ravetools$mris_smooth
+  vcg_decimate <- asNamespace("ravetools")$vcg_decimate
+
+  if (smooth_method == "explicit" && !is.function(mris_smooth)) {
+    warning("Explicit smooth is requested but package `ravetools` version is too low; using implicit smooth instead.")
+    smooth_method <- "implicit"
+  }
+
+  smooth <- function(mesh) {
+    if (smooth_method == "none" || !length(mesh$it) || !length(mesh$vb)) {
+      return(mesh)
+    }
+    if (smooth_method == "explicit") {
+      mesh <- mris_smooth(mesh, niterations = as.integer(smooth_iterations))
+    } else if (isTRUE(lambda > 0)) {
+      mesh <- ravetools::vcg_smooth_implicit(
+        mesh,
+        lambda = lambda,
+        use_mass_matrix = TRUE,
+        fix_border = TRUE,
+        use_cot_weight = FALSE,
+        degree = degree
+      )
+    }
+    mesh
+  }
+
+  # An iso-surface carries one vertex per voxel boundary, millions for a
+  # whole-brain mask at sub-millimeter resolution, finer than the voxels
+  # resolve; above `max_vertices` it is decimated, flat regions first.
+  # Smoothing comes first, at full resolution: the 'Laplacian' works in mesh
+  # steps, so the same `lambda` and `degree` on a decimated mesh smooth
+  # several times more in millimeters. Only a surface that cannot be smoothed
+  # at full resolution (for example above the memory limit of
+  # `vcg_smooth_implicit`) is decimated first
+  n_vertices <- ncol(mesh$vb)
+  max_vertices <- as.numeric(max_vertices)[[1]]
+  vcg_decimate <- asNamespace("ravetools")$vcg_decimate
+
+
+  if (smooth_method == "implicit" && length(mesh$it) && n_vertices && isTRUE(n_vertices > max_vertices)) {
+
+    # Decimate is required before smoothing
+    ratio <- max_vertices / n_vertices
+
+    if (is.function(vcg_decimate)) {
+      mesh <- tryCatch(
+        {
+          smooth(vcg_decimate(smooth(mesh), ratio = ratio))
+        },
+        error = function(e) {
+          vcg_decimate(mesh, ratio = ratio)
+        }
+      )
+    } else {
+      warning("Number of vertices exceeds the maximum vertices allowed; no smoothing is applied.")
+    }
+
+  } else {
+    mesh <- smooth(mesh)
   }
 
   if (length(mesh$vb) < 9 && length(mesh$it) < 3) {

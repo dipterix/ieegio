@@ -10,6 +10,9 @@ volume_to_surface(
   degree = 2,
   threshold_lb = 0.5,
   threshold_ub = NA,
+  smooth_method = c("implicit", "explicit", "none"),
+  smooth_iterations = 10L,
+  max_vertices = 5e+05,
   ...
 )
 }
@@ -23,6 +26,24 @@ smoothing, set \code{lambda} to negative or \code{NA}}
 
 \item{threshold_lb, threshold_ub}{threshold of volume, see
 \code{\link[ravetools]{vcg_isosurface}}; default is any voxel value above 0.5}
+
+\item{smooth_method}{\code{"implicit"} (default) smooths with
+\code{\link[ravetools]{vcg_smooth_implicit}} using \code{lambda} and
+\code{degree}; \code{"explicit"} smooths with
+\code{\link[ravetools]{mris_smooth}} instead, repeated neighbor averaging
+whose memory grows only linearly with the surface}
+
+\item{smooth_iterations}{number of averaging rounds when
+\code{smooth_method} is \code{"explicit"}; default is \code{10}}
+
+\item{max_vertices}{surfaces with more vertices than this are reduced to
+about this many with \code{ravetools::vcg_decimate()} (needs a
+\pkg{ravetools} version that has it), which removes
+vertices from flat regions first and keeps the shape; default is
+\code{500000}. Use \code{Inf} to keep every vertex. Smoothing runs
+first, at full resolution, because the same \code{lambda} and
+\code{degree} smooth a coarser mesh much more; only a surface too large
+to smooth at full resolution is decimated first}
 
 \item{...}{passed to \code{as_ieegio_volume}}
 }
