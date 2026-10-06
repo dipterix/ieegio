@@ -12,17 +12,23 @@
 #' \code{\link[ravetools]{vcg_smooth_implicit}} using \code{lambda} and
 #' \code{degree}; \code{"explicit"} smooths with
 #' \code{\link[ravetools]{mris_smooth}} instead, repeated neighbor averaging
-#' whose memory grows only linearly with the surface
+#' whose memory grows only linearly with the surface (with a \pkg{ravetools}
+#' version that does not have \code{mris_smooth}, the \code{"laplace"} type
+#' of \code{\link[ravetools]{vcg_smooth_explicit}} is used);
+#' \code{"none"} returns the surface without smoothing
 #' @param smooth_iterations number of averaging rounds when
 #' \code{smooth_method} is \code{"explicit"}; default is \code{10}
-#' @param max_vertices surfaces with more vertices than this are reduced to
-#' about this many with \code{ravetools::vcg_decimate()} (needs a
-#' \pkg{ravetools} version that has it), which removes
-#' vertices from flat regions first and keeps the shape; default is
-#' \code{500000}. Use \code{Inf} to keep every vertex. Smoothing runs
-#' first, at full resolution, because the same \code{lambda} and
-#' \code{degree} smooth a coarser mesh much more; only a surface too large
-#' to smooth at full resolution is decimated first
+#' @param max_vertices used only when \code{smooth_method} is
+#' \code{"implicit"}, whose memory grows quickly with the surface size:
+#' surfaces with more vertices than this are reduced to about this many with
+#' \code{ravetools::vcg_decimate()} before smoothing, which removes vertices
+#' from flat regions first and keeps the shape; default is \code{500000}.
+#' Because the smoothing works in mesh steps, the same \code{lambda} and
+#' \code{degree} smooth a reduced surface more; use a larger value or
+#' \code{Inf} to smooth at full resolution. With a \pkg{ravetools} version
+#' that does not have \code{vcg_decimate}, surfaces with more than
+#' \code{20000} vertices are not smoothed, since the implicit smoothing of
+#' those versions can crash on large surfaces
 #'
 #' @returns A \code{as_ieegio_surface} object; the surface is
 #' transformed into anatomical space defined by the volume.
@@ -101,11 +107,10 @@ volume_to_surface <- function(
   # For compatibility, since some functions are not available in the old versions
   ravetools <- asNamespace("ravetools")
   mris_smooth <- ravetools$mris_smooth
-  vcg_decimate <- asNamespace("ravetools")$vcg_decimate
+  vcg_decimate <- ravetools$vcg_decimate
 
   if (smooth_method == "explicit" && !is.function(mris_smooth)) {
-    warning("Explicit smooth is requested but package `ravetools` version is too low; using implicit smooth instead.")
-    smooth_method <- "implicit"
+    warning("Explicit smooth is requested but package `ravetools` version is too low to have `mris_smooth`; using `vcg_smooth_explicit` instead.")
   }
 
   smooth <- function(mesh) {
@@ -113,7 +118,15 @@ volume_to_surface <- function(
       return(mesh)
     }
     if (smooth_method == "explicit") {
-      mesh <- mris_smooth(mesh, niterations = as.integer(smooth_iterations))
+      if (is.function(mris_smooth)) {
+        mesh <- mris_smooth(mesh, niterations = as.integer(smooth_iterations))
+      } else {
+        mesh <- ravetools::vcg_smooth_explicit(
+          mesh,
+          type = "laplace",
+          iteration = as.integer(smooth_iterations)
+        )
+      }
     } else if (isTRUE(lambda > 0)) {
       mesh <- ravetools::vcg_smooth_implicit(
         mesh,
@@ -129,35 +142,39 @@ volume_to_surface <- function(
 
   # An iso-surface carries one vertex per voxel boundary, millions for a
   # whole-brain mask at sub-millimeter resolution, finer than the voxels
-  # resolve; above `max_vertices` it is decimated, flat regions first.
-  # Smoothing comes first, at full resolution: the 'Laplacian' works in mesh
-  # steps, so the same `lambda` and `degree` on a decimated mesh smooth
-  # several times more in millimeters. Only a surface that cannot be smoothed
-  # at full resolution (for example above the memory limit of
-  # `vcg_smooth_implicit`) is decimated first
+  # resolve. Implicit smoothing solves a linear system whose memory grows
+  # with the surface (several GB for millions of vertices), so above
+  # `max_vertices` the surface is decimated (flat regions first) before it is
+  # smoothed. The 'Laplacian' works in mesh steps, so the same `lambda` and
+  # `degree` smooth a decimated mesh more in millimeters; users who want
+  # full-resolution smoothing raise `max_vertices`. Explicit smoothing (and
+  # no smoothing) needs memory linear in the surface and is never decimated.
+  # `ravetools` without `vcg_decimate` (0.3.2 and earlier) has an implicit
+  # smoother that crashes R with a segmentation fault on large surfaces, so
+  # there only surfaces up to `legacy_smooth_limit` vertices are smoothed
   n_vertices <- ncol(mesh$vb)
   max_vertices <- as.numeric(max_vertices)[[1]]
-  vcg_decimate <- asNamespace("ravetools")$vcg_decimate
+  legacy_smooth_limit <- 20000
 
-
-  if (smooth_method == "implicit" && length(mesh$it) && n_vertices && isTRUE(n_vertices > max_vertices)) {
-
-    # Decimate is required before smoothing
-    ratio <- max_vertices / n_vertices
-
+  if (smooth_method == "implicit" && length(mesh$it)) {
     if (is.function(vcg_decimate)) {
-      mesh <- tryCatch(
-        {
-          smooth(vcg_decimate(smooth(mesh), ratio = ratio))
-        },
-        error = function(e) {
-          vcg_decimate(mesh, ratio = ratio)
-        }
-      )
-    } else {
-      warning("Number of vertices exceeds the maximum vertices allowed; no smoothing is applied.")
+      if (isTRUE(n_vertices > max_vertices)) {
+        # Decimate is required before smoothing
+        mesh <- vcg_decimate(mesh, ratio = max_vertices / n_vertices)
+      }
+      mesh <- smooth(mesh)
+    } else if (n_vertices <= legacy_smooth_limit) {
+      mesh <- smooth(mesh)
+    } else if (isTRUE(lambda > 0)) {
+      warning(sprintf(
+        paste0(
+          "The surface has %d vertices, more than %d that the installed ",
+          "`ravetools` can smooth safely without `vcg_decimate`; no ",
+          "smoothing is applied. Please update `ravetools`."
+        ),
+        n_vertices, legacy_smooth_limit
+      ))
     }
-
   } else {
     mesh <- smooth(mesh)
   }

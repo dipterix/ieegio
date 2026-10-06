@@ -31,19 +31,25 @@ smoothing, set \code{lambda} to negative or \code{NA}}
 \code{\link[ravetools]{vcg_smooth_implicit}} using \code{lambda} and
 \code{degree}; \code{"explicit"} smooths with
 \code{\link[ravetools]{mris_smooth}} instead, repeated neighbor averaging
-whose memory grows only linearly with the surface}
+whose memory grows only linearly with the surface (with a \pkg{ravetools}
+version that does not have \code{mris_smooth}, the \code{"laplace"} type
+of \code{\link[ravetools]{vcg_smooth_explicit}} is used);
+\code{"none"} returns the surface without smoothing}
 
 \item{smooth_iterations}{number of averaging rounds when
 \code{smooth_method} is \code{"explicit"}; default is \code{10}}
 
-\item{max_vertices}{surfaces with more vertices than this are reduced to
-about this many with \code{ravetools::vcg_decimate()} (needs a
-\pkg{ravetools} version that has it), which removes
-vertices from flat regions first and keeps the shape; default is
-\code{500000}. Use \code{Inf} to keep every vertex. Smoothing runs
-first, at full resolution, because the same \code{lambda} and
-\code{degree} smooth a coarser mesh much more; only a surface too large
-to smooth at full resolution is decimated first}
+\item{max_vertices}{used only when \code{smooth_method} is
+\code{"implicit"}, whose memory grows quickly with the surface size:
+surfaces with more vertices than this are reduced to about this many with
+\code{ravetools::vcg_decimate()} before smoothing, which removes vertices
+from flat regions first and keeps the shape; default is \code{500000}.
+Because the smoothing works in mesh steps, the same \code{lambda} and
+\code{degree} smooth a reduced surface more; use a larger value or
+\code{Inf} to smooth at full resolution. With a \pkg{ravetools} version
+that does not have \code{vcg_decimate}, surfaces with more than
+\code{20000} vertices are not smoothed, since the implicit smoothing of
+those versions can crash on large surfaces}
 
 \item{...}{passed to \code{as_ieegio_volume}}
 }
