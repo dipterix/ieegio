@@ -44,7 +44,10 @@ volume_to_surface(
   using `lambda` and `degree`; `"explicit"` smooths with
   [`mris_smooth`](https://dipterix.org/ravetools/reference/mris_smooth.html)
   instead, repeated neighbor averaging whose memory grows only linearly
-  with the surface
+  with the surface (with a ravetools version that does not have
+  `mris_smooth`, the `"laplace"` type of
+  [`vcg_smooth_explicit`](https://dipterix.org/ravetools/reference/vcg_smooth.html)
+  is used); `"none"` returns the surface without smoothing
 
 - smooth_iterations:
 
@@ -53,13 +56,16 @@ volume_to_surface(
 
 - max_vertices:
 
-  surfaces with more vertices than this are reduced to about this many
-  with `ravetools::vcg_decimate()` (needs a ravetools version that has
-  it), which removes vertices from flat regions first and keeps the
-  shape; default is `500000`. Use `Inf` to keep every vertex. Smoothing
-  runs first, at full resolution, because the same `lambda` and `degree`
-  smooth a coarser mesh much more; only a surface too large to smooth at
-  full resolution is decimated first
+  used only when `smooth_method` is `"implicit"`, whose memory grows
+  quickly with the surface size: surfaces with more vertices than this
+  are reduced to about this many with `ravetools::vcg_decimate()` before
+  smoothing, which removes vertices from flat regions first and keeps
+  the shape; default is `500000`. Because the smoothing works in mesh
+  steps, the same `lambda` and `degree` smooth a reduced surface more;
+  use a larger value or `Inf` to smooth at full resolution. With a
+  ravetools version that does not have `vcg_decimate`, surfaces with
+  more than `20000` vertices are not smoothed, since the implicit
+  smoothing of those versions can crash on large surfaces
 
 - ...:
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,10 @@ smoothing, set <code>lambda</code> to negative or <code>NA</code></p></dd>
 <code><a href="https://dipterix.org/ravetools/reference/vcg_smooth.html" class="external-link">vcg_smooth_implicit</a></code> using <code>lambda</code> and
 <code>degree</code>; <code>"explicit"</code> smooths with
 <code><a href="https://dipterix.org/ravetools/reference/mris_smooth.html" class="external-link">mris_smooth</a></code> instead, repeated neighbor averaging
-whose memory grows only linearly with the surface</p></dd>
+whose memory grows only linearly with the surface (with a <span class="pkg">ravetools</span>
+version that does not have <code>mris_smooth</code>, the <code>"laplace"</code> type
+of <code><a href="https://dipterix.org/ravetools/reference/vcg_smooth.html" class="external-link">vcg_smooth_explicit</a></code> is used);
+<code>"none"</code> returns the surface without smoothing</p></dd>
 
 
 <dt id="arg-smooth-iterations">smooth_iterations<a class="anchor" aria-label="anchor" href="#arg-smooth-iterations"></a></dt>
@@ -91,14 +94,17 @@ whose memory grows only linearly with the surface</p></dd>
 
 
 <dt id="arg-max-vertices">max_vertices<a class="anchor" aria-label="anchor" href="#arg-max-vertices"></a></dt>
-<dd><p>surfaces with more vertices than this are reduced to
-about this many with <code>ravetools::vcg_decimate()</code> (needs a
-<span class="pkg">ravetools</span> version that has it), which removes
-vertices from flat regions first and keeps the shape; default is
-<code>500000</code>. Use <code>Inf</code> to keep every vertex. Smoothing runs
-first, at full resolution, because the same <code>lambda</code> and
-<code>degree</code> smooth a coarser mesh much more; only a surface too large
-to smooth at full resolution is decimated first</p></dd>
+<dd><p>used only when <code>smooth_method</code> is
+<code>"implicit"</code>, whose memory grows quickly with the surface size:
+surfaces with more vertices than this are reduced to about this many with
+<code>ravetools::vcg_decimate()</code> before smoothing, which removes vertices
+from flat regions first and keeps the shape; default is <code>500000</code>.
+Because the smoothing works in mesh steps, the same <code>lambda</code> and
+<code>degree</code> smooth a reduced surface more; use a larger value or
+<code>Inf</code> to smooth at full resolution. With a <span class="pkg">ravetools</span> version
+that does not have <code>vcg_decimate</code>, surfaces with more than
+<code>20000</code> vertices are not smoothed, since the implicit smoothing of
+those versions can crash on large surfaces</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
