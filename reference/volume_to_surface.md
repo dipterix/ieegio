@@ -11,6 +11,9 @@ volume_to_surface(
   degree = 2,
   threshold_lb = 0.5,
   threshold_ub = NA,
+  smooth_method = c("implicit", "explicit", "none"),
+  smooth_iterations = 10L,
+  max_vertices = 5e+05,
   ...
 )
 ```
@@ -33,6 +36,30 @@ volume_to_surface(
   threshold of volume, see
   [`vcg_isosurface`](https://dipterix.org/ravetools/reference/vcg_isosurface.html);
   default is any voxel value above 0.5
+
+- smooth_method:
+
+  `"implicit"` (default) smooths with
+  [`vcg_smooth_implicit`](https://dipterix.org/ravetools/reference/vcg_smooth.html)
+  using `lambda` and `degree`; `"explicit"` smooths with
+  [`mris_smooth`](https://dipterix.org/ravetools/reference/mris_smooth.html)
+  instead, repeated neighbor averaging whose memory grows only linearly
+  with the surface
+
+- smooth_iterations:
+
+  number of averaging rounds when `smooth_method` is `"explicit"`;
+  default is `10`
+
+- max_vertices:
+
+  surfaces with more vertices than this are reduced to about this many
+  with `ravetools::vcg_decimate()` (needs a ravetools version that has
+  it), which removes vertices from flat regions first and keeps the
+  shape; default is `500000`. Use `Inf` to keep every vertex. Smoothing
+  runs first, at full resolution, because the same `lambda` and `degree`
+  smooth a coarser mesh much more; only a surface too large to smooth at
+  full resolution is decimated first
 
 - ...:
 

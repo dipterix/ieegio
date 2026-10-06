@@ -1,5 +1,18 @@
 # Changelog
 
+## ieegio 0.1.3
+
+- `volume_to_surface` reduces surfaces with more than `max_vertices`
+  vertices (500,000 by default) with `ravetools::vcg_decimate`; a
+  whole-brain mask at sub-millimeter resolution gives millions of
+  vertices. Smoothing runs first, at full resolution, since the same
+  `lambda` and `degree` smooth a decimated mesh several times more; a
+  surface too large to smooth at full resolution is decimated first
+- `volume_to_surface` gains `smooth_method = "explicit"` to smooth with
+  [`ravetools::mris_smooth`](https://dipterix.org/ravetools/reference/mris_smooth.html)
+  (`smooth_iterations` rounds of neighbor averaging) instead of the
+  implicit solver
+
 ## ieegio 0.1.2
 
 CRAN release: 2026-09-03
