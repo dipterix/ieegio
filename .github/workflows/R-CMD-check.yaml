@@ -40,7 +40,12 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
+          # r-lib/actions >= v2.14.0 also turns on Posit Package Manager
+          # (P3M) for macOS. P3M's macOS 'fstcore' binary is built with
+          # OpenMP but not linked to libomp, so it fails to load with
+          # "symbol not found in flat namespace '___kmpc_barrier'"
+          # (see r-lib/actions#1113). Use CRAN binaries on macOS instead.
+          use-public-rspm: ${{ runner.os != 'macOS' }}
           extra-repositories: |
             https://rave-ieeg.r-universe.dev
 
