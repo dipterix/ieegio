@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ieegio</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,7 +74,9 @@ smoothing, set <code>lambda</code> to negative or <code>NA</code></p></dd>
 
 <dt id="arg-threshold-lb-threshold-ub">threshold_lb, threshold_ub<a class="anchor" aria-label="anchor" href="#arg-threshold-lb-threshold-ub"></a></dt>
 <dd><p>threshold of volume, see
-<code><a href="https://dipterix.org/ravetools/reference/vcg_isosurface.html" class="external-link">vcg_isosurface</a></code>; default is any voxel value above 0.5</p></dd>
+<code><a href="https://dipterix.org/ravetools/reference/vcg_isosurface.html" class="external-link">vcg_isosurface</a></code>; default is any voxel value above
+0.5. Voxels strictly between the two thresholds form the mask; voxels that
+are <code>NA</code>, <code>NaN</code>, or infinite are invalid and never part of it</p></dd>
 
 
 <dt id="arg-smooth-method">smooth_method<a class="anchor" aria-label="anchor" href="#arg-smooth-method"></a></dt>
@@ -114,7 +116,9 @@ those versions can crash on large surfaces</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>as_ieegio_surface</code> object; the surface is
-transformed into anatomical space defined by the volume.</p>
+transformed into anatomical space defined by the volume. When no valid
+voxel lies within the thresholds, the surface has a single vertex at the
+origin and no face.</p>
     </div>
 
     <div class="section level2">

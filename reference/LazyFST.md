@@ -185,10 +185,10 @@ range(dat[] - x)
 
 system.time(dat[,1])
 #>    user  system elapsed 
-#>   0.015   0.000   0.015 
+#>   0.009   0.000   0.008 
 
 system.time(dat[1:100,])
 #>    user  system elapsed 
-#>   0.017   0.006   0.008 
+#>   0.013   0.002   0.006 
 
 ```

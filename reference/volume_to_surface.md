@@ -35,7 +35,9 @@ volume_to_surface(
 
   threshold of volume, see
   [`vcg_isosurface`](https://dipterix.org/ravetools/reference/vcg_isosurface.html);
-  default is any voxel value above 0.5
+  default is any voxel value above 0.5. Voxels strictly between the two
+  thresholds form the mask; voxels that are `NA`, `NaN`, or infinite are
+  invalid and never part of it
 
 - smooth_method:
 
@@ -74,7 +76,8 @@ volume_to_surface(
 ## Value
 
 A `as_ieegio_surface` object; the surface is transformed into anatomical
-space defined by the volume.
+space defined by the volume. When no valid voxel lies within the
+thresholds, the surface has a single vertex at the origin and no face.
 
 ## Examples
 
