@@ -25,7 +25,9 @@ volume_to_surface(
 smoothing, set \code{lambda} to negative or \code{NA}}
 
 \item{threshold_lb, threshold_ub}{threshold of volume, see
-\code{\link[ravetools]{vcg_isosurface}}; default is any voxel value above 0.5}
+\code{\link[ravetools]{vcg_isosurface}}; default is any voxel value above
+0.5. Voxels strictly between the two thresholds form the mask; voxels that
+are \code{NA}, \code{NaN}, or infinite are invalid and never part of it}
 
 \item{smooth_method}{\code{"implicit"} (default) smooths with
 \code{\link[ravetools]{vcg_smooth_implicit}} using \code{lambda} and
@@ -55,7 +57,9 @@ those versions can crash on large surfaces}
 }
 \value{
 A \code{as_ieegio_surface} object; the surface is
-transformed into anatomical space defined by the volume.
+transformed into anatomical space defined by the volume. When no valid
+voxel lies within the thresholds, the surface has a single vertex at the
+origin and no face.
 }
 \description{
 Create smooth surface from volume mask or data

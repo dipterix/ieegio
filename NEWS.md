@@ -2,6 +2,7 @@
 
 * `volume_to_surface` with the default implicit smoothing reduces surfaces with more than `max_vertices` vertices (500,000 by default) with `ravetools::vcg_decimate` before smoothing; a whole-brain mask at sub-millimeter resolution gives millions of vertices, and the implicit solver needs memory that grows quickly with the surface. The same `lambda` and `degree` smooth a decimated mesh more, so raise `max_vertices` to smooth at full resolution. With a `ravetools` version that has no `vcg_decimate` (0.3.2 and earlier, whose implicit smoother crashes on large surfaces), surfaces with more than 20,000 vertices are returned without smoothing, with a warning
 * `volume_to_surface` gains `smooth_method = "explicit"` to smooth with `ravetools::mris_smooth` (`smooth_iterations` rounds of neighbor averaging) instead of the implicit solver, falling back to the `"laplace"` type of `ravetools::vcg_smooth_explicit` when `mris_smooth` is not available, and `smooth_method = "none"` to skip smoothing; neither is decimated
+* `volume_to_surface` treats `NA`, `NaN`, and infinite voxels as invalid and leaves them out of the surface. A volume file with `NaN` voxels used to stop with `missing value where TRUE/FALSE needed`, and infinite voxels above `threshold_lb` were part of the surface when `threshold_ub` was `NA`
 
 # ieegio 0.1.2
 

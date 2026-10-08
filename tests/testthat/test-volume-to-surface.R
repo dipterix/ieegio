@@ -154,3 +154,52 @@ test_that("volume_to_surface returns the iso-surface as is with smooth_method no
                             max_vertices = ncol(raw$vb) / 4)
   expect_equal(surface_vertices(surf), raw$vb[1:3, ])
 })
+
+test_that("volume_to_surface leaves NA, NaN, and infinite voxels out", {
+  skip_if_not(package_installed("ravetools"))
+  volume <- cross_volume()
+  clean <- volume_to_surface(volume, vox2ras = diag(1, 4))
+
+  # invalid voxels away from the cross and off the border (the iso-surface
+  # has nothing at the border): each would add a piece of surface if it were
+  # counted (an infinite voxel is above any lower threshold)
+  dirty <- volume
+  dirty[4, 4, 4] <- NaN
+  dirty[26, 26, 26] <- NA
+  dirty[4, 4, 26] <- Inf
+  dirty[26, 26, 4] <- -Inf
+
+  surf <- volume_to_surface(dirty, vox2ras = diag(1, 4))
+  expect_equal(surface_vertices(surf), surface_vertices(clean))
+
+  surf <- volume_to_surface(dirty, vox2ras = diag(1, 4), threshold_ub = 2)
+  expect_equal(surface_vertices(surf), surface_vertices(clean))
+
+  # a volume read from a file keeps its NaN voxels, unlike an array converted
+  # in memory
+  skip_if_not(package_installed("RNifti"))
+  dirty_path <- tempfile(fileext = ".nii.gz")
+  clean_path <- tempfile(fileext = ".nii.gz")
+  on.exit(unlink(c(dirty_path, clean_path)), add = TRUE)
+  RNifti::writeNifti(RNifti::asNifti(dirty, datatype = "float"), dirty_path)
+  RNifti::writeNifti(RNifti::asNifti(volume, datatype = "float"), clean_path)
+  expect_true(anyNA(as_ieegio_volume(dirty_path)[]))
+
+  expect_equal(
+    surface_vertices(volume_to_surface(dirty_path)),
+    surface_vertices(volume_to_surface(clean_path))
+  )
+})
+
+test_that("volume_to_surface returns a single point when no voxel is in the mask", {
+  skip_if_not(package_installed("ravetools"))
+
+  surf <- volume_to_surface(cross_volume(), vox2ras = diag(1, 4),
+                            threshold_lb = 1)
+  expect_equal(surface_vertices(surf), matrix(0, nrow = 3, ncol = 1))
+  expect_null(surf$geometry$faces)
+
+  # only invalid voxels
+  surf <- volume_to_surface(array(Inf, dim = rep(10, 3)), vox2ras = diag(1, 4))
+  expect_equal(surface_vertices(surf), matrix(0, nrow = 3, ncol = 1))
+})

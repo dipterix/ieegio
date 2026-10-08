@@ -7,7 +7,9 @@
 #' \code{\link[ravetools]{vcg_smooth_implicit}} for details. To disable
 #' smoothing, set \code{lambda} to negative or \code{NA}
 #' @param threshold_lb,threshold_ub threshold of volume, see
-#' \code{\link[ravetools]{vcg_isosurface}}; default is any voxel value above 0.5
+#' \code{\link[ravetools]{vcg_isosurface}}; default is any voxel value above
+#' 0.5. Voxels strictly between the two thresholds form the mask; voxels that
+#' are \code{NA}, \code{NaN}, or infinite are invalid and never part of it
 #' @param smooth_method \code{"implicit"} (default) smooths with
 #' \code{\link[ravetools]{vcg_smooth_implicit}} using \code{lambda} and
 #' \code{degree}; \code{"explicit"} smooths with
@@ -31,7 +33,9 @@
 #' those versions can crash on large surfaces
 #'
 #' @returns A \code{as_ieegio_surface} object; the surface is
-#' transformed into anatomical space defined by the volume.
+#' transformed into anatomical space defined by the volume. When no valid
+#' voxel lies within the thresholds, the surface has a single vertex at the
+#' origin and no face.
 #'
 #' @examples
 #'
@@ -80,23 +84,24 @@ volume_to_surface <- function(
     volume <- array(volume[], dim = vol_dim)
   }
 
+  # `NA`, `NaN`, and infinite voxels are invalid and never inside the mask
+  # (`FALSE & NA` is `FALSE`, so the mask has no `NA`). The bounds are
+  # exclusive, as in `ravetools::vcg_isosurface`
   if (is.na(threshold_lb)) { threshold_lb <- 0 }
-  if (is.na(threshold_ub)) {
-    nvox <- sum(volume > threshold_lb)
-  } else {
-    nvox <- sum(volume > threshold_lb & volume < threshold_ub)
+  mask <- is.finite(volume) & volume > threshold_lb
+  if (!is.na(threshold_ub)) {
+    mask <- mask & volume < threshold_ub
   }
 
-  if (nvox == 0) {
+  if (!any(mask)) {
     # empty surface
     return(ieegio::as_ieegio_surface(matrix(c(0, 0, 0), ncol = 3)))
   }
 
   # Mesh
   mesh <- ravetools::vcg_isosurface(
-    volume = volume,
-    threshold_lb = threshold_lb,
-    threshold_ub = threshold_ub,
+    volume = mask,
+    threshold_lb = 0.5,
     vox_to_ras = vox_to_ras
   )
 
