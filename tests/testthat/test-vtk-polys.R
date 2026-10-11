@@ -1,4 +1,7 @@
 skip_if_no_vtk <- function() {
+
+  testthat::skip_on_cran()
+  
   testthat::skip_if_not(
     requireNamespace("rpymat", quietly = TRUE) &&
       dir.exists(rpymat::env_path()),
