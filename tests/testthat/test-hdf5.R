@@ -503,11 +503,12 @@ test_that("h5lite backend validity checks on write-protected files", {
     "file is still writable after chmod (running as root?)"
   )
 
-  # `h5_open()` creates the root group, i.e. it writes, so a write-protected
-  # file cannot be opened through an h5lite handle; the validity check must
-  # report that rather than claiming the file is writable
+  # Since `h5lite` 2.2.0.0 `h5_open()` leaves an existing file untouched, so it
+  # succeeds on a write-protected file; the validity check must still report
+  # that the file cannot be written to rather than claiming it is writable
   expect_true(io_h5_valid(f, "r"))
   expect_false(io_h5_valid(f, "w"))
+  expect_error(io_read_h5(file = f, name = "data", read_only = FALSE, quiet = TRUE))
 
   Sys.chmod(f, "0644")
   expect_true(io_h5_valid(f, "w"))
@@ -1069,6 +1070,65 @@ test_that("readNSx backend validity checks on write-protected files", {
   unlink(missing_file)
   expect_error(io_read_h5(file = missing_file, name = "data", quiet = TRUE))
   expect_false(file.exists(missing_file))
+
+})
+
+
+test_that("io_write_h5 keeps the contents of a file it cannot write to", {
+
+  testthat::skip_on_os("windows")
+
+  Sys.unsetenv("IEEGIO_USE_H5PY")
+  old_opt <- options("ieegio.debug.emscripten" = FALSE)
+
+  f_dir <- tempfile()
+  dir.create(f_dir)
+  f <- file.path(f_dir, "data.h5")
+  on.exit({
+    options(old_opt)
+    Sys.unsetenv("IEEGIO_USE_H5")
+    Sys.chmod(f_dir, "0755")
+    Sys.chmod(f, "0644")
+    unlink(f_dir, recursive = TRUE)
+  }, add = TRUE)
+
+  x <- array(1:24, c(2, 3, 4))
+
+  for (backend in c("h5lite", "readNSx")) {
+    if (!h5_backend_ready(backend)) { next }
+
+    expect_equal(h5_use_backend(backend), backend)
+    Sys.chmod(f_dir, "0755")
+    unlink(f, force = TRUE)
+    io_write_h5(x, file = f, name = "data", quiet = TRUE)
+    Sys.chmod(f, "0444")
+    md5 <- tools::md5sum(f)
+
+    # The write cannot open the file. In a writable directory the retry swaps
+    # in a copy of it, in a read-only one it cannot; either way the contents
+    # and the write protection must survive, and no copy may be left behind
+    for (dir_mode in c("0755", "0555")) {
+      Sys.chmod(f_dir, dir_mode)
+      testthat::skip_if(
+        unname(file.access(f, 2)) == 0 ||
+          (dir_mode == "0555" && unname(file.access(f_dir, 2)) == 0),
+        "permissions are not enforced (running as root?)"
+      )
+
+      info <- paste(backend, dir_mode)
+      expect_error(suppressWarnings(
+        io_write_h5(x + 100L, file = f, name = "other", quiet = TRUE)
+      ), info = info)
+      expect_identical(tools::md5sum(f), md5, info = info)
+      expect_false(unname(file.access(f, 2)) == 0, info = info)
+      expect_identical(list.files(f_dir, all.files = TRUE, no.. = TRUE), "data.h5", info = info)
+    }
+
+    # `h5lite` before 2.2.0.0 cannot read a write-protected file
+    Sys.chmod(f, "0644")
+    expect_equal(io_h5_names(f), "data", info = backend)
+    expect_equal(io_read_h5(f, "data", ram = TRUE, quiet = TRUE), x, info = backend)
+  }
 
 })
 

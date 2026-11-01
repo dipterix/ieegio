@@ -685,7 +685,16 @@ LazyH5 <- R6::R6Class(
 
               # h5lite: h5lite always perform simple ops and does not hold
               # connections open
-              private$file_ptr <- h5backend$h5_open(private$file)
+              file_ptr <- h5backend$h5_open(private$file)
+
+              # `h5_open` also succeeds on write-protected files (`h5lite`
+              # 2.2.0.0 and later); fail here like the other backends do, not
+              # at the first write
+              if (!private$read_only &&
+                  unname(file.access(private$file, 2L)) != 0L) {
+                stop(sprintf("Cannot open file [%s] for writing.", private$file))
+              }
+              private$file_ptr <- file_ptr
 
             }
             has_data <- private$file_ptr$exists(private$name)

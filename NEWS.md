@@ -1,3 +1,8 @@
+# ieegio 0.1.4
+
+* Fixed `io_h5_valid(mode = "w")` and `LazyH5` treating write-protected files as writable with the `h5lite` back-end from version 2.2.0.0, where `h5_open` no longer opens existing files for writing
+* Fixed `io_write_h5` putting a file at risk when it could not open it for writing. The retry moved the file aside and back; if either copy failed it replaced the file with one holding only the new dataset and reported success, and a write-protected file in a read-only directory lost its protection and was written to. The retry now makes a copy next to the file and renames it into place, and if that fails the file is left as it was and the write fails
+
 # ieegio 0.1.3
 
 * `volume_to_surface` with the default implicit smoothing reduces surfaces with more than `max_vertices` vertices (500,000 by default) with `ravetools::vcg_decimate` before smoothing; a whole-brain mask at sub-millimeter resolution gives millions of vertices, and the implicit solver needs memory that grows quickly with the surface. The same `lambda` and `degree` smooth a decimated mesh more, so raise `max_vertices` to smooth at full resolution. With a `ravetools` version that has no `vcg_decimate` (0.3.2 and earlier, whose implicit smoother crashes on large surfaces), surfaces with more than 20,000 vertices are returned without smoothing, with a warning

@@ -137,15 +137,21 @@ io_write_h5 <- function(x, file, name, chunk = "auto", level = 4, replace = TRUE
     f
   }, error = function(e) {
     if (!quiet) {
-      cat("Saving failed. Attempt to unlink the file and retry...\n")
+      cat("Saving failed. Attempt to replace the file and retry...\n")
     }
     if (file.exists(file)) {
       # File is locked,
-      tmpf <- tempfile(fileext = "conflict.w.h5")
-      file.copy(file, tmpf)
-      unlink(file, recursive = FALSE, force = TRUE)
-      file.copy(tmpf, file)
-      unlink(tmpf)
+      # so swap in a fresh copy of it. The copy is made next to the file and
+      # takes its place in one rename, so the file is never missing or
+      # incomplete. `file.copy` does not report a failed final flush, hence the
+      # size check. If any step fails, the file stays as it is and the retry
+      # below reports the error
+      tmpf <- tempfile(tmpdir = dirname(file), fileext = ".conflict.w.tmp")
+      if (isTRUE(file.copy(file, tmpf)) &&
+          identical(file.size(tmpf), file.size(file))) {
+        file.rename(tmpf, file)
+      }
+      unlink(tmpf, force = TRUE)
     }
     # Otherwise it's some weird error, or dirname not exists, expose the error
     f <- LazyH5$new(file, name, read_only = FALSE, quiet = quiet)
@@ -234,10 +240,13 @@ io_h5_valid <- function(file, mode = c("r", "w"), close_all = FALSE) {
       "h5lite" = {
         h5backend$h5_exists(file = file, name = "/", assert = TRUE)
         if (mode == "w") {
-          # `h5_open` creates the root group, hence it fails when the file
-          # cannot be written to
-          ptr <- h5backend$h5_open(file)
-          ptr$close()
+          # In h5lite 2.2.0.0, h5_open no longer opens the file with readwrite
+          # using file access now
+          stopifnot(unname(file.access(file, 2L)) == 0L)
+          # # `h5_open` creates the root group, hence it fails when the file
+          # # cannot be written to
+          # ptr <- h5backend$h5_open(file)
+          # ptr$close()
         }
         # `close_all` is a no-op here: h5lite does not hold the file open
       },
