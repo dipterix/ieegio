@@ -2,6 +2,8 @@
 
 ## ieegio 0.1.4
 
+CRAN release: 2026-11-05
+
 - Fixed `io_h5_valid(mode = "w")` and `LazyH5` treating write-protected
   files as writable with the `h5lite` back-end from version 2.2.0.0,
   where `h5_open` no longer opens existing files for writing
